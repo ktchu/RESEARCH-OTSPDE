@@ -1,0 +1,16 @@
+
+Plot Generation Times
+---------------------
+
+* 1D Diffusion Equation, No Source Term: 38s
+* 1D Diffusion Equation, Source Term: 188s
+* 1D Advection-Diffusion Equation: 3.5s
+* 1D Burgers Equation: 3.6s
+* 1D Fourth-order Parabolic Equation: 14700s
+
+* 2D Advection Equation: 5s
+* 2D Diffusion Equation, Square Domain, No Source Term: 9200s
+* 2D Diffusion Equation, Square Domain, Source Term:  18000s
+* 2D Diffusion Equation, Irregular Domain:  3100s
+* 2D Reaction-Diffusion Equation, Irregular Domain: 
+
