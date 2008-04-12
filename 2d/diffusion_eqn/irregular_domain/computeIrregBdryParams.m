@@ -44,7 +44,7 @@
 %                          that the Lagrange interpolation formula used to
 %                          fill edge ghost cells is stable.  To use the 
 %                          default value, set extrap_tol to -1.
-%                          ( default = 4*dx^(1.5) )
+%                          ( default = dx )
 %  
 %
 % Return values:
@@ -119,7 +119,7 @@ if (nargin < 7 | zero_level_set_tol == -1)
   zero_level_set_tol = 3*dx^2;
 end
 if (nargin < 8 | extrap_tol == -1)
-  extrap_tol = 4*dx^(1.5);
+  extrap_tol = dx;
 end
 
 % compute indices of interior and exterior grid points
