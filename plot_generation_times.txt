@@ -12,5 +12,3 @@ Plot Generation Times
 * 2D Diffusion Equation, Square Domain, No Source Term: 9200s
 * 2D Diffusion Equation, Square Domain, Source Term:  18000s
 * 2D Diffusion Equation, Irregular Domain:  3100s
-* 2D Reaction-Diffusion Equation, Irregular Domain: 
-
