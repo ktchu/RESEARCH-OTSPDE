@@ -192,7 +192,6 @@ if (bc_interpolant_order == 1)
       phi_values = [phi(idx-2) phi(idx-1) phi(idx) phi(idx+1)];
       Y_values = [Y(idx-2) Y(idx-1) Y(idx) Y(idx+1)];
       y_b = y_g - phi_g*(Y(idx-1)-y_g)/(phi(idx-1)-phi_g);
-      y_b = locate_interface(phi_values, Y_values, y_b);
       x_edge_bc_bdry_pts(i) = x_g;
       y_edge_bc_bdry_pts(i) = y_b;
 
@@ -221,7 +220,6 @@ if (bc_interpolant_order == 1)
       phi_values = [phi(idx-1) phi(idx) phi(idx+1) phi(idx+2)];
       Y_values = [Y(idx-1) Y(idx) Y(idx+1) Y(idx+2)];
       y_b = y_g - phi_g*(Y(idx+1)-y_g)/(phi(idx+1)-phi_g);
-      y_b = locate_interface(phi_values, Y_values, y_b);
       x_edge_bc_bdry_pts(i) = x_g;
       y_edge_bc_bdry_pts(i) = y_b;
 
@@ -250,7 +248,6 @@ if (bc_interpolant_order == 1)
       phi_values = [phi(idx-2*N) phi(idx-N) phi(idx) phi(idx+N)];
       X_values = [X(idx-2*N) X(idx-N) X(idx) X(idx+N)];
       x_b = x_g - phi_g*(X(idx-N)-x_g)/(phi(idx-N)-phi_g);
-      x_b = locate_interface(phi_values, X_values, x_b);
       x_edge_bc_bdry_pts(i) = x_b;
       y_edge_bc_bdry_pts(i) = y_g;
 
@@ -279,7 +276,6 @@ if (bc_interpolant_order == 1)
       phi_values = [phi(idx-N) phi(idx) phi(idx+N) phi(idx+2*N)];
       X_values = [X(idx-N) X(idx) X(idx+N) X(idx+2*N)];
       x_b = x_g - phi_g*(X(idx+N)-x_g)/(phi(idx+N)-phi_g);
-      x_b = locate_interface(phi_values, X_values, x_b);
       x_edge_bc_bdry_pts(i) = x_b;
       y_edge_bc_bdry_pts(i) = y_g;
 
@@ -330,7 +326,6 @@ elseif (bc_interpolant_order == 2)
       phi_values = [phi(idx-2) phi(idx-1) phi(idx) phi(idx+1)];
       Y_values = [Y(idx-2) Y(idx-1) Y(idx) Y(idx+1)];
       y_b = y_g - phi_g*(Y(idx-1)-y_g)/(phi(idx-1)-phi_g);
-      y_b = locate_interface(phi_values, Y_values, y_b);
       x_edge_bc_bdry_pts(i) = x_g;
       y_edge_bc_bdry_pts(i) = y_b;
 
@@ -367,7 +362,6 @@ elseif (bc_interpolant_order == 2)
       phi_values = [phi(idx-1) phi(idx) phi(idx+1) phi(idx+2)];
       Y_values = [Y(idx-1) Y(idx) Y(idx+1) Y(idx+2)];
       y_b = y_g - phi_g*(Y(idx+1)-y_g)/(phi(idx+1)-phi_g);
-      y_b = locate_interface(phi_values, Y_values, y_b);
       x_edge_bc_bdry_pts(i) = x_g;
       y_edge_bc_bdry_pts(i) = y_b;
 
@@ -404,7 +398,6 @@ elseif (bc_interpolant_order == 2)
       phi_values = [phi(idx-2*N) phi(idx-N) phi(idx) phi(idx+N)];
       X_values = [X(idx-2*N) X(idx-N) X(idx) X(idx+N)];
       x_b = x_g - phi_g*(X(idx-N)-x_g)/(phi(idx-N)-phi_g);
-      x_b = locate_interface(phi_values, X_values, x_b);
       x_edge_bc_bdry_pts(i) = x_b;
       y_edge_bc_bdry_pts(i) = y_g;
 
@@ -441,7 +434,6 @@ elseif (bc_interpolant_order == 2)
       phi_values = [phi(idx-N) phi(idx) phi(idx+N) phi(idx+2*N)];
       X_values = [X(idx-N) X(idx) X(idx+N) X(idx+2*N)];
       x_b = x_g - phi_g*(X(idx+N)-x_g)/(phi(idx+N)-phi_g);
-      x_b = locate_interface(phi_values, X_values, x_b);
       x_edge_bc_bdry_pts(i) = x_b;
       y_edge_bc_bdry_pts(i) = y_g;
 
@@ -500,7 +492,6 @@ elseif (bc_interpolant_order == 3)
       phi_values = [phi(idx-2) phi(idx-1) phi(idx) phi(idx+1)];
       Y_values = [Y(idx-2) Y(idx-1) Y(idx) Y(idx+1)];
       y_b = y_g - phi_g*(Y(idx-1)-y_g)/(phi(idx-1)-phi_g);
-      y_b = locate_interface(phi_values, Y_values, y_b);
       x_edge_bc_bdry_pts(i) = x_g;
       y_edge_bc_bdry_pts(i) = y_b;
 
@@ -547,7 +538,6 @@ elseif (bc_interpolant_order == 3)
       phi_values = [phi(idx-1) phi(idx) phi(idx+1) phi(idx+2)];
       Y_values = [Y(idx-1) Y(idx) Y(idx+1) Y(idx+2)];
       y_b = y_g - phi_g*(Y(idx+1)-y_g)/(phi(idx+1)-phi_g);
-      y_b = locate_interface(phi_values, Y_values, y_b);
       x_edge_bc_bdry_pts(i) = x_g;
       y_edge_bc_bdry_pts(i) = y_b;
 
@@ -594,7 +584,6 @@ elseif (bc_interpolant_order == 3)
       phi_values = [phi(idx-2*N) phi(idx-N) phi(idx) phi(idx+N)];
       X_values = [X(idx-2*N) X(idx-N) X(idx) X(idx+N)];
       x_b = x_g - phi_g*(X(idx-N)-x_g)/(phi(idx-N)-phi_g);
-      x_b = locate_interface(phi_values, X_values, x_b);
       x_edge_bc_bdry_pts(i) = x_b;
       y_edge_bc_bdry_pts(i) = y_g;
 
@@ -642,7 +631,6 @@ elseif (bc_interpolant_order == 3)
       phi_values = [phi(idx-N) phi(idx) phi(idx+N) phi(idx+2*N)];
       X_values = [X(idx-N) X(idx) X(idx+N) X(idx+2*N)];
       x_b = x_g - phi_g*(X(idx+N)-x_g)/(phi(idx+N)-phi_g);
-      x_b = locate_interface(phi_values, X_values, x_b);
       x_edge_bc_bdry_pts(i) = x_b;
       y_edge_bc_bdry_pts(i) = y_g;
 
@@ -764,15 +752,14 @@ elseif ( bc_interpolant_order == 3 )
     success = 0;  % initialize success to false
 
     % compute coefficients in interpolation formula
-
-    coefs_corner_bc_interp_pts(i,1) = 1.25;
-    coefs_corner_bc_interp_pts(i,2) = 1.25;
-    coefs_corner_bc_interp_pts(i,3) = -0.25;
-    coefs_corner_bc_interp_pts(i,4) = -1;
-    coefs_corner_bc_interp_pts(i,5) = -0.25;
-    coefs_corner_bc_interp_pts(i,6) = -0.25;
-    coefs_corner_bc_interp_pts(i,7) = -0.25;
-    coefs_corner_bc_interp_pts(i,8) = 0.5;
+    coefs_corner_bc_interp_pts(i,1) = 2;
+    coefs_corner_bc_interp_pts(i,2) = 2;
+    coefs_corner_bc_interp_pts(i,3) = -1;
+    coefs_corner_bc_interp_pts(i,4) = -4;
+    coefs_corner_bc_interp_pts(i,5) = -1;
+    coefs_corner_bc_interp_pts(i,6) = 2;
+    coefs_corner_bc_interp_pts(i,7) = 2;
+    coefs_corner_bc_interp_pts(i,8) = -1;
 
     % compute positions and indices of interpolation points
     if ( grid_map_in(idx-1-N) )
