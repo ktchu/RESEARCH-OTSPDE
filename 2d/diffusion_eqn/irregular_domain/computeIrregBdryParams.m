@@ -19,7 +19,7 @@
 %            idx_corner_bc_interp_pts, ... 
 %            coefs_corner_bc_interp_pts] = ... 
 %    computeIrregBdryParams(X, Y, N, dx, phi, 
-%                           bc_interpolant_order, ...
+%                           bc_order, ...
 %                           zero_level_set_tol, extrap_tol)
 %
 % Arguments:
@@ -28,11 +28,10 @@
 % - dx:                    grid spacing
 % - phi:                   function whose zero level set defines the boundary
 %                          of the domain.  phi must be in vector form.
-% - bc_interpolant_order:  order of polynomial interpolant used to
-%                          extend boundary conditions from zero level
-%                          set to ghost cells.  Linear (=1), quadratic (=2)
-%                          and cubic (=3) interpolation are supported.
-%                          ( default = 3 )
+% - bc_order:              order of accuracy of values of the solution 
+%                          in the ghost cells.  Linear (=2), quadratic (=3)
+%                          and cubic (=4) extrapolation are supported.
+%                          ( default = 4 )
 % - zero_level_set_tol:    tolerance used to identify grid points that 
 %                          should be treated as being on the zero level set.
 %                          To use the default value, set zero_level_set_tol 
@@ -57,7 +56,7 @@
 % - idx_ghostcells_corner:       indices of corner ghostcells
 % - idx_edge_bc_interp_pts:      indices of grid points used to fill
 %                                edge ghost cells
-% - coefs_edge_bc_interp_pts:    coefficients of extrapolation formula
+% - coefs_edge_bc_interp_pts:    coefficients of interpolation formula
 %                                used to fill edge ghost cells
 % - x_edge_bc_bdry_pts:          x-coordinate of boundary points used
 %                                in computation of edge ghost cell values
@@ -65,7 +64,7 @@
 %                                in computation of edge ghost cell values
 % - idx_corner_bc_interp_pts:    indices of grid points used to fill
 %                                corner ghost cells
-% - coefs_corner_bc_interp_pts:  coefficients of extrapolation formula
+% - coefs_corner_bc_interp_pts:  coefficients of interpolation formula
 %                                used to fill corner ghost cells
 %
 % NOTES:
@@ -85,6 +84,15 @@
 % CHANGE LOG:
 % -----------
 % 2008/02:  Initial version of code extracted from solver functions.
+% 2008/04:  Modified code in following ways:
+%           - Location of boundary point uses linear instead of cubic
+%             interpolant. 
+%           - Changed formula for corner ghostcells to be fourth-order
+%             accurate when bc_order = 4.  It used to be only third-order
+%             accurate.
+%           - Changed bc_order to refer to the order of accuracy for
+%             the values of the solution in the ghostcells.
+%           - Shortened the name of some variables.
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -107,13 +115,16 @@ function [idx_in, ...
           idx_corner_bc_interp_pts, ... 
           coefs_corner_bc_interp_pts] = ... 
   computeIrregBdryParams(X, Y, N, dx, phi, ...
-                         bc_interpolant_order, ...
+                         bc_order, ...
                          zero_level_set_tol, extrap_tol)
 
 
 % check arguments
-if (nargin < 6)
+if (nargin < 5)
   error('computeIrregBdryParams: missing arguments');
+end
+if (nargin < 6)
+  bc_order = 4;
 end
 if (nargin < 7 | zero_level_set_tol == -1)
   zero_level_set_tol = 3*dx^2;
@@ -171,7 +182,7 @@ idx_ghostcells_corner = setxor(idx_ghostcells,idx_ghostcells_edge);
 
 % parameters for "edge" ghostcells (i.e. ghostcells connected to 
 % nearest interior grid cells by an edge)
-if (bc_interpolant_order == 1)
+if (bc_order == 2)
 
   num_edge_ghostcells = length(idx_ghostcells_edge);
   idx_edge_bc_interp_pts = zeros(num_edge_ghostcells,1);
@@ -305,7 +316,7 @@ if (bc_interpolant_order == 1)
 
   end % end loop over edge ghostcells
 
-elseif (bc_interpolant_order == 2)
+elseif (bc_order == 3)
 
   num_edge_ghostcells = length(idx_ghostcells_edge);
   idx_edge_bc_interp_pts = zeros(num_edge_ghostcells,2);
@@ -471,7 +482,7 @@ elseif (bc_interpolant_order == 2)
 
   end % end loop over edge ghostcells
 
-elseif (bc_interpolant_order == 3)
+elseif (bc_order == 4)
 
   num_edge_ghostcells = length(idx_ghostcells_edge);
   idx_edge_bc_interp_pts = zeros(num_edge_ghostcells,3);
@@ -691,8 +702,8 @@ num_corner_ghostcells = length(idx_ghostcells_corner);
 idx_corner_bc_interp_pts = zeros(num_corner_ghostcells,3);
 coefs_corner_bc_interp_pts = zeros(num_corner_ghostcells,3);
 
-if ( bc_interpolant_order == 1 ...
-   | bc_interpolant_order == 2 )
+if ( bc_order == 2 ...
+   | bc_order == 3 )
 
   % linear extrapolation for corner points is sufficient
   % to obtain a second- or third-order accurate solution
@@ -736,7 +747,7 @@ if ( bc_interpolant_order == 1 ...
 
   end % end loop over corner ghostcells
 
-elseif ( bc_interpolant_order == 3 ) 
+elseif ( bc_order == 4 ) 
 
   % quadratic extrapolation for corner points is required 
   % to obtain a fourth-order accurate solution

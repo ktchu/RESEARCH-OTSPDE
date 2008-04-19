@@ -20,8 +20,8 @@ format compact
 % physical parameters
 D = 2.0;  % diffusion coefficient
 
-% order of polynomial interpolant for imposing boundary condition
-bc_interpolant_order = 3;
+% order of accuracy for ghostcells
+bc_interpolant_order = 4;
 
 % time integration parameters
 t_init  = 0.0;
@@ -29,8 +29,6 @@ t_final = 0.01;
 t_final = 0.001;
 
 % set dt and dx
-N = 800;
-N = 200;
 N = 100;
 dx = 2.0/N;
 dt_FE = dx^2/D/4;
@@ -67,8 +65,7 @@ timing_on = 1;
 % set zero_level_set_tol and extrap_tol
 zero_level_set_tol = -1;
 extrap_tol = -1;
-extrap_tol = 4*dx^1.5;
-extrap_tol = 0.25*dx;
+extrap_tol = dx;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

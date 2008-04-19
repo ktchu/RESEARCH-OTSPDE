@@ -14,9 +14,8 @@
 % source term is used.  
 %
 % The Dirichlet boundary conditions are provided by the exact analytical
-% solution to the problem on the domain -1 < x < 1.  The value of u
-% in the ghostcells may be set to linear, quadratic, or cubic via the
-% variable bc_interpolant_order.
+% solution to the problem on the domain -1 < x < 1.  The order of accuracy of 
+% u in the ghostcells may be set via the bc_order argument.
 %
 % USAGE:
 %  function [u, u_exact, X, Y, timing_data, idx_ghostcells], ...
@@ -25,7 +24,7 @@
 %                                    phi, ...
 %                                    dx, dt, ...
 %                                    t_final, ...
-%                                    bc_interpolant_order, ...
+%                                    bc_order, ...
 %                                    debug_on, timing_on, ...
 %                                    zero_level_set_tol, extrap_tol)
 %
@@ -48,11 +47,10 @@
 % - dx:                    grid spacing
 % - dt:                    time step
 % - t_final:               final time
-% - bc_interpolant_order:  order of polynomial interpolant used to 
-%                          extend boundary conditions from zero level 
-%                          set to ghost cells.  Linear (=1), quadratic (=2) 
-%                          and cubic (=3) interpolation are supported.
-%                          (default = 3)
+% - bc_order:              order of accuracy of values of the solution 
+%                          in the ghost cells.  Linear (=2), quadratic (=3)
+%                          and cubic (=4) extrapolation are supported.
+%                          ( default = 4 )
 % - debug_on:              flag indicating whether debugging information
 %                          should be displayed.  To turn on debugging,
 %                          set debug_on to 1.
@@ -114,7 +112,7 @@ function [u, u_exact, X, Y, timing_data, idx_ghostcells] = ...
                                   phi, ...
                                   dx, dt, ...
                                   t_final, ...
-                                  bc_interpolant_order, ...
+                                  bc_order, ...
                                   debug_on, timing_on, ...
                                   zero_level_set_tol, extrap_tol)
 
@@ -123,7 +121,7 @@ if (nargin < 6)
   error('solveDiffusionEqnForwardEuler2d: missing arguments');
 end
 if (nargin < 7)
-  bc_interpolant_order = 3;
+  bc_order = 4;
 end
 if (nargin < 8)
   debug_on = 0;
@@ -182,7 +180,7 @@ end
  x_edge_bc_bdry_pts, y_edge_bc_bdry_pts, ...
  idx_corner_bc_interp_pts, coefs_corner_bc_interp_pts] = ...   
   computeIrregBdryParams(X, Y, N, dx, phi, ...
-                         bc_interpolant_order, ...
+                         bc_order, ...
                          zero_level_set_tol, extrap_tol);
 
 
@@ -397,20 +395,20 @@ while (t < t_final)
   u(idx_bdry) = u_bdry;
 
   % fill edge ghost cells by extrapolating from interior
-  if ( bc_interpolant_order == 1 )
+  if ( bc_order == 2 )
 
     u(idx_ghostcells_edge) = ...
         coefs_edge_bc_bdry_pts.*u_bdry_edge ...
       + coefs_edge_bc_interp_pts.*u(idx_edge_bc_interp_pts);
 
-  elseif ( bc_interpolant_order == 2 )
+  elseif ( bc_order == 3 )
 
     u(idx_ghostcells_edge) = ...
         coefs_edge_bc_bdry_pts.*u_bdry_edge ...
       + coefs_edge_bc_interp_pts(:,1).*u(idx_edge_bc_interp_pts(:,1)) ...
       + coefs_edge_bc_interp_pts(:,2).*u(idx_edge_bc_interp_pts(:,2));
 
-  elseif ( bc_interpolant_order == 3 )
+  elseif ( bc_order == 4 )
 
     u(idx_ghostcells_edge) = ...
         coefs_edge_bc_bdry_pts.*u_bdry_edge ...
@@ -426,8 +424,8 @@ while (t < t_final)
 
   % fill corner ghost cells by extrapolating from interior
   % and edge ghost cells
-  if ( bc_interpolant_order == 1 ...
-     | bc_interpolant_order == 2 )
+  if ( bc_order == 2 ...
+     | bc_order == 3 )
 
     % linear extrapolation for corner points is sufficient
     % to obtain a second- or third-order accurate solution
@@ -437,7 +435,7 @@ while (t < t_final)
       + coefs_corner_bc_interp_pts(:,2).*u(idx_corner_bc_interp_pts(:,2)) ...
       + coefs_corner_bc_interp_pts(:,3).*u(idx_corner_bc_interp_pts(:,3));
 
-  elseif ( bc_interpolant_order == 3 )
+  elseif ( bc_order == 4 )
 
     % quadratic extrapolation for corner points is required
     % to obtain a fourth-order accurate solution
