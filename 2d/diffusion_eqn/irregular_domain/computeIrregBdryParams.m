@@ -692,7 +692,7 @@ elseif (bc_order == 4)
 
 else
 
-  error('Invalid order for polynomial interpolant.  Valid orders = 1, 2, and 3.');
+  error('Invalid order for polynomial interpolant.  Valid orders = 2, 3, and 4.');
 
 end
 
@@ -831,6 +831,6 @@ elseif ( bc_order == 4 )
   end % end loop over corner ghostcells
 
 else
-    error('Invalid order for polynomial interpolant.  Valid orders = 1, 2, and 3.');
+    error('Invalid order for polynomial interpolant.  Valid orders = 2, 3, and 4.');
 
 end
