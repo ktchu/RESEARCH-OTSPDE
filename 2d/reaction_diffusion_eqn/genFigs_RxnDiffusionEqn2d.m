@@ -29,7 +29,7 @@ end
 
 % set flag for loading data from saved files (instead of recomputing solution)
 use_saved_data = 1;
-data_dir = 'data-rxn_diff_eqn_2d_src';
+data_dir = 'data-RxnDiffusionEqn2d-Src';
 if ~exist(data_dir, 'dir')
   mkdir(data_dir);
 end
