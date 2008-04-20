@@ -28,8 +28,8 @@ if ~exist(fig_dir, 'dir')
 end
 
 % set flag for loading data from saved files (instead of recomputing solution)
-use_saved_data = 1;
-data_dir = 'data-burgers_eqn_1d_single_hump';
+use_saved_data = 0;
+data_dir = 'data-burgers_eqn_1d-single_hump';
 if ~exist(data_dir, 'dir')
   mkdir(data_dir);
 end
@@ -47,7 +47,7 @@ R  = 10.0;  % effective Reynolds number
 t_final = 2.0;
 
 % grid sizes to collect data on
-grid_sizes = [100 200 400 800];
+grid_sizes = [50 100 200 400 800];
 
 % allocate memory for errors
 err_FE_OTS = zeros(size(grid_sizes));
@@ -88,7 +88,7 @@ for i = 1:length(grid_sizes)
 
     % set dx and dt
     dx = 10.0/N;
-    dt_FE = dx^2/3/nu;
+    dt_FE = dx^2/4/nu;
 
     % solve viscous Burgers equation using forward Euler with OTS
     disp('Forward Euler OTS');
@@ -177,7 +177,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 P_FE_OTS = polyfit(log(grid_sizes),log(err_FE_OTS),1);
 order_FE_OTS = -P_FE_OTS(1);
-P_FE = polyfit(log(grid_sizes),log(err_FE),1);
+P_FE = polyfit(log(grid_sizes(2:end)),log(err_FE(2:end)),1);
 order_FE = -P_FE(1);
 
 
@@ -185,27 +185,28 @@ order_FE = -P_FE(1);
 % Plot Results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure(1); clf;
-N_plot = [100 1000];
+N_plot = [10 1000];
 loglog(N_plot,exp(log(N_plot)*P_FE_OTS(1)+P_FE_OTS(2)),'k');
 hold on;
 plot(grid_sizes,err_FE_OTS, 'go', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','g');
 order_str = sprintf('Forward Euler (OTS)\nOrder = %1.1f', order_FE_OTS);
-text(150,1.5e-6,order_str);
+text(45,1e-5,order_str);
 
-N_plot = [100 1000];
 loglog(N_plot,exp(log(N_plot)*P_FE(1)+P_FE(2)),'k');
 hold on;
 plot(grid_sizes,err_FE, 'bs', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
 order_str = sprintf('Forward Euler\nOrder = %1.1f', order_FE);
-text(300,1e-1,order_str);
+text(250,1e-1,order_str);
 
-axis([99.9 1000 1e-8 1e0]);
+axis([10 1000 1e-7 1e0]);
 xlabel('N');
 ylabel('L^\infty Error');
+set(gca, 'YTick', 10.^[-7:0]);
+set(gca, 'YMinorTick', 'off');
 filename = sprintf('burgers_eqn_1d_error_vs_N.%s',print_format);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
