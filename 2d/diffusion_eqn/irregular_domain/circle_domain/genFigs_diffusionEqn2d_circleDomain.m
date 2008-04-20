@@ -57,7 +57,7 @@ t_final = 0.1;
 bc_order = 4;
 
 % grid sizes to collect data on
-grid_sizes = [50 100 200 400];
+grid_sizes = [50 100 200 400 800];
 
 % allocate memory for errors
 err_FE_OTS = zeros(1, length(grid_sizes));
