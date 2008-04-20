@@ -22,6 +22,7 @@ set(0,'DefaultTextFontSize',18,'DefaultTextFontName','Helvetica')
 
 % set print format
 use_color_figures = 1;
+print_suffix = 'eps';
 if use_color_figures
   print_format = 'epsc';
 else
@@ -219,7 +220,7 @@ text(150,4e-3,order_str);
 axis([10 1000 1e-10 1e0]);
 xlabel('N');
 ylabel('L^\infty Error');
-filename = sprintf('4th_order_parabolic_eqn_1d_error_vs_N.%s',print_format);
+filename = sprintf('4th_order_parabolic_eqn_1d_error_vs_N.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
@@ -250,7 +251,7 @@ axis([1e-10 1e0 1e-4 1e4]);
 set(gca, 'xtick', [1e-12 1e-10 1e-8 1e-6 1e-4 1e-2]);
 xlabel('L^\infty Error');
 ylabel('Compute Time');
-filename = sprintf('4th_order_parabolic_eqn_1d_comp_time.%s',print_format);
+filename = sprintf('4th_order_parabolic_eqn_1d_comp_time.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
@@ -261,7 +262,7 @@ hold on;
 plot(x,u_exact,'r')
 xlabel('x');
 %title('Forward Euler OTS Solution')
-filename = sprintf('4th_order_parabolic_eqn_1d_FE_OTS_soln.%s',print_format);
+filename = sprintf('4th_order_parabolic_eqn_1d_FE_OTS_soln.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
@@ -271,7 +272,7 @@ hold on;
 plot(x,u_exact,'r')
 xlabel('x');
 %title('Forward Euler Solution')
-filename = sprintf('4th_order_parabolic_eqn_1d_FE_soln.%s',print_format);
+filename = sprintf('4th_order_parabolic_eqn_1d_FE_soln.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 

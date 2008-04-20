@@ -27,7 +27,13 @@ set(0,'DefaultLineLineWidth',2)
 set(0,'DefaultTextFontSize',18,'DefaultTextFontName','Helvetica')
 
 % set print format
-print_format = 'eps';
+use_color_figures = 1;
+print_suffix = 'eps';
+if use_color_figures 
+  print_format = 'epsc';
+else
+  print_format = 'eps';
+end
 fig_dir = 'figures';
 if ~exist(fig_dir, 'dir')
   mkdir(fig_dir);
@@ -338,8 +344,8 @@ text(250,1e-2,order_str);
 axis([10 1000 1e-8 1e0]);
 xlabel('N');
 ylabel('L^\infty Error');
-filename = sprintf('diff_eqn_2d_irreg_domain_error_vs_N.%s',print_format);
-format_str = sprintf('-d%s',print_format);
+filename = sprintf('diffusion_eqn_2d_irreg_domain_error_vs_N.%s', print_suffix);
+format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 
@@ -396,15 +402,14 @@ text(4e-4,3e2,order_str);
 axis([1e-8 1e0 1e-4 1e4]);
 xlabel('L^\infty Error');
 ylabel('Compute Time');
-filename = sprintf('diff_eqn_2d_src_comp_time.%s',print_format);
-format_str = sprintf('-d%s',print_format);
+filename = sprintf('diffusion_eqn_2d_src_comp_time.%s', print_suffix);
+format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 figure(3); clf;
 if (use_color_mesh_figures)
   mesh(X_plot, Y_plot, u_FE_OTS_plot);
   colormap('default');
-  brighten(-0.75);
 else
   % black and white
   mesh(X_plot, Y_plot, u_FE_OTS_plot, ones(size(X_plot)));
@@ -414,39 +419,8 @@ end
 xlabel('x'); ylabel('y'); 
 axis([-1 1 -1 1 -2 2]);
 view(127.5, 55);
-filename = sprintf('diff_eqn_2d_irreg_domain_soln.%s',print_format);
-format_str = sprintf('-d%s',print_format);
-print([fig_dir, '/', filename], format_str);
-
-figure(4), clf;
-%if (use_color_mesh_figures)
-%  mesh(X_plot, Y_plot, err_plot);
-%  colormap('default');
-%  brighten(-0.75);
-%else
-%  % black and white
-%  mesh(X_plot, Y_plot, err_plot, ones(size(X_plot)));
-%  colormap([1 1 1; 0 0 0]);
-%end
-%view(127.5, 55);
-
-%idx = find( phi > 0 );
-%err(idx) = 0;
-%pcolor(reshape(X, N+1, N+1), ...
-%       reshape(Y, N+1, N+1), ...
-%       reshape(err, N+1, N+1));
-%shading interp
-contour(reshape(X,N+1,N+1), ...
-        reshape(Y,N+1,N+1), ...
-        reshape(phi,N+1,N+1),[0 0], ...
-        'LineColor','k','LineWidth',2);
-hold on
-idx = find(abs(err) > 0.10*norm(err,inf));
-plot(X(idx), Y(idx), 'ko', 'MarkerFaceColor', 'k');
-
-xlabel('x'); ylabel('y'); 
-filename = sprintf('diff_eqn_2d_irreg_domain_error.%s',print_format);
-format_str = sprintf('-d%s',print_format);
+filename = sprintf('diffusion_eqn_2d_irreg_domain_soln.%s', print_suffix);
+format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 

@@ -26,6 +26,7 @@ set(0,'DefaultTextFontSize',18,'DefaultTextFontName','Helvetica')
 
 % set print format
 use_color_figures = 1;
+print_suffix = 'eps';
 if use_color_figures 
   print_format = 'epsc';
 else
@@ -241,8 +242,9 @@ xlabel('N');
 ylabel('L^\infty Error');
 set(gca, 'YTick', 10.^[-8:-1]);
 set(gca, 'YMinorTick', 'off');
-filename = sprintf('diffusion_eqn_2d_circle_domain_error_vs_N.%s',print_format);
-format_str = sprintf('-d%s',print_format);
+filename = sprintf('diffusion_eqn_2d_circle_domain_error_vs_N.%s', ...
+                   print_suffix);
+format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 
@@ -270,17 +272,15 @@ xlabel('L^\infty Error');
 ylabel('Compute Time');
 set(gca, 'YTick', 10.^[-2:5]);
 set(gca, 'YMinorTick', 'off');
-filename = sprintf('diffusion_eqn_2d_circle_domain_comp_time.%s',print_format);
-format_str = sprintf('-d%s',print_format);
+filename = sprintf('diffusion_eqn_2d_circle_domain_comp_time.%s', ...
+                   print_suffix);
+format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 figure(3); clf;
 if (use_color_figures)
-  %surf(X_plot, Y_plot, u_FE_OTS_plot);
-  %colormap('default');
   mesh(X_plot, Y_plot, u_FE_OTS_plot);
   colormap('default');
-  brighten(-0.75);
 else
   % black and white
   mesh(X_plot, Y_plot, u_FE_OTS_plot, ones(size(X_plot)));
@@ -290,8 +290,8 @@ end
 xlabel('x'); ylabel('y'); 
 axis([-1 1 -1 1 -2 2]);
 view(127.5, 55);
-filename = sprintf('diffusion_eqn_2d_circle_domain_soln.%s',print_format);
-format_str = sprintf('-d%s',print_format);
+filename = sprintf('diffusion_eqn_2d_circle_domain_soln.%s', print_suffix);
+format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 figure(4), clf;
@@ -304,8 +304,8 @@ idx = find(abs(err) > 0.25*norm(err,inf));
 plot(X(idx), Y(idx), 'ko', 'MarkerFaceColor', 'k');
 
 xlabel('x'); ylabel('y'); 
-filename = sprintf('diffusion_eqn_2d_circle_domain_error.%s',print_format);
-format_str = sprintf('-d%s',print_format);
+filename = sprintf('diffusion_eqn_2d_circle_domain_error.%s', print_suffix);
+format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 

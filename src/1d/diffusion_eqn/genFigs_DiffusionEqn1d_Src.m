@@ -22,6 +22,7 @@ set(0,'DefaultTextFontSize',18,'DefaultTextFontName','Helvetica')
 
 % set print format
 use_color_figures = 1;
+print_suffix = 'eps';
 if use_color_figures
   print_format = 'epsc';
 else
@@ -274,7 +275,7 @@ text(50,3e-2,order_str);
 axis([10 1000 1e-10 1]);
 xlabel('N');
 ylabel('L^\infty Error');
-filename = sprintf('diffusion_eqn_1d_src_error_vs_N.%s',print_format);
+filename = sprintf('diffusion_eqn_1d_src_error_vs_N.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
@@ -314,7 +315,7 @@ text(1e-6,2e3,order_str);
 axis([1e-10 1e-2 1e-2 1e4]);
 xlabel('L^\infty Error');
 ylabel('Compute Time');
-filename = sprintf('diffusion_eqn_2d_no_src_comp_time.%s',print_format);
+filename = sprintf('diffusion_eqn_2d_no_src_comp_time.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 
 
@@ -324,7 +325,7 @@ hold on;
 plot(x,u_exact,'r')
 xlabel('x');
 %title('Forward Euler OTS Solution')
-filename = sprintf('diffusion_eqn_1d_src_FE_OTS_soln.%s',print_format);
+filename = sprintf('diffusion_eqn_1d_src_FE_OTS_soln.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
@@ -334,7 +335,7 @@ hold on;
 plot(x,u_exact,'r')
 xlabel('x');
 %title('Forward Euler Solution')
-filename = sprintf('diffusion_eqn_1d_src_FE_soln.%s',print_format);
+filename = sprintf('diffusion_eqn_1d_src_FE_soln.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
@@ -344,7 +345,7 @@ hold on;
 plot(x,u_exact,'r')
 xlabel('x');
 %title('Crank-Nicholson Solution')
-filename = sprintf('diffusion_eqn_1d_src_CN_soln.%s',print_format);
+filename = sprintf('diffusion_eqn_1d_src_CN_soln.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 

@@ -22,6 +22,7 @@ set(0,'DefaultTextFontSize',18,'DefaultTextFontName','Helvetica')
 
 % set print format
 use_color_figures = 1;
+print_suffix = 'eps';
 if use_color_figures
   print_format = 'epsc';
 else
@@ -237,8 +238,8 @@ text(140,9e-8,order_str);
 axis([10 1000 1e-12 1e-2]);
 xlabel('N');
 ylabel('L^\infty Error');
-filename = sprintf('diffusion_eqn_2d_no_src_error_vs_N.%s',print_format);
-format_str = sprintf('-d%s',print_format);
+filename = sprintf('diffusion_eqn_2d_no_src_error_vs_N.%s', print_suffix);
+format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 
@@ -278,8 +279,8 @@ axis([1e-12 1e-2 1e-4 1e4]);
 set(gca, 'xtick', [1e-12 1e-10 1e-8 1e-6 1e-4 1e-2]);
 xlabel('L^\infty Error');
 ylabel('Compute Time');
-filename = sprintf('diffusion_eqn_2d_no_src_comp_time.%s',print_format);
-format_str = sprintf('-d%s',print_format);
+filename = sprintf('diffusion_eqn_2d_no_src_comp_time.%s', print_suffix);
+format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 
@@ -287,24 +288,24 @@ figure(3); clf;
 surf(x_plot,y_plot,u_FE_OTS_plot);
 xlabel('x'); ylabel('y'); 
 %title('Forward Euler OTS Solution');
-filename = sprintf('diffusion_eqn_2d_no_src_FE_OTS_soln.%s',print_format);
-format_str = sprintf('-d%s',print_format);
+filename = sprintf('diffusion_eqn_2d_no_src_FE_OTS_soln.%s', print_suffix);
+format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 figure(4); clf;
 surf(x_plot,y_plot,u_FE_plot);
 xlabel('x'); ylabel('y'); 
 %title('Forward Euler Solution');
-filename = sprintf('diffusion_eqn_2d_no_src_FE_soln.%s',print_format);
-format_str = sprintf('-d%s',print_format);
+filename = sprintf('diffusion_eqn_2d_no_src_FE_soln.%s', print_suffix);
+format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 figure(5); clf;
 surf(x_plot,y_plot,u_CN_plot);
 xlabel('x'); ylabel('y'); 
 %title('Crank-Nicholson Solution');
-filename = sprintf('diffusion_eqn_2d_no_src_CN_soln.%s',print_format);
-format_str = sprintf('-d%s',print_format);
+filename = sprintf('diffusion_eqn_2d_no_src_CN_soln.%s', print_suffix);
+format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 

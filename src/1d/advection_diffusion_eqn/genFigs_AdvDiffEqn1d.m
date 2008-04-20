@@ -22,6 +22,7 @@ set(0,'DefaultTextFontSize',18,'DefaultTextFontName','Helvetica')
 
 % set print format
 use_color_figures = 1;
+print_suffix = 'eps';
 if use_color_figures
   print_format = 'epsc';
 else
@@ -212,7 +213,7 @@ text(200,4e-2,order_str);
 axis([10 1000 1e-10 1e0]);
 xlabel('N');
 ylabel('L^\infty Error');
-filename = sprintf('adv_diff_eqn_1d_error_vs_N.%s',print_format);
+filename = sprintf('adv_diff_eqn_1d_error_vs_N.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
@@ -223,7 +224,7 @@ plot(x,u_exact,'r')
 axis([-10 10 0 0.8]);
 xlabel('x');
 %title('Forward Euler OTS Solution')
-filename = sprintf('adv_diff_eqn_1d_FE_OTS_soln.%s',print_format);
+filename = sprintf('adv_diff_eqn_1d_FE_OTS_soln.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
@@ -234,7 +235,7 @@ plot(x,u_exact,'r')
 axis([-10 10 0 0.8]);
 xlabel('x');
 %title('Forward Euler Solution')
-filename = sprintf('adv_diff_eqn_1d_FE_soln.%s',print_format);
+filename = sprintf('adv_diff_eqn_1d_FE_soln.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 

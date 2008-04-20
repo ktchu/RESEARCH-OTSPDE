@@ -22,6 +22,7 @@ set(0,'DefaultTextFontSize',18,'DefaultTextFontName','Helvetica')
 
 % set print format
 use_color_figures = 1;
+print_suffix = 'eps';
 if use_color_figures
   print_format = 'epsc';
 else
@@ -106,7 +107,7 @@ mesh(X_plot, Y_plot, u_plot);
 axis([-10 10 -10 10 -0.1 1.1])
 xlabel('x'); ylabel('y'); 
 %title('Forward Euler OTS Solution');
-filename = sprintf('adv_eqn_2d_FE_OTS_soln.%s',print_format);
+filename = sprintf('adv_eqn_2d_FE_OTS_soln.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
@@ -121,7 +122,7 @@ mesh(X_plot, Y_plot, u_plot);
 axis([-10 10 -10 10 -0.1 1.1])
 xlabel('x'); ylabel('y'); 
 %title('Forward Euler Solution');
-filename = sprintf('adv_eqn_2d_FE_soln.%s',print_format);
+filename = sprintf('adv_eqn_2d_FE_soln.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
