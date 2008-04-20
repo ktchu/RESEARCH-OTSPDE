@@ -268,7 +268,7 @@ plot(grid_sizes,err_CN, 'rd', ...
 order_str = sprintf('Crank-Nicholson\nOrder = %1.1f', order_CN);
 text(200,2e-7,order_str);
 
-axis([10 1000 1e-10 1e-1]);
+axis([10 1000 1e-10 1]);
 xlabel('N');
 ylabel('L^\infty Error');
 filename = sprintf('diffusion_eqn_1d_no_src_error_vs_N.%s',print_format);
