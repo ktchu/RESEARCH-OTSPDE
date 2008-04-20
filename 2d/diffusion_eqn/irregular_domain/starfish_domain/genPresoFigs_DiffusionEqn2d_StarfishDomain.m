@@ -30,7 +30,6 @@ fig_dir = 'figures';
 if ~exist(fig_dir, 'dir')
   mkdir(fig_dir);
 end
-use_color_mesh_figures = 1;
 
 % set flag for loading data from saved files (instead of recomputing solution)
 use_saved_data = 1;
@@ -222,7 +221,7 @@ plot(grid_sizes, err_FE_OTS, 'go', ...
      'MarkerSize', 14, ...
      'MarkerFaceColor', 'g');
 order_str = sprintf('Forward Euler OTS\nOrder = %1.1f', order_FE_OTS);
-text(12,6e-4,order_str);
+text(30,1e-5,order_str);
 
 loglog(N_plot, exp(log(N_plot)*P_FE(1)+P_FE(2)), 'k');
 hold on;
@@ -274,17 +273,8 @@ format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
 figure(3); clf;
-if (use_color_mesh_figures)
-  surf(X_plot, Y_plot, u_FE_OTS_plot);
-  colormap('default');
-%  mesh(X_plot, Y_plot, u_FE_OTS_plot);
-%  colormap('default');
-%  brighten(-0.75);
-else
-  % black and white
-  mesh(X_plot, Y_plot, u_FE_OTS_plot, ones(size(X_plot)));
-  colormap([1 1 1; 0 0 0]);
-end
+surf(X_plot, Y_plot, u_FE_OTS_plot);
+colormap('default');
 
 xlabel('x'); ylabel('y'); 
 axis([-1 1 -1 1 0 3]);
@@ -294,23 +284,6 @@ format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
 figure(4), clf;
-%if (use_color_mesh_figures)
-%  mesh(X_plot, Y_plot, err_plot);
-%  colormap('default');
-%  brighten(-0.75);
-%else
-%  % black and white
-%  mesh(X_plot, Y_plot, err_plot, ones(size(X_plot)));
-%  colormap([1 1 1; 0 0 0]);
-%end
-%view(127.5, 55);
-
-%idx = find( phi > 0 );
-%err(idx) = 0;
-%pcolor(reshape(X, N+1, N+1), ...
-%       reshape(Y, N+1, N+1), ...
-%       reshape(err, N+1, N+1));
-%shading interp
 contour(reshape(X,N+1,N+1), ...
         reshape(Y,N+1,N+1), ...
         reshape(phi,N+1,N+1),[0 0], ...

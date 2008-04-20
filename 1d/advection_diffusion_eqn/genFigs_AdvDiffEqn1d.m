@@ -21,7 +21,12 @@ set(0,'DefaultLineLineWidth',2)
 set(0,'DefaultTextFontSize',18,'DefaultTextFontName','Helvetica')
 
 % set print format
-print_format = 'eps';
+use_color_figures = 1;
+if use_color_figures
+  print_format = 'epsc';
+else
+  print_format = 'eps';
+end
 fig_dir = 'figures';
 if ~exist(fig_dir, 'dir')
   mkdir(fig_dir);

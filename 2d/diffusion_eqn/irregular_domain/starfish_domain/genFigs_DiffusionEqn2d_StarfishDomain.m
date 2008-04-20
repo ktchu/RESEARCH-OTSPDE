@@ -25,12 +25,16 @@ set(0,'DefaultLineLineWidth',2)
 set(0,'DefaultTextFontSize',18,'DefaultTextFontName','Helvetica')
 
 % set print format
-print_format = 'eps';
+use_color_figures = 1;
+if use_color_figures 
+  print_format = 'epsc';
+else
+  print_format = 'eps';
+end
 fig_dir = 'figures';
 if ~exist(fig_dir, 'dir')
   mkdir(fig_dir);
 end
-use_color_mesh_figures = 1;
 
 % set flag for loading data from saved files (instead of recomputing solution)
 use_saved_data = 1;
@@ -221,7 +225,7 @@ plot(grid_sizes, err_FE_OTS, 'go', ...
      'MarkerSize', 14, ...
      'MarkerFaceColor', 'g');
 order_str = sprintf('Forward Euler OTS\nOrder = %1.1f', order_FE_OTS);
-text(12,6e-4,order_str);
+text(30,1e-5,order_str);
 
 loglog(N_plot, exp(log(N_plot)*P_FE(1)+P_FE(2)), 'k');
 hold on;
@@ -236,7 +240,7 @@ xlabel('N');
 ylabel('L^\infty Error');
 set(gca, 'YTick', 10.^[-8:-1]);
 set(gca, 'YMinorTick', 'off');
-filename = sprintf('diff_eqn_2d_irreg_domain_error_vs_N.%s',print_format);
+filename = sprintf('diffusion_eqn_2d_starfish_domain_error_vs_N.%s',print_format);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
@@ -265,12 +269,14 @@ xlabel('L^\infty Error');
 ylabel('Compute Time');
 set(gca, 'YTick', 10.^[-2:5]);
 set(gca, 'YMinorTick', 'off');
-filename = sprintf('diff_eqn_2d_src_comp_time.%s',print_format);
+filename = sprintf('diffusion_eqn_2d_starfish_domain_comp_time.%s',print_format);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
 figure(3); clf;
-if (use_color_mesh_figures)
+if (use_color_figures)
+  %surf(X_plot, Y_plot, u_FE_OTS_plot);
+  %colormap('default');
   mesh(X_plot, Y_plot, u_FE_OTS_plot);
   colormap('default');
   brighten(-0.75);
@@ -283,28 +289,11 @@ end
 xlabel('x'); ylabel('y'); 
 axis([-1 1 -1 1 -2 2]);
 view(127.5, 55);
-filename = sprintf('diff_eqn_2d_irreg_domain_soln.%s',print_format);
+filename = sprintf('diffusion_eqn_2d_starfish_domain_soln.%s',print_format);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
 figure(4), clf;
-%if (use_color_mesh_figures)
-%  mesh(X_plot, Y_plot, err_plot);
-%  colormap('default');
-%  brighten(-0.75);
-%else
-%  % black and white
-%  mesh(X_plot, Y_plot, err_plot, ones(size(X_plot)));
-%  colormap([1 1 1; 0 0 0]);
-%end
-%view(127.5, 55);
-
-%idx = find( phi > 0 );
-%err(idx) = 0;
-%pcolor(reshape(X, N+1, N+1), ...
-%       reshape(Y, N+1, N+1), ...
-%       reshape(err, N+1, N+1));
-%shading interp
 contour(reshape(X,N+1,N+1), ...
         reshape(Y,N+1,N+1), ...
         reshape(phi,N+1,N+1),[0 0], ...
@@ -315,7 +304,7 @@ plot(X(idx), Y(idx), 'ko', 'MarkerFaceColor', 'k');
 
 xlabel('x'); ylabel('y'); 
 axis square
-filename = sprintf('diff_eqn_2d_irreg_domain_error.%s',print_format);
+filename = sprintf('diffusion_eqn_2d_starfish_domain_error.%s',print_format);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
