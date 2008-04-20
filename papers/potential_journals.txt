@@ -1,0 +1,11 @@
+
+name                               impact factor    articles/year
+------------------------           -------------    -------------
+J Computational Physics              2.328            396
+SIAM J Numerical Analysis            1.335            137
+IMA J Numerical Analysis             1.159            38
+Applied Numerical Mathematics        0.835            100
+Applied Math & Computation           0.816            1208
+J Comput & Applied Math              0.759            420
+
+ACM Transactions Math Soft           1.298            34
