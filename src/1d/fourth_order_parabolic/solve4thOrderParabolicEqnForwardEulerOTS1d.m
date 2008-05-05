@@ -139,7 +139,7 @@ if (timing_on == 1)
   t_start = cputime;
 end
 
-% initialize temperature
+% initialize u
 u = 2*sin(2*pi*x) + sin(5*pi*x);
 
 % forward Euler time integration
