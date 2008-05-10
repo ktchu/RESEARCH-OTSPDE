@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Manuscript started: 2007/09/01
-% First draft: 2008/02/??, Vitamin D, Inc.
+% First draft: 2008/05/??, Vitamin D, Inc.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \documentclass[oneeqnum,onefignum,onetabnum,onethmnum]{siamltex}
@@ -14,7 +14,7 @@
        Time Dependent Partial Differential Equations}
 
 \author{
-Kevin T. Chu\footnotemark[2]
+Kevin T. Chu\footnotemark[2] \footnotemark[3]
 }
 
 \begin{document}
@@ -24,24 +24,32 @@ Kevin T. Chu\footnotemark[2]
 \renewcommand{\thefootnote}{\fnsymbol{footnote}}
 \footnotetext[2]{Vitamin D, Inc., Menlo Park, CA 94025} 
 
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\footnotetext[3]{Institute of High Performance Computing, A*STAR, Singapore, Singapore} 
+
 \renewcommand{\thefootnote}{\arabic{footnote}}
 
 
 \begin{abstract}
-In this article, we discuss a novel technique based on optimal time step 
-selection for boosting low-order finite difference schemes
-into higher-order numerical methods for time dependent partial differential
-equations (PDEs).  We demonstrate the utility of this technique on several 
-classical hyperbolic and parabolic problems in one and more space dimensions 
-and explain the observed orders of convergence through straightforward numerical
-analysis arguments.
-** HIGH-ORDER PDES AND IRREGULAR DOMAINS ***
+In this article, we present a novel technique for obtaining high-order
+accurate numerical solutions to time dependent partial differential 
+equations using only formally low-order finite difference stencils and
+time integration schemes.  By using an optimally chosen the time step for a 
+finite difference scheme (and possibly adding a few correction terms), we 
+are able to boost the order of accuracy of low-order finite difference 
+schemes.  Through simple numerical analysis arguments, we explain the origin 
+of the boost in accuracy and calculate the computational cost of the
+high-order methods obtained via optimal time step (OTS) selection.  We 
+demonstrate the utility of OTS selection on a wide array of classical PDEs
+in one and more space dimensions.   We find that OTS selection is applicable 
+to linear and semilinear PDEs and that it is easily extended to problems 
+on irregular domains. 
 \end{abstract}
 
 
 \begin{keywords}
-optimal time step, finite difference methods, high-order accuracy, 
-time dependent PDEs, initial-value problems
+optimal time step, finite difference methods, high-order accurate numerical 
+methods, time dependent PDEs
 \end{keywords}
 
 \begin{AMS}
@@ -59,7 +67,8 @@ High-order numerical methods for partial differential equations (PDEs) will
 always be valuable for increasing the computational efficiency of numerical 
 simulations.  Thus, it is not at all surprising that a great deal of effort in 
 numerical PDEs continues to be focused on the development of high-order 
-numerical schemes~\cite{gibour_2005,??}.  
+numerical schemes~\cite{bruger_2005, gibou_2005, ito_2005, shukla_2005, 
+shukla_2007}.  
 Typically, high-order accuracy is achieved by constructing
 schemes that have high formal orders of accuracy.  However, high-order 
 accurate numerical solutions can also be obtained by using formally low-order 
@@ -80,8 +89,8 @@ More commonly, high-order accurate numerical methods are constructed by
 requiring that the discretization error possesses the desired formal order of 
 accuracy for \emph{all} of the independent variables in the PDE.  While this 
 constraint is certainly sufficient for high-order accuracy, it is by no means 
-necessary.  This standard approach for developing numerical methods for PDEs 
-has its roots in the classical numerical analysis of PDEs, which tends to 
+necessary.  This conventional approach for developing numerical methods for 
+PDEs has its roots in the classical numerical analysis of PDEs, which tends to 
 individually analyze the discretization of the terms in the PDE.  Within this 
 framework, it is natural to seek high-order accuracy by ensuring that the 
 numerical scheme is simultaneously high-order accurate for \emph{all} 
@@ -90,7 +99,7 @@ and analyzing numerical methods is often suboptimal because it neglects the
 potential for achieving high order of accuracy using only simple finite 
 difference schemes based on compact, low-order stencils.
 
-Perhaps the greatest weakness of the standard method for constructing 
+Perhaps the greatest weakness of the conventional method for constructing 
 high-order numerical methods is the use of ``big-O" notation, which hides all 
 of the details about higher-order errors.  The information lost in the ``big-O" 
 notation eliminates the possibility of reducing numerical error by taking 
@@ -228,9 +237,7 @@ the regular and irregular domains.
 For each PDE in Sections~\ref{sec:applications_1d} and 
 \ref{sec:applications_multidim}, we provide the numerical analysis required 
 to calculate the optimal time step size and order of accuracy.  
-Finally, in Section~\ref{sec:summary}, we provide some concluding remarks on 
-the applicability and limitations of optimal time step selection for the 
-numerical solution of general time dependent PDEs.  
+Finally, in Section~\ref{sec:summary}, we provide some concluding remarks. 
 
 
 \section{\label{sec:optimal_time_step_selection} 
@@ -245,8 +252,12 @@ of time step can be used to eliminate the leading-order (and possibly
 higher-order) terms in the error.  In this section we present and analyze the 
 technique of optimal time step selection for finite difference schemes 
 constructed to solve evolution equations of the form 
-$\frac{\partial u}{\partial t} = \ldots$, where the right hand side only 
-involves functions of the independent variable and its spatial derivatives.  
+\beq
+  \frac{\partial u}{\partial t} = 
+    F\left(x, u(x), D u(x), D^2 u(x), \ldots \right), 
+\eeq
+where the right hand side is an arbitrary function of the solution $u$, its 
+spatial derivatives, and the independent variable $x$.
 Because this class of time dependent PDEs is so prevalent and important in 
 many problems of applied mathematics, restricting our attention to problems 
 of this form is not a serious limitation.  
@@ -254,8 +265,8 @@ of this form is not a serious limitation.
 
 \subsection{\label{sec:ots_model_pde} 
             Optimal Time Step for a Model PDE}
-Let us begin by considering a finite difference approximation to a 
-time dependent PDE of the form
+Let us begin by considering a finite difference approximation for the
+following time dependent PDE in one spatial dimension: 
 \beq
   \frac{\partial u}{\partial t} = A \frac{\partial^n u}{\partial x^n},
   \label{eq:model_PDE}
@@ -270,31 +281,29 @@ step.
 
 To compute the optimal time step, we first analyze the discretization errors 
 (both spatial and temporal) for the FD approximation, explicitly keeping track 
-of the leading-order terms.  In contrast to standard error analysis, we do 
-not sweep all of the errors under ``big-O'' notation.  Rather, we take 
+of the leading-order terms.  In contrast to conventional error analysis, we 
+do not sweep all of the errors under ``big-O'' notation.  Rather, we take 
 advantage of the fact that derivation of the leading-order terms in the 
 error is straightforward for FD schemes through the use of Taylor series 
 expansions.  Because each term in the error is proportional to a partial 
 derivative of the solution, we can attempt to use the PDE to relate the 
-leading-order terms to each other.  If we are fortunate (which in many cases 
-we are), this careful analysis yields a direct relationship between the 
-leading-order spatial and temporal errors that allows them to be combined as 
-a single term of the form:
+leading-order terms to each other.  If we are fortunate (which we are
+for many finite difference schemes, this careful analysis yields a direct 
+relationship between the leading-order spatial and temporal errors that allows 
+them to be combined as a single term of the form:
 \beq
   (L u) P(\dx, \dt) ,
   \label{eq:leading_order_error_model_PDE_general}
 \eeq
-where $P$ is a polynomial in the numerical parameters, $L$ is a differential 
-operator, $u$ is the solution to the PDE, and we have assumed that the 
-grid spacing is equal in all spatial directions\footnote{In general, the grid 
-spacing need not be equal in all spatial directions.  For some problems, it is 
-only possible to calculate an optimal time step if the grid spacing is
-unequal between the different spatial directions.}.  By selecting the 
-numerical parameters so that $P = 0$, we can completely eliminate the 
-leading-order term in the discretization error.  Because time dependent PDEs 
-are often solved by stepping in time, it is natural to choose the time step 
-to be a function of the grid spacing.  The time step selected in this way 
-is the \emph{optimal time step} for the finite difference scheme.  
+where $L$ is a differential operator and $P$ is a polynomial in the numerical 
+parameters $\dx$ and $\dt$.  By selecting the numerical parameters so that 
+$P = 0$, we can completely eliminate the leading-order term in the 
+discretization error.  Because time dependent PDEs are often solved by 
+stepping in time, it is natural to choose the time step to be a function of 
+the grid spacing.  The time step selected in this way is the
+\emph{optimal time step} for the finite difference scheme.  Using the optimal
+time step for time stepping yields a numerical solution with the maximal order 
+of accuracy for a given FD scheme.
 
 An important class of FD schemes for time dependent PDEs are those based
 on the method of lines.   When the method of lines approach is used for 
@@ -313,10 +322,22 @@ because it is not numerically meaningful.}
   \dto = \gamma \dx^{r/s},
   \label{eq:optimal_time_step}
 \eeq
-where $\gamma = (\alpha/\beta)^{1/s}$.  Note that the optimal time step 
-has the same functional dependence on the grid spacing as a time step 
-that is satisfies a stability constraint.  
+where $\gamma = (\alpha/\beta)^{1/s}$.  Notice that the optimal time step 
+has a similar functional dependence on the grid spacing as a time step that 
+satisfies a stability constraint.  
 
+Thus far, we have completely ignored the question of whether the FD scheme is 
+stable when the time step is set to $\dto$.  Not surprisingly, OTS selection 
+loses its value, when the optimal time step is greater than the smallest 
+stable time step for an explicit scheme.  Fortunately, we can usually switch 
+to an implicit (or semi-implicit) time integration scheme with the same order 
+of accuracy for which the optimal time step is stable.  Note that the 
+depending on how the original FD scheme is modified, a new optimal time step 
+may need to be calculated.  
+
+
+\subsubsection*{\label{sec:error_analysis} 
+            Error Analysis}
 The form of the local error in 
 (\ref{eq:leading_order_error_model_PDE_MOL}) follows from the fact 
 that the method of lines first approximates the PDE as a system of ODEs in 
@@ -336,64 +357,22 @@ error due to the spatial discretization at \emph{every} point in time.  For
 a spatial discretization error of order $r$, the error in 
 (\ref{eq:method_of_lines}) is $O(\dx^r)$.  Therefore, the error 
 accumulated during each time step due to spatial discretization error is 
-$O(\dt \dx^r)$ regardless of how the system of ODEs is solved 
-numerically.  Because the method of lines is so frequently used to construct FD 
-approximations for time dependent PDEs, we will focus solely on FD schemes 
-of this type for the remainder of the paper in order to keep the discussion 
+$O(\dt \dx^r)$ regardless of how the system of ODEs (\ref{eq:method_of_lines})
+is solved numerically.  Because the method of lines is so frequently used to 
+construct FD approximations for time dependent PDEs, we will focus solely on 
+FD schemes of this type for the remainder of the paper to keep the discussion 
 simple.  It is straightforward to extend the results we obtain to more general 
 FD schemes. 
 
-So far in our discussion, we have completely ignored the question of whether 
-the FD scheme is stable when the time step is set to $\dto$.  When
-the optimal time step is greater than the smallest stable time step, the 
-method breaks down.  Fortunately, when stability issues arise for explicit 
-time integration schemes, we can usually switch to an implicit (or 
-semi-implicit) time integration scheme with the same order of accuracy for 
-which the optimal time step is stable.  Note that the depending on how
-the original FD scheme is modified, a new optimal time step may need to be 
-calculated.  
-
-
-\subsubsection*{PDEs in Higher Spatial Dimensions 
-                \label{sec:ots_higher_spatial_dims}}
-It is important to emphasize that optimal time selection is applicable to 
-PDEs in any number of spatial dimensions.  While problems in higher dimensions 
-generally require a more careful choice of the finite difference stencil used 
-to approximate spatial derivatives in order to be able to combine 
-leading-order terms in the discretization error, there are no fundamental 
-barriers that prevent the use of optimal time step selection.
-
-Domain geometry of the domain, which primarily impacts the way boundary 
-conditions are imposed, is an important feature of problems in more than one 
-spatial dimension.  While it is usually straightforward to handle problems on 
-regular domains, problems on irregular domains can pose a greater challenge 
-because the location of the domain boundary may not be explicitly specified
-and grid points near the boundary require special consideration.  Fortunately, 
-because optimal time step selection is based on simple, localized finite 
-difference stencils, irregular domains do not create any serious difficulties.  
-Assuming that a `ghost cell' or `ghost value' 
-approach~\cite{fedkiw_1999, osher_fedkiw_book, gibou_2005} 
-is used to impose boundary conditions, the construction and analysis of finite 
-difference schemes and calculation of optimal time steps is identical for 
-problems on both regular and irregular domains.  For problems on 
-irregular domains, the key issue is how values at ghost cell points should 
-be calculated.  Once this issue has been addressed, devising high-order 
-accurate methods for PDEs on irregular domains is simply a matter of applying 
-optimal time step selection to the finite difference scheme used for problems 
-on regular domains. 
-
-
-\subsubsection*{\label{sec:error_analysis} 
-            Error Analysis}
 To analyze the accuracy of the FD scheme for~(\ref{eq:model_PDE}) when the 
-optimal time step is used (for a given grid spacing), we examine the remaining 
-terms of the discretization error in the standard way (\ie ``big-O'' notation).
-Elimination of the leading term in the discretization error leaves a local 
-error of the form $O(\dt \dx^p) + O(\dt^{q+1})$, where $p>r$ 
-and $(q+1) > (s+1)$ are the orders of the spatial and temporal discretization 
-errors, respectively, after the leading-order terms in the error have been 
-removed.  Like the orders of the leading-order errors in 
-(\ref{eq:leading_order_error_model_PDE_MOL}), this form of the local 
+optimal time step is used (for a given grid spacing), we examine the 
+higher-order terms in the discretization error following the conventional 
+approach (\ie ``big-O'' notation).  Elimination of the leading term in the 
+discretization error leaves a local error of the form 
+$O(\dt \dx^p) + O(\dt^{q+1})$, where $p>r$ and $(q+1) > (s+1)$ are the orders 
+of the spatial and temporal discretization errors, respectively, after the 
+leading-order terms in the error have been removed.  As for the leading-order 
+error (\ref{eq:leading_order_error_model_PDE_MOL}), this form of the local 
 error is a direct consequence of the method of lines approach to discretizing 
 the PDE.  
 
@@ -412,11 +391,11 @@ step is used has exactly the same form as~(\ref{eq:global_error_ots}) with
 $p$ and $q$ replaced by $r$ and $s$, respectively.  Thus, we see that 
 using an optimal time step boosts the accuracy of the FD scheme.  
 
-When interpreting~(\ref{eq:global_error_ots}), it is important to recognize
-that $\dx$ and $\dt$ are \emph{not} independent because the time 
-step has been set to $\dto$; there is really only one parameter, 
-$\dx$, that controls the numerical accuracy of the FD scheme.  This is an 
-important point that we will address further in the next section.
+It is important to emphasize that $\dx$ and $\dt$ are \emph{not} independent 
+in~(\ref{eq:global_error_ots}) because the time step must be set to $\dto$ 
+in order to derive the error estimate.  In other words, there is really only 
+one parameter, $\dx$, that controls the numerical accuracy of the FD scheme.  
+This important point will be discuss in further detail in the next section.
 
 
 \subsubsection*{Formal vs. Practical Accuracy}
@@ -474,11 +453,11 @@ This methodology explains the tendency to evaluate numerical schemes for
 time dependent PDEs predominantly on their order of accuracy with respect 
 to the grid spacing.
 
-Optimal time step selection fits into this general framework for developing
-numerical methods for time dependent PDEs.  Because the optimal time step 
-is calculated explicitly as a function of the grid spacing, the technique
-of optimal time step selection places an even more restrictive constraint
-on $\dt$ than stability considerations.  Thus, like numerical
+Optimal time step selection fits into this general framework for controlling
+the error of numerical methods for time dependent PDEs.  Because the optimal 
+time step is calculated explicitly as a function of the grid spacing, the 
+technique of optimal time step selection places an even more restrictive 
+constraint on $\dt$ than stability considerations.  Thus, like numerical
 methods with stability constraints, the accuracy of an FD scheme using 
 the optimal time step is completely controlled by the grid spacing.  The 
 order of accuracy of a FD scheme advanced in time using $\dto$ 
@@ -493,15 +472,15 @@ O \left( \dx^{\min(p,rq/s)} \right).
 
 \subsubsection*{\label{sec:computational_performance} 
                 Computational Performance}
-In general, $r/s > 1$ and yields an optimal time step that is on the order
-of the time step allowed by the stability constraint for an explicit method.
-As a result, using the optimal time step to advance the FD scheme in time
-may seem to be overly restrictive and lead to poor computational performance.
-However, these apparent drawbacks are more than compensated by the boost in 
-the order of accuracy.  For example, when solving the 1D diffusion equation 
-using a forward Euler time integration scheme with a second-order central 
-difference stencil for the Laplacian, we obtain a fourth-order scheme 
-when $\dt$ is set equal to the optimal time step.  As
+For many problems, $r/s > 1$ and yields an optimal time step that is on the 
+order of the time step allowed by the stability constraint for an explicit 
+method.  As a result, using the optimal time step to advance the FD scheme in 
+time may seem to be overly restrictive and lead to poor computational 
+performance.  However, these apparent drawbacks are more than compensated by 
+the boost in the order of accuracy.  For example, when solving the 1D 
+diffusion equation using a forward Euler time integration scheme with a 
+second-order central difference stencil for the Laplacian, we obtain a 
+fourth-order scheme when $\dt$ is set equal to the optimal time step.  As
 Table~\ref{tab:comp_perf_vs_err} shows, this boost in accuracy leads to a
 scheme that is computationally cheaper than traditional methods that use 
 the same low-order FD stencils.  The performance gain for problems in higher 
@@ -512,14 +491,11 @@ method grows with the spatial dimension of the problem.
 
 \begin{table}[tbh]
 \caption{\label{tab:comp_perf_vs_err} 
-   Computational cost as a function of the global numerical error $E$
-   for various FD schemes that numerically solve the 1D diffusion equation.  
+   Computational cost of various FD schemes for numerically solving the 1D 
+   diffusion equation as a function of the global numerical error $e$.
    For all FD schemes, the standard second-order central difference 
    stencil is used to discretize the Laplacian, and the numerical 
    solution is assumed to be computed over a fixed time interval.  
-A less negative power of $E$ 
-   for the memory and compute time means that a FD scheme is more 
-   computationally efficient.
 }
 \begin{minipage}{\textwidth}
 \begin{center} \footnotesize
@@ -539,22 +515,22 @@ A less negative power of $E$
     efficient $O(N) = O(1/\dx)$ algorithm to invert the matrices that 
     arise for the implicit methods.}  \\
   \hline 
-  Forward Euler    & $O\left( E^{1/2} \right)$ 
-                   & $O\left (E \right)$ 
-                   & $O\left( E^{-1/2} \right)$ 
-                   & $O\left( E^{-3/2} \right)$ \\
-  Backward Euler   & $O\left( E^{1/2} \right)$ 
-                   & $O\left( E \right)$ 
-                   & $O\left( E^{-1/2} \right)$ 
-                   & $O\left( E^{-3/2} \right)$ \\
-  Crank-Nicholson  & $O\left( E^{1/2} \right)$ 
-                   & $O\left( E^{1/2} \right)$ 
-                   & $O\left( E^{-1/2} \right)$ 
-                   & $O\left( E^{-1} \right)$ \\
-  Forward Euler with OTS  & $O\left( E^{1/4} \right)$ 
-                   & $O\left( E^{1/2} \right)$ 
-                   & $O\left( E^{-1/4} \right)$ 
-                   & $O\left( E^{-3/4} \right)$ \\ 
+  Forward Euler    & $O\left( e^{1/2} \right)$ 
+                   & $O\left( e \right)$ 
+                   & $O\left( e^{-1/2} \right)$ 
+                   & $O\left( e^{-3/2} \right)$ \\
+  Backward Euler   & $O\left( e^{1/2} \right)$ 
+                   & $O\left( e \right)$ 
+                   & $O\left( e^{-1/2} \right)$ 
+                   & $O\left( e^{-3/2} \right)$ \\
+  Crank-Nicholson  & $O\left( e^{1/2} \right)$ 
+                   & $O\left( e^{1/2} \right)$ 
+                   & $O\left( e^{-1/2} \right)$ 
+                   & $O\left( e^{-1} \right)$ \\
+  Forward Euler with OTS  & $O\left( e^{1/4} \right)$ 
+                   & $O\left( e^{1/2} \right)$ 
+                   & $O\left( e^{-1/4} \right)$ 
+                   & $O\left( e^{-3/4} \right)$ \\ 
   \hline
 \end{tabular}
 \end{center}
@@ -563,18 +539,16 @@ A less negative power of $E$
 
 \begin{table}[tbh]
 \caption{\label{tab:comp_perf_vs_dim}
-   Comparison of the computational cost as a function of the global numerical 
-   error $E$ for the forward Euler scheme with optimal time step and the 
-   Crank-Nicholson method.  Both FD schemes are used to solve the diffusion 
-   equation and use a second-order, isotropic stencil is used to discretize 
+   Computational cost of the forward Euler scheme with optimal time step and 
+   the Crank-Nicholson method for solving the diffusion equation as a function 
+   of the global numerical error $e$.
+   For both FD schemes, second-order, isotropic stencils are used to discretize 
    the Laplacian.  For a problem in $d$ spatial dimensions, the memory 
    requirement for each scheme is estimated to be $O \left(1/\dx^d \right)$, 
    and the computation time is approximated as 
    $O\left( \left(1/\dx^d \right) (1/\dt) \right)$, which assumes that we 
    are using an efficient $O(N) = O \left( 1/\dx^d \right)$ algorithm to 
    invert the matrices that arise for the Crank-Nicholson method.
-   A less negative power of $E$ for the memory and compute time
-   means that a FD scheme is more computationally efficient.
 }
 \begin{minipage}{\textwidth}
 \begin{center} \footnotesize
@@ -588,22 +562,22 @@ A less negative power of $E$
     {\bf Dimensions} & {\bf Memory} & {\bf Compute Time} 
   & {\bf Memory} & {\bf Compute Time} \\
   \hline 
-  $1$ & $O\left( E^{-1/4} \right)$ 
-      & $O\left( E^{-3/4} \right)$ 
-      & $O\left( E^{-1/2} \right)$ 
-      & $O\left( E^{-1} \right)$ \\ 
-  $2$ & $O\left( E^{-1/2} \right)$ 
-      & $O\left( E^{-1} \right)$ 
-      & $O\left( E^{-1} \right)$ 
-      & $O\left( E^{-3/2} \right)$ \\ 
-  $3$ & $O\left( E^{-3/4} \right)$ 
-      & $O\left( E^{-5/4} \right)$ 
-      & $O\left( E^{-3/2} \right)$ 
-      & $O\left( E^{-2} \right)$ \\
-  $d$ & $O\left( E^{-d/4} \right)$ 
-      & $O\left( E^{-(d+2)/4} \right)$ 
-      & $O\left( E^{-d/2} \right)$ 
-      & $O\left( E^{-(d+1)/2} \right)$ \\ 
+  $1$ & $O\left( e^{-1/4} \right)$ 
+      & $O\left( e^{-3/4} \right)$ 
+      & $O\left( e^{-1/2} \right)$ 
+      & $O\left( e^{-1} \right)$ \\ 
+  $2$ & $O\left( e^{-1/2} \right)$ 
+      & $O\left( e^{-1} \right)$ 
+      & $O\left( e^{-1} \right)$ 
+      & $O\left( e^{-3/2} \right)$ \\ 
+  $3$ & $O\left( e^{-3/4} \right)$ 
+      & $O\left( e^{-5/4} \right)$ 
+      & $O\left( e^{-3/2} \right)$ 
+      & $O\left( e^{-2} \right)$ \\
+  $d$ & $O\left( e^{-d/4} \right)$ 
+      & $O\left( e^{-(d+2)/4} \right)$ 
+      & $O\left( e^{-d/2} \right)$ 
+      & $O\left( e^{-(d+1)/2} \right)$ \\ 
   \hline 
 \end{tabular}
 \end{center}
@@ -611,35 +585,44 @@ A less negative power of $E$
 \end{table}
 
 
-\subsection{\label{sec:ots_linear_pde} 
+\subsection{\label{sec:ots_general_1d_pdes} 
+            OTS Selection for General PDEs in One Space Dimension} 
+In the previous section, we analyzed the technique of optimal time step 
+selection in the context of a simple model PDE in one space dimension.  
+For more general PDEs, the approach of carefully choosing the time step to 
+eliminate leading order terms in the error is still useful, but it needs to 
+be augmented to achieve a boost in the order of accuracy.  In addition to 
+using the optimal time step, correction terms may need to be added to the 
+finite difference scheme.  In this section, we discuss these correction terms 
+in the context of general constant coefficient, linear PDEs and semilinear
+PDEs. 
+
+
+\subsubsection*{\label{sec:ots_linear_pde} 
             General Constant Coefficient, Linear PDEs} 
-In Section~\ref{sec:ots_model_pde}, we presented the technique of optimal 
-time step selection in the context of a simple model PDE with only two terms.  
-To extend the technique to general constant coefficient, linear PDEs of the 
-form
+Let us consider a general constant coefficient, linear PDE of the form
 \beq
   \frac{\partial u}{\partial t} = 
-  \left( \sum_{k=1}^n A_k \frac{\partial^k u}{\partial x^k} \right) + f(x,t),
-  \label{eq:linear_PDE}
+  \left( \sum_{k=1}^n A_k \frac{\partial^k u}{\partial x^k} \right) + f(x,t)
+  \label{eq:linear_PDE}.
 \eeq
-the procedure must be augmented in order to achieve any boost in the accuracy.
 Because it is unlikely that all of the dominant terms in the error can be
 combined into a single term, the leading-order discretization error is
 a sum of several terms:
 \bea
-  (L u) (\alpha \dx^r - \beta \dt^s) \dt
-  + \sum_k (L_k u) \dx^r \dt 
-  + \sum_k (L'_k u) \dt^{s+1} 
-  + (G f) \dt^{s+1}
+  \dt\left[ (L u) (\alpha \dx^r - \beta \dt^s) 
+  + \sum_k (L_k u) \dx^r 
+  + \sum_k (L'_k u) \dt^s 
+  + (G f) \dt^s \right]
   \label{eq:leading_order_error_linear_PDE_MOL}
 \eea
 where $L$, $u$, $\alpha$, $\beta,$ $r$, and $s$ are defined as in
 (\ref{eq:leading_order_error_model_PDE_general}) and
 (\ref{eq:leading_order_error_model_PDE_MOL}), 
-$L_k$ and $L'_k$ are the spatial differential operators associated with the 
-leading-order terms in the discretization error that are not involved in the 
-choice of the optimal time step, and $G$ is a spatio-temporal differential 
-operator that acts on source term $f$.  
+$L_k$ and $L'_k$ are the linear spatial differential operators associated 
+with the leading-order terms in the discretization error that are not involved 
+in the choice of the optimal time step, and $G$ is a spatio-temporal 
+differential operator that acts on source term $f$.  
 Note that neither $L_k$ nor $L'_k$ involve any temporal differential 
 operators because any that arise can be eliminated by using the PDE.  Also, 
 there is no explicit spatial discretization error of order $r$ that originates 
@@ -671,12 +654,12 @@ approximate the vestigial errors must be chosen carefully.  Special attention
 is required to ensure that the FD stencils are of sufficiently high-order; 
 otherwise, we will lose the accuracy gained from using an optimal time step 
 for the FD scheme.  Since the specific form of the correction terms are 
-highly PDE-dependent, we defer further discussion to 
-Section~\ref{sec:applications_1d} and~\ref{sec:applications_multidim} where 
+PDE-dependent, we defer further discussion to 
+Sections~\ref{sec:applications_1d} and~\ref{sec:applications_multidim} where 
 we apply optimal time step selection to several specific PDEs.
 
 
-\subsection{Semilinear PDEs}
+\subsubsection*{Semilinear PDEs}
 Semilinear PDEs are an important class of PDEs that have the form
 \beq
   \frac{\partial u}{\partial t} = A(x,t) \frac{\partial^n u}{\partial x^n}
@@ -689,7 +672,7 @@ Semilinear PDEs are an important class of PDEs that have the form
 where $F$ is an arbitrary function of the lower-order spatial derivatives
 of $u$ and $f(x,t)$ is a source term.  While, the coefficient on the 
 leading-order spatial derivative is generally allowed to be function of 
-space and time, optimal time step selection is only applicable to PDEs where
+space and time, optimal time step selection can only be applied to PDEs where
 $A(x,t)$ is a constant.  Because the PDE is linear in the leading-order 
 spatial derivative, it is natural to construct a finite difference scheme that 
 treats $F$ in an explicit manner and lets stability considerations determine 
@@ -698,41 +681,103 @@ or implicitly.  Assuming that sufficiently high-order stencils are used to
 compute $F$, the leading-order discretization error for such a finite 
 difference scheme is given by
 \bea
-  (L u) (\alpha \dx^r - \beta \dt^s) \dt
-  + \left( H u \right) \dx^r \dt 
-  + \left( H' u \right) \dt^{s+1}
-  + (G f) \dt^{s+1}
+  \dt \left[ (L u) (\alpha \dx^r - \beta \dt^s) 
+  + \left( H u \right) \dx^r 
+  + \left( H' u \right) \dt^s
+  + (G f) \dt^s \right]
   \label{eq:leading_order_error_semilinear_PDE_MOL}
 \eea
 where $L$, $u$, $\alpha$, $\beta,$ $r$, and $s$ are defined as in
 (\ref{eq:leading_order_error_model_PDE_general}) and
 (\ref{eq:leading_order_error_model_PDE_MOL}), $H$ and $H'$ are spatial 
-differential operators associated with the leading-order terms in 
-the discretization error that arise from the nonlinear term 
-in~(\ref{eq:semilinear_PDE}), and $G$ is a spatio-temporal differential 
+differential operators (potentially nonlinear) associated with the 
+leading-order terms in the discretization error that arise from the nonlinear 
+term in~(\ref{eq:semilinear_PDE}), and $G$ is a spatio-temporal differential 
 operator that acts on $f$.  To compute the optimal time step and boost
-the accuracy of the finite difference scheme, proceed in exactly
-the same manner as for general constant coefficient, linear PDEs.
+the accuracy of the finite difference scheme, we proceed in the
+same manner as for general constant coefficient, linear PDEs.
 
 
-\subsection{Imposing Boundary Conditions}
-*** CHOICE OF DISCRETIZATION FOR BOUNDARIES IS IMPORTANT***
+\subsection{Boundary Conditions}
+In our analysis and discussion thus far, we have completely ignored the issue 
+of boundary conditions.  The choice of discretization for boundary conditions
+can have a significant impact on the accuracy of the numerical solution.  In 
+general, high-order discretizations of boundary conditions are required to 
+ensure that errors introduced at the domain boundary do not pollute the 
+numerical solution in the domain interior.  For Dirichlet boundaries, it
+is sufficient to impose boundary conditions by using boundary (or ghost cell) 
+values that have the same order of accuracy as the solution.  
+More effort is required to ensure that Neumann boundary conditions do not
+reduce the order of accuracy of the solution.  In general, Neumann boundary
+conditions require that the accuracy of ghost cells slightly exceed the 
+desired order of accuracy for the solution.  A detailed discussion of 
+appropriate methods for imposing boundary conditions is beyond the scope of 
+this paper.  We refer interested readers to the thorough analysis presented
+in~\cite{gko_book}.  To avoid complicating the discussion in 
+Sections~\ref{sec:applications_1d} and~\ref{sec:applications_multidim}, 
+Neumann boundary conditions are imposed by taking advantage of knowledge of 
+the analytical solution.
+
+
+\subsection{OTS Selection in Multiple Space Dimensions
+                \label{sec:ots_higher_spatial_dims}}
+Optimal time selection is applicable to PDEs in any number of spatial 
+dimensions.  It is straightforward to generalize the approach outlined in 
+the previous sections to problems in multiple space dimensions.  While 
+problems in higher dimensions generally require a more careful choice of 
+the finite difference stencil used to approximate spatial derivatives in 
+order to be able to combine leading-order terms in the discretization error, 
+there are no fundamental barriers that prevent the use of optimal time step 
+selection.
+
+The geometry of the domain is an important feature of problems in more than 
+one spatial dimension because it can significantly impact the way boundary 
+conditions are imposed.  For problems on regular domains, boundary conditions 
+can usually be handled by simply using 1D boundary condition discretizations 
+in each coordinate direction.  Problems on irregular domains pose a greater 
+challenge because the location of the domain boundary may not be explicitly 
+specified and grid points near the boundary require special consideration.  
+Fortunately, because optimal time step selection is based on simple, localized 
+finite difference stencils, irregular domains do not create any serious 
+difficulties.  Assuming that a `ghost cell' or `ghost value' 
+approach~\cite{fedkiw_1999, osher_fedkiw_book, gibou_2005} 
+is used to impose boundary conditions, the construction and analysis of finite 
+difference schemes and calculation of optimal time steps is identical for 
+problems on both regular and irregular domains.  For problems on 
+irregular domains, the key issue is how values at ghost cell points should 
+be calculated.  Once this issue has been addressed, devising high-order 
+accurate methods for PDEs on irregular domains is simply a matter of applying 
+optimal time step selection to the finite difference scheme used for problems 
+on regular domains. 
+
+Another important issue that arises in multiple space dimensions is the choice
+of grid spacing.  In general, the grid spacing need not be equal in all 
+spatial directions.  For some problems, the ratio of the grid spacing in
+different coordinate directions may need to be carefully chosen to even 
+be able to calculate an optimal time step.  
 
 
 \subsection{Limitations of Optimal Time Step Selection}
-As with all methods, optimal time step selection has its limitations.
-A critical assumption that we have made throughout our analysis is that
-the leading-order spatial derivative in the PDE does not have a spatially
-varying coefficient.  Without this assumption, the first term in the
-leading-order discretization error would be of the form 
+As with any numerical method, optimal time step selection has its limitations.
+The most serious limitation is the requirement that the coefficient on the 
+leading-order spatial derivative in the PDE be constant in time and space.  
+Without this critical assumption, the first term in the leading-order 
+discretization error would be of the form 
 $(L u) (\alpha(x,t) \dx^r - \beta(x,t) \dt^s) \dt$,
 where $\alpha$ and $\beta$ are now functions of space and time.  This
-small change to the error makes it impossible to derive a single optimal
-time step.  In a sense, each grid point would a different optimal time
-step that also depends on the time.  For a similar reason, optimal time step 
-selection is fails for quasilinear and fully nonlinear PDEs.  The issue for 
-these types of PDEs is that the coefficients in $P(\dx, \dt)$ become 
-functions of the solution $u$ which also varies in space and time.
+small change in the form of the error makes it impossible to derive a single 
+optimal time step.  In a sense, each grid point would possess a different 
+optimal time step that could also depend on the time.  For a similar reason, 
+optimal time step selection also fails for quasilinear and fully nonlinear 
+PDEs.  The issue for these types of PDEs is that the coefficients in 
+$P(\dx, \dt)$ become functions of the solution $u$.
+
+Another limitation of optimal time step selection is that it does not 
+generally apply to finite difference schemes for systems of PDEs.  The 
+key issue is that each PDE might have its own optimal time step.  While it 
+would be possible to boost the accuracy of finite difference schemes for 
+systems of PDEs where the optimal time step is the same across the individual 
+PDEs, it is not clear that the method yields any benefit in general.
 
 
 \section{\label{sec:applications_1d} 
@@ -750,12 +795,12 @@ For our first application of optimal time step selection, we consider
 finite difference schemes for the linear advection equation
 ~\cite{leveque_book_1992, leveque_book_2002, gko_book}:
 \beq
-  \frac{\partial u}{\partial t} + a \frac{\partial u}{\partial x} = 0,
+  \frac{\partial u}{\partial t} + A \frac{\partial u}{\partial x} = 0,
   \label{eq:advection_eqn_1d}
 \eeq
-where $a$ is the flow speed, which we take to be positive for convenience.  
+where $A$ is the flow speed, which we take to be positive for convenience.  
 For an initial condition of the form $u(x,0) = f(x)$, it is easy to use the 
-method of characteristics to show that the analytical solution is $f(x-at)$.  
+method of characteristics to show that the analytical solution is $f(x-At)$.  
 While it is unlikely that one would actually use a numerical method to 
 solve~(\ref{eq:advection_eqn_1d}), it provides an interesting example where 
 optimal time step selection dramatically improves the accuracy of the 
@@ -763,17 +808,17 @@ numerical solution.
 
 There are many finite difference schemes that can be used to 
 solve~(\ref{eq:advection_eqn_1d}).  Several examples are given 
-in~\cite{leveque_book_1992}.  Perhaps the simplest, stable method uses 
-forward Euler for time integration with a first-order upwind discretization 
-for the spatial derivative term:
+in~\cite{leveque_book_1992}.  Perhaps the simplest, stable method is a 
+forward Euler for time integration scheme that uses a first-order upwind 
+discretization for the spatial derivative:
 \beq
   u^{n+1}_j = u^{n}_j 
-  - a \dt \left( \frac{u^{n}_j - u^{n}_{j-1}}{\dx} \right),
+  - A \dt \left( \frac{u^{n}_j - u^{n}_{j-1}}{\dx} \right),
   \label{eq:advection_eqn_1d_FD_scheme}
 \eeq
 where superscripts and subscripts denote the time and space indices, 
-respectively.  Using standard error analysis, it is straightforward to show
-that method is formally first-order in both space and time.  
+respectively.  It is straightforward to show that method is formally 
+first-order in both space and time.  
 
 To compute the optimal time step, we begin by analyzing the discretization
 error for~(\ref{eq:advection_eqn_1d_FD_scheme}).  In general, we only need to 
@@ -803,7 +848,7 @@ the time derivatives in~(\ref{eq:advection_eqn_1d_time_err}) with spatial
 derivatives to obtain
 \bea
   \tu^{n+1}_j = \tu^{n}_j 
-  + \sum_{k=1}^\infty \frac{\left( -a \dt \right)^k}{k!} 
+  + \sum_{k=1}^\infty \frac{\left( -A \dt \right)^k}{k!} 
        \left. \frac{\partial^k \tu^n}{\px^k} \right|_j.
   \label{eq:advection_eqn_1d_time_err_modified}
 \eea
@@ -813,23 +858,22 @@ scheme~(\ref{eq:advection_eqn_1d_FD_scheme}), we obtain the evolution
 equation for the error $e \equiv u - \tu$:
 \bea
   e^{n+1}_j = e^{n}_j 
-    &-& a \dt \left( \frac{e^{n}_j - e^{n}_{j-1}}{\dx} \right) \nonumber \\
-    &+& a \dt \sum_{k=2}^\infty \frac{\left( -1 \right)^k}{k!} 
+    &-& A \dt \left( \frac{e^{n}_j - e^{n}_{j-1}}{\dx} \right) \nonumber \\
+    &+& A \dt \sum_{k=2}^\infty \frac{\left( -1 \right)^k}{k!} 
         \left. \frac{\partial^k \tu^n}{\px^k} \right|_j
-        \left[ \dx^{k-1} - \left( a \dt \right)^{k-1} \right].
+        \left[ \dx^{k-1} - \left( A \dt \right)^{k-1} \right].
   \label{eq:advection_eqn_1d_err_eqn}
 \eea
 As expected, the error $e$ satifies the same finite difference approximation 
 as the solution with an additional source term which is the discretization 
 error for the scheme.
 
-Extracting the leading-order term of the discretization error, we find that 
-it is given by
+Extracting the leading-order term of the discretization error
 \beq
-  \left( \left. \frac{a}{2} \frac{\partial^2 \tu^n}{\px^2} \right|_j \right)
-  \left[ \dx - a \dt \right] \dt.
+  \left( \left. \frac{A}{2} \frac{\partial^2 \tu^n}{\px^2} \right|_j \right)
+  \left[ \dx - A \dt \right] \dt,
 \eeq
-Thus, the optimal time step is simply $\Delta t_{opt} = \Delta x / a$.
+we find that the optimal time step is $\Delta t_{opt} = \Delta x / A$.
 For the linear advection equation, setting the time step equal to the optimal 
 time step has an amazing consequence -- not only does the leading-order term
 in the discretization error vanish, the \emph{entire} local truncation 
@@ -837,7 +881,6 @@ error at each time step is completely eliminated!  In other words, the error
 in the numerical solution is due solely to errors in the initial conditions.
 Assuming that the initial conditions are set exactly, there is absolutely no 
 error in the numerical solution for all times!  
-
 This surprising result, which is unique to the advection equation, is 
 well-known in the numerical methods community and is referred to as the unit 
 CFL condition~\cite{leveque_book_2002}.  It is usually proved by examining 
@@ -855,7 +898,7 @@ in the order of accuracy, we turn our attention to the diffusion equation:
 \eeq
 where $D$ is the diffusion constant.  As with the advection equation,
 there are many finite difference schemes that can be used to solve the 
-diffusion equation.  Keeping with the philosophy of using simple, low-order 
+diffusion equation.  Keeping with our philosophy of using simple, low-order 
 methods to construct finite difference schemes, we apply optimal time step 
 selection to a scheme that uses forward Euler for time integration and the 
 standard second-order central difference approximation for the Laplacian:
@@ -865,8 +908,8 @@ standard second-order central difference approximation for the Laplacian:
     \left( \frac{u^{n}_{j+1} -2 u^{n}_j + u^{n}_{j-1}}{\dx^2} \right),
   \label{eq:diffusion_eqn_1d_FD_scheme}
 \eeq
-Standard error analysis shows that scheme is formally first-order in time and 
-second-order in space.  Due to the stability constraint 
+Conventional error analysis shows that scheme is formally first-order in time 
+and second-order in space.  Due to the stability constraint 
 $\dt \le \dx^2/2D$, the scheme is $O(\dx^2)$ accurate overall.
 
 As before, we begin by analyzing the leading-order terms of the 
@@ -908,9 +951,9 @@ equation for the error $e \equiv u - \tu$:
       + O(\dt \dx^4) + O(\dt^3)
   \label{eq:diffusion_eqn_1d_err_eqn}
 \eea
-Again, we see that the discretization error acts as a source term for the 
-error, which satisfies the same evolution equation as the numerical solution 
-$u$. 
+Again, we see that the error satisfies the same evolution equation
+as the numerical solution and that the discretization error acts as a 
+source term. 
 
 From~(\ref{eq:diffusion_eqn_1d_err_eqn}), we see that the optimal time step 
 is given by $\dto = \dx^2/6D$.  Using~(\ref{eq:global_error_ots}),
@@ -934,24 +977,20 @@ optimal time step is orders of magnitude smaller.
 \begin{figure}[htb]
 \begin{center}
 \scalebox{0.35}{\includegraphics{figures/diffusion_eqn_1d_no_src_error_vs_N}} 
-\caption{Error analysis for three finite difference schemes for the 
-diffusion equation: forward Euler with optimal time step (circles), forward 
-Euler with suboptimal time step (squares), and Crank-Nicholson (diamonds).  
-Using each method, we solve the diffusion equation with $D = 1$ on the 
-domain $0 < x < 1$ subject to the boundary conditions 
+\caption{$L^\infty$ error as a function of number of grid points for three 
+finite difference schemes that solve the diffusion equation: forward Euler 
+with optimal time step (circles), forward Euler with suboptimal time step 
+(squares), and Crank-Nicholson (diamonds).  All three schemes use the 
+standard second-order, central finite difference approximation for the 
+Laplacian.  Using each method, we solve the diffusion equation with $D = 0.5$ 
+on the domain $0 < x < 1$ subject to the boundary conditions 
 $u(0,t) = 1$ and $u_x(1,t) = 1/2$ 
 and the initial condition
 $u(x,0) = 1 + x/2 + 2 \sin(5 \pi x/2) + 3 \sin(7 \pi x/2) 
 - 4 \sin(11 \pi x/2)$.  
-The exact solution for this problem is
-$u(x,t) = 1 + x/2 
-        + 2 \sin(5 \pi x/2)  \exp(-25 \pi^2 Dt/4) 
-        + 3 \sin(7 \pi x/2)  \exp(-49 \pi^2 Dt/4)
-        - 4 \sin(11 \pi x/2) \exp(-121 \pi^2 Dt/4)$.
-The $L^\infty$ error is plotted against the grid spacing $\dx$ for each 
-method.  Note that the errors for the forward Euler with suboptimal time 
+Note that the errors for the forward Euler with suboptimal time 
 step and Crank-Nicholson schemes lie almost directly on top of each other
-at the resolution of the figures.
+at the resolution of the figure.
 }
 \label{fig:diffusion_eqn_1d_no_src_error}
 \end{center}
@@ -966,8 +1005,8 @@ discretization of the Laplacian~\cite{gibou_2005}.  By using an
 $O\left(\dx^2 \right)$ time step and a linear solver that scales linearly 
 with the size of the matrix, we achieve an overall fourth-order accurate 
 method that has the same computational complexity as the forward Euler scheme
-described above with an optimal time step.  However, because the forward Euler 
-scheme with optimal time step will still outperform the Crank-Nicholson scheme 
+described above with an optimal time step.  However, the forward Euler scheme 
+with optimal time step will still outperform the Crank-Nicholson scheme 
 because the latter requires the solution of at least one linear system of
 equation for each time step. 
 
@@ -1013,8 +1052,8 @@ the finite difference scheme~(\ref{eq:diffusion_eqn_1d_src_FD_scheme}):
 where the derivatives of $f$ may be evaluated analytically or using 
 sufficiently high order finite difference stencils.
 
-In Figure~\ref{fig:diffusion_eqn_1d_src_error}, we compare the accuracy of the
-OTS forward Euler scheme with and without the correction terms.  As we can 
+In Figure~\ref{fig:diffusion_eqn_1d_src_error}, we compare the accuracy of 
+the OTS forward Euler scheme with and without the correction terms.  As we can 
 see, OTS forward Euler with correction terms is fourth-order accurate while 
 OTS forward Euler without correction terms is only second-order accurate.  
 These results clearly demonstrate the importance of the correction terms for
@@ -1023,24 +1062,20 @@ achieving high-order accuracy.
 \begin{figure}[htb]
 \begin{center}
 \scalebox{0.35}{\includegraphics{figures/diffusion_eqn_1d_src_error_vs_N}} 
-\caption{Error analysis for four finite difference schemes for the 
-diffusion equation: forward Euler with optimal time step (circles), forward 
-Euler with suboptimal time step (squares), and Crank-Nicholson (diamonds).  
-Using each method, we solve the diffusion equation with $D = 1$ on the 
-domain $0 < x < 1$ subject to the boundary conditions 
+\caption{$L^\infty$ error as a function of number of grid points for the 
+two finite difference schemes that solve the diffusion equation: 
+forward Euler with optimal time step and correction terms (circles) and 
+forward Euler with optimal time step but \emph{without} correction terms 
+(triangles).  Both schemes use the standard second-order, central finite 
+difference approximation for the Laplacian.
+Using each method, we solve the diffusion equation with $D = 0.5$ and
+source term 
+$f(x) = 5 \sin(3 \pi x/2) - 7 \sin(15 \pi x/2) + 10 \sin(21 \pi x/2)$
+on the domain $0 < x < 1$ subject to the boundary conditions 
 $u(0,t) = 1$ and $u_x(1,t) = 1/2$ 
 and the initial condition
 $u(x,0) = 1 + x/2 + 2 \sin(5 \pi x/2) + 3 \sin(7 \pi x/2) 
 - 4 \sin(11 \pi x/2)$.  
-The exact solution for this problem is
-$u(x,t) = 1 + x/2 
-        + 2 \sin(5 \pi x/2)  \exp(-25 \pi^2 D t/4) 
-        + 3 \sin(7 \pi x/2)  \exp(-49 \pi^2 D t/4)
-        - 4 \sin(11 \pi x/2) \exp(-121 \pi^2 D t/4)$.
-The $L^\infty$ error is plotted against the grid spacing $\dx$ for each 
-method.  Note that the errors for the forward Euler with suboptimal time 
-step and Crank-Nicholson schemes lie almost directly on top of each other
-at the resolution of the figures.
 }
 \label{fig:diffusion_eqn_1d_src_error}
 \end{center}
@@ -1048,26 +1083,28 @@ at the resolution of the figures.
 
 
 \subsection{Advection-Diffusion Equation}
-Next, we use optimal time step selection in the context of the 
-advection-diffusion equation, a more general linear, constant coefficient PDE:
+We now demonstrate the use of optimal time step selection in the context of 
+a general linear, constant coefficient PDE -- the advection-diffusion 
+equation:
 \beq
   \frac{\partial u}{\pt} = D \frac{\partial^2 u}{\px^2} 
-  + a \frac{\partial u}{\px},
+  + A \frac{\partial u}{\px},
   \label{eq:ADE_1d}
 \eeq
-where $D$ is the diffusivity and $a$ is the flow speed.  For this problem,
-we use forward Euler for time integration and the second-order central 
+where $D$ is the diffusivity and $A$ is the flow speed.  For this problem,
+we use forward Euler for time integration and second-order central 
 difference approximations for the diffusion and advection terms:
 \beq
   u^{n+1}_j = u^{n}_j 
   + \dt 
     \left( D \frac{u^{n}_{j+1} -2 u^{n}_j + u^{n}_{j-1}}{\dx^2} 
-         + a \frac{u^{n}_{j+1} - u^{n}_{j-1}}{2 \dx} \right).
+         + A \frac{u^{n}_{j+1} - u^{n}_{j-1}}{2 \dx} \right).
   \label{eq:ADE_1d_FD_scheme}
 \eeq
 This scheme is formally first-order in time and second-order in space.  
-Due to the stability constraint $\dt \le \dx^2/(2 D + a \dx)$, the 
-scheme is $O(\dx^2)$ accurate overall (in the limit $\dx \rightarrow 0$).
+Due to the stability constraint $\dt < \min \{2D/A^2, \dx^2/2D \}$ 
+\cite{chan_1984}, the scheme is $O(\dx^2)$ accurate overall (in the limit 
+$\dx \rightarrow 0$).
 
 To analyze the discretization error, we can reuse 
 results~(\ref{eq:diffusion_eqn_1d_time_err}) 
@@ -1088,28 +1125,28 @@ in~(\ref{eq:diffusion_eqn_1d_time_err}), we find that
 \bea
   \tu^{n+1}_j = \tu^{n}_j 
   &+& \dt \left( D \frac{\partial^2 \tu^n}{\px^2} 
-               + a \frac{\partial \tu^n}{\px} \right)
+               + A \frac{\partial \tu^n}{\px} \right)
   \nonumber \\
   &+& \frac{\dt^2}{2} 
       \left( 
         D^2 \frac{\partial^4 \tu^n}{\px^4} 
-      + 2 D a \frac{\partial^3 \tu^n}{\px^3} 
-      + a^2 \frac{\partial^2 \tu^n}{\px^2} 
+      + 2 D A \frac{\partial^3 \tu^n}{\px^3} 
+      + A^2 \frac{\partial^2 \tu^n}{\px^2} 
       \right) 
-  + O \left( \dt^3 \right)
+  + O \left( \dt^3 \right).
   \label{eq:ADE_1d_time_err_modified}
 \eea
-We then obtain the local truncation error, $\tau^n_j$, for the finite 
-difference scheme~(\ref{eq:ADE_1d_FD_scheme}) using 
-the usual procedure of deriving the evolution equation for the error 
-and extracting the source term:
+The local truncation error $\tau^n_j$ for the finite difference 
+scheme~(\ref{eq:ADE_1d_FD_scheme}) can be obtained by the usual procedure 
+of deriving the evolution equation for the error and extracting the source 
+term:
 \bea
   \tau^n_j &=&
       \left( \frac{\partial^4 \tu^n}{\px^4} 
-           + \frac{2a}{D} \frac{\partial^3 \tu^n}{\px^3} \right)
+           + \frac{2A}{D} \frac{\partial^3 \tu^n}{\px^3} \right)
       \left[ \frac{\dx^2}{12} - \frac{D \dt}{2}  \right] (D \dt)
   \nonumber \\
-  &-& \frac{a^2 \dt^2}{2} \frac{\partial^2 \tu^n}{\px^2}
+  &-& \frac{A^2 \dt^2}{2} \frac{\partial^2 \tu^n}{\px^2}
       + O(\dt \dx^4) + O(\dt^3)
   \label{eq:ADE_1d_err_eqn}
 \eea
@@ -1120,40 +1157,35 @@ use of an optimal time step and addition of correction terms.
 In this case, the optimal time step is $\dto = \dx^2/6D$ and the
 correction term is 
 \beq
-  \frac{a^2 \dt^2}{2} \frac{\partial^2 \tu^n}{\px^2}.
+  \frac{A^2 \dt^2}{2} \frac{\partial^2 \tu^n}{\px^2}.
   \label{eq:ADE_1d_corr_term}
 \eeq 
-Note that using the standard second-order central difference stencil to 
-compute the Laplacian in the correction term is sufficient to ensure that no 
-errors larger than $O(\dt \dx^4) + O(\dt^3)$ are introduced into $\tau^n_j$.  
+Note that using the standard second-order, central difference stencil to 
+compute the Laplacian in the correction term only makes an 
+$O(\dt^2 \dx^2)$ contribution to $\tau_j^n$, which ensures that no 
+errors larger than $O(\dt \dx^4) + O(\dt^3)$ are introduced into the 
+truncation error.
 With the optimal time step and correction term, the finite difference 
 scheme~(\ref{eq:ADE_1d_FD_scheme}) is now fourth-order accurate.  
-Figure~\ref{fig:ADE_1d_error} demonstrates the 
-improved accuracy of the finite difference 
-scheme~(\ref{eq:ADE_1d_FD_scheme}) when the optimal
-time step and correction term are used.
+Figure~\ref{fig:ADE_1d_error} illustrates the improved accuracy of the finite 
+difference scheme~(\ref{eq:ADE_1d_FD_scheme}) when the optimal time step and 
+correction term are used.
 
 \begin{figure}[htb]
 \begin{center}
 \scalebox{0.35}{\includegraphics{figures/adv_diff_eqn_1d_error_vs_N}} 
-\caption{Error analysis for three finite difference schemes for the 
-diffusion equation: forward Euler with optimal time step (circles), forward 
-Euler with suboptimal time step (squares), and Crank-Nicholson (crosses).  
-Using each method, we solve the diffusion equation with $D = 1$ on the 
-domain $0 < x < 1$ subject to the boundary conditions 
-$u(0,t) = 1$ and $u_x(1,t) = 1/2$ 
-and the initial condition
-$u(x,0) = 1 + x/2 + 2 \sin(5 \pi x/2) + 3 \sin(7 \pi x/2) 
-- 4 \sin(11 \pi x/2)$.  
-The exact solution for this problem is
-$u(x,t) = 1 + x/2 
-        + 2 \sin(5 \pi x/2)  \exp(-25 \pi^2 D t/4) 
-        + 3 \sin(7 \pi x/2)  \exp(-49 \pi^2 D t/4)
-        - 4 \sin(11 \pi x/2) \exp(-121 \pi^2 D t/4)$.
-The $L^\infty$ error is plotted against the grid spacing $\dx$ for each 
-method.  Note that the errors for the forward Euler with suboptimal time 
-step and Crank-Nicholson schemes lie almost directly on top of each other
-at the resolution of the figures.
+\caption{$L^\infty$ error as a function of number of grid points for 
+two finite difference schemes that solve the advection-diffusion 
+equation: forward Euler with optimal time step and correction term (circles) 
+and forward Euler with suboptimal time step and no correction terms (squares).  
+Both schemes use second-order, central finite difference approximations for 
+the advection and diffusion terms.
+Using both methods, we solve the advection-diffusion equation with $D = 2$
+and $A = 5$ on the domain $-10 < x < 10$ subject to the initial condition
+$u(x,0) = \exp(-x^2/4)$.  The boundary conditions are set using the
+analytical solution 
+$u(x,t) = \frac{1}{\sqrt{T}} \exp \left( -(x+At)^2/4T \right)$
+where $T = Dt+1$.
 }
 \label{fig:ADE_1d_error}
 \end{center}
@@ -1187,30 +1219,30 @@ It is common to use upwind discretizations as
 in~(\ref{eq:advection_eqn_1d_FD_scheme}) for advection terms that arise
 in PDEs.  If instead of a central difference approximation, we use a
 first-order upwind stencil\footnote{The appropriate upwind stencil depends
-on the sign of $a$.} for the advection term in~(\ref{eq:ADE_1d}), the 
+on the sign of $A$.} for the advection term in~(\ref{eq:ADE_1d}), the 
 discretization error for the finite difference scheme is dominated by the 
-first-order error introduced by the stencil for the advection term:
+first-order error introduced by the upwind stencil for the advection term:
 \bea
   \tau^n_j &=&
       \frac{\partial^2 \tu^n}{\px^2} 
-      \left[ \frac{\dx}{2} - \frac{|a| \dt}{2}  \right] (|a| \dt)
+      \left[ \frac{\dx}{2} - \frac{|A| \dt}{2}  \right] (|A| \dt)
   \nonumber \\
    & & 
     - \frac{\dt^2}{2} 
       \left( D^2 \frac{\partial^4 \tu^n}{\px^4}  
-           + 2 a D \frac{\partial^3 \tu^n}{\px^3}
+           + 2 A D \frac{\partial^3 \tu^n}{\px^3}
       \right)
       + O(\dt \dx^2) + O(\dt^3)
   \label{eq:ADE_1d_upwind_err_eqn}.
 \eea
 Thus, we can see that for a finite difference scheme based a first-order
-upwind discretization of the advection term, we optimal time step is 
-$\dto = \dx/|a|$ (as for the pure advection equation) and the required
+upwind discretization of the advection term, the optimal time step is 
+$\dto = \dx/|A|$ (as for the pure advection equation) and the required
 correction term is
 \beq
     \frac{\dt^2}{2} 
       \left( D^2 \frac{\partial^4 \tu^n}{\px^4}  
-           + 2 a D \frac{\partial^3 \tu^n}{\px^3}
+           + 2 A D \frac{\partial^3 \tu^n}{\px^3}
       \right)
   \label{eq:ADE_1d_upwind_corr_term}.
 \eeq
@@ -1221,8 +1253,8 @@ are at least first-order accurate.
 Comparing the accuracies achieved using a second-order versus a 
 first-order discretization of the advection term, it is clear that 
 the power of optimal time step selection is highly dependent on the 
-the original finite difference scheme and underscores the importance of
-carefully choosing the finite difference scheme even when optimal time
+the original choice of finite difference scheme and underscores the importance 
+of carefully choosing the finite difference scheme even when optimal time
 step selection is used.
 
 
@@ -1236,27 +1268,32 @@ we consider the viscous Burgers equation~\cite{whitham_book}:
 \eeq
 where $\nu$ is viscosity.  Notice that this problem has the same structure
 to the advection-diffusion equation, except that the advection velocity now 
-depends explicitly on the solution $u$.  To solve this equation numerically,
+depends on the solution $u$.  To solve this equation numerically,
 we will use forward Euler for time integration and second-order central 
 difference approximations for the diffusion and advection terms:
 \beq
   u^{n+1}_j = u^{n}_j 
   + \dt 
-    \left( \nu \frac{u^{n}_{j+1} -2 u^{n}_j + u^{n}_{j-1}}{\dx^2} 
+    \left( \nu 
+      \left [ \frac{u^{n}_{j+1} -2 u^{n}_j + u^{n}_{j-1}}{\dx^2} \right]
          - u^n_j 
       \left[ \frac{u^{n}_{j+1} - u^{n}_{j-1}}{2 \dx} \right] 
     \right).
   \label{eq:burgers_1d_FD_scheme}
 \eeq
 This scheme is formally first-order in time and second-order in space.  
-Due to the stability constraint $\dt \le \dx^2/(2 \nu + a \dx)$, the 
-scheme is $O(\dx^2)$ accurate overall (in the limit $\dx \rightarrow 0$).
+Using the stability condition for the advection-diffusion equation as a 
+heuristic guide, we expect a stability constraint of the form 
+$\dt \le \dx^2/2 \nu$ in the limit $\dx \rightarrow 0$ (assuming that 
+the solution $u$ remains bounded).  Therefore, the scheme 
+(\ref{eq:burgers_1d_FD_scheme}) is $O(\dx^2)$ accurate overall. 
 
 Because the finite difference scheme for the viscous Burgers equation is 
 very similar to the formally second-order advection-diffusion 
 equation~(\ref{eq:ADE_1d_FD_scheme}), the analysis for the error analysis
-is almost the same as in the previous section.  Following the usual 
-procedure, we find that the local truncation error takes the form
+is almost the same as in the previous section.  Following the procedure
+described for the advection-diffusion equation, we find that the 
+local truncation error has the form
 \bea
   \tau^n_j &=&
       \left( \nu \frac{\partial^4 \tu^n}{\px^4} 
@@ -1283,36 +1320,27 @@ for the finite difference scheme is
       \right)
   \label{eq:burgers_1d_corr_term}
 \eeq 
-Note that using the standard second-order central difference stencils to 
-compute the correction term is sufficient to ensure that the overall error
-for the scheme is $O(\dx^4)$.  Figure~\ref{fig:burgers_1d_error} shows that
-using an optimal time step and correction terms improves the accuracy of the 
-finite difference scheme~(\ref{eq:burgers_1d_FD_scheme}). 
+As for the advection-diffusion, using the standard second-order central 
+difference stencils to compute the correction term is sufficient to ensure 
+that the overall error for the scheme is $O(\dx^4)$.  
+Figures~\ref{fig:burgers_1d_error} and \ref{fig:burgers_1d_solns} demonstrate
+the boost in accuracy obtained by using the optimal time step and 
+adding correction terms to the finite difference 
+scheme~(\ref{eq:burgers_1d_FD_scheme}).
 
 \begin{figure}[htb]
 \begin{center}
 \scalebox{0.35}{\includegraphics{figures/burgers_eqn_1d_error_vs_N}} 
-\caption{Error analysis for two finite difference schemes for the 
-viscous Burgers equation: forward Euler with optimal time step (circles)
-and forward Euler with suboptimal time step (squares).
-Using each method, we solve the viscous Burgers equation ??
-}
-\label{fig:burgers_1d_error}
-\end{center}
-\end{figure}
-
-\begin{figure}[htb]
-\begin{center}
-\scalebox{0.32}{\includegraphics{figures/burgers_eqn_1d_FE_OTS_soln}} 
-\ \ \ \ \ 
-\scalebox{0.32}{\includegraphics{figures/burgers_eqn_1d_FE_soln}} 
-\caption{Comparison of numerical solutions for the 1D viscous Burgers 
-equation~(\ref{eq:burgers_1d}) using forward Euler time stepping with 
-optimal time step and correction terms (left) and forward Euler time 
-stepping with suboptimal time step (right).  The latter scheme uses a 
-time step $\Delta t = \Delta x^2 / 3 \nu$.  Both figures show the numerical
-solution at $t = 2$ computed on the domain $0 < x < 10$ using 100 grid points.
-The viscosity $\nu$ is set to $0.1$.  The initial conditions are taken to be 
+\caption{$L^\infty$ error as a function of number of grid points for
+two finite difference schemes that solve the viscous Burgers equation:
+forward Euler with optimal time step and correction term (circles)
+and forward Euler with suboptimal time step $\dt = \dx^2/4\nu$ and no 
+correction terms (squares).
+Both schemes use second-order, central finite difference approximations for
+the advection and diffusion terms.
+The viscous Burgers equation is solved on the domain $0 < x < 10$ to 
+time $t=2$ with the viscosity $\nu$ set to $0.1$.  The initial conditions are 
+taken to be 
 $u(x,0) = 1 + \gamma \sqrt{\frac{\nu}{\pi}} \exp\left( -(x-1)^2/4 \nu \right) 
             / \left[ 1 + \frac{\gamma}{2} \ 
                          \mathtt{erfc}\left((x-1)/\sqrt{4\nu} \right) 
@@ -1328,6 +1356,24 @@ $u(x,t) = 1 + \gamma \sqrt{\frac{\nu}{\pi T}}
     \right]$,
 where $T = t+1$.
 }
+\label{fig:burgers_1d_error}
+\end{center}
+\end{figure}
+
+\begin{figure}[htb]
+\begin{center}
+\scalebox{0.32}{\includegraphics{figures/burgers_eqn_1d_FE_OTS_soln}} 
+\ \ \ \ \ 
+\scalebox{0.32}{\includegraphics{figures/burgers_eqn_1d_FE_soln}} 
+\caption{Comparison of numerical solutions for the 1D viscous Burgers 
+equation~(\ref{eq:burgers_1d}) using forward Euler time stepping with 
+optimal time step and correction terms (left) and forward Euler time 
+stepping with suboptimal time step (right).  Both figures show the 
+numerical solution at $t = 2$ computed using $100$ grid points.
+For details about the initial/boundary conditions and physical parameters 
+used to compute these solutions, see the caption for 
+Figure~\ref{fig:burgers_1d_error}. 
+}
 \label{fig:burgers_1d_solns}
 \end{center}
 \end{figure}
@@ -1335,16 +1381,14 @@ where $T = t+1$.
 
 \subsection{Fourth-Order Parabolic Equation}
 As a final example in one space dimension, we consider a PDE with high-order
-spatial derivatives -- a fourth-order parabolic equation 
-REPLACE WITH A MORE PHYSICAL NAME:
+spatial derivatives -- a fourth-order parabolic equation: 
 \beq
-  \frac{\partial u}{\pt} = -\kappa \frac{\partial^4 u}{\px^4} + f(x,t),
+  \frac{\partial u}{\pt} = -\kappa \frac{\partial^4 u}{\px^4} + f(x,t).
   \label{eq:4th_order_parabolic_eqn_1d}
 \eeq
-where $\kappa$ is the ??.  From our previous examples, we know that 
-optimal time step selection requires that the coefficient on leading-order 
-spatial discretization error must be directly related to the second 
-derivative of the solution $u$ with respect to time.  
+From our previous examples, we know that optimal time step selection requires 
+the coefficient on leading-order spatial discretization error to be directly 
+related to the second derivative of the solution $u$ with respect to time.  
 From~(\ref{eq:4th_order_parabolic_eqn_1d}), we see that 
 \beq
   \frac{\partial^2 u}{\pt^2} = 
@@ -1372,7 +1416,7 @@ where the fourth-order discrete bilaplacian is given by
                {6 \dx^4}.
 \eeq
 This scheme is formally first-order in time and fourth-order in space.  
-Due to the stability constraint $\dt \le \dx^4/? \kappa$, the scheme is 
+Due to the stability constraint $\dt \le 3\dx^4/40 \kappa$, the scheme is 
 $O(\dx^4)$ accurate overall.
 
 Proceeding in the usual way, we use Taylor series expansions and the PDE to 
@@ -1427,27 +1471,10 @@ term is
 \eeq
 Together, these modifications lead to a finite difference scheme that is 
 sixth-order accurate.  As with the previous examples, the correction term 
-can be computed analytically or numerically.  
-
-Figure~\ref{fig:4th_order_parabolic_eqn_1d_error} demonstrates the 
-accuracy of the finite difference 
-scheme~(\ref{eq:4th_order_parabolic_eqn_1d_FD_scheme}) when the optimal
-time step and correction terms are used.  Observe that the choice of the
-finite difference approximation used to compute the correction terms
-impacts the overall accuracy of the scheme.  Surprisingly, the
-second-order central difference approximation for $f_{xxxx}$ yields a
-more accurate solution than the fourth-order scheme.  Fortuitous cancellation 
-of error is the origin of the superior results obtained by using the 
-second-order scheme.  A cursory analysis shows that using a second-order 
-stencil for $f_{xxxx}$ yields a $O(\dx^{10})$ error involving 
-$\left(\partial_x\right)^{10}u$ and $\left(\partial_x\right)^{6}f$ with 
-opposite signs.  Because these two terms are related to each other through the 
-PDE~(\ref{eq:4th_order_parabolic_eqn_1d}), they can partially anihilate
-each other.  On the other hand, when the fourth-order stencil is used
-for $f_{xxxx}$, there is no chance for cancellation because the $O(\dx^{10})$ 
-error only involves $\left(\partial_x\right)^{10}u$.
-Again, we see that blindly using a higher-order scheme does not
-necessarily lead to a more accurate numerical solution.
+can be computed analytically or numerically.  The improved accuracy of 
+(\ref{eq:4th_order_parabolic_eqn_1d_FD_scheme}) when the optimal time step 
+and correction terms are used is illustrated in 
+Figure~\ref{fig:4th_order_parabolic_eqn_1d_error}. 
 
 \begin{figure}[htb]
 \begin{center}
@@ -1456,24 +1483,22 @@ necessarily lead to a more accurate numerical solution.
 \ \ 
 \scalebox{0.33}{
   \includegraphics{figures/4th_order_parabolic_eqn_1d_comp_time}} 
-\caption{Error analysis for three finite difference schemes for the 
-diffusion equation: forward Euler with optimal time step (circles), forward 
-Euler with suboptimal time step (squares), and Crank-Nicholson (crosses).  
-Using each method, we solve the diffusion equation with $\kappa = 1$ on the 
-domain $0 < x < 1$ subject to the boundary conditions 
-$u(0,t) = 1$ and $u_x(1,t) = 1/2$ 
-and the initial condition
-$u(x,0) = 1 + x/2 + 2 \sin(5 \pi x/2) + 3 \sin(7 \pi x/2) 
-- 4 \sin(11 \pi x/2)$.  
-The exact solution for this problem is
-$u(x,t) = 1 + x/2 
-        + 2 \sin(5 \pi x/2)  \exp(-25 \pi^2 \kappa t/4) 
-        + 3 \sin(7 \pi x/2)  \exp(-49 \pi^2 \kappa t/4)
-        - 4 \sin(11 \pi x/2) \exp(-121 \pi^2 \kappa t/4)$.
-The $L^\infty$ error is plotted against the grid spacing $\dx$ for each 
-method.  Note that the errors for the forward Euler with suboptimal time 
-step and Crank-Nicholson schemes lie almost directly on top of each other
-at the resolution of the figures.
+\caption{$L^\infty$ error as a function of number of grid points (left)
+and computation time as a function of $L^\infty$ error (right) for two 
+finite difference schemes that solve the fourth-order parabolic equation 
+(\ref{eq:4th_order_parabolic_eqn_1d_space_err}):
+forward Euler with optimal time step and correction term (circles)
+and forward Euler with suboptimal time step $\dt = \dx^2/16$ and no 
+correction terms (squares).
+Both schemes use a fourth-order, central finite difference approximation for
+the bilaplacian.  Using each method, we solve the fourth-order parabolic
+equation with $\kappa = 1$ on the domain $0 < x < 1$ subject to the boundary 
+conditions $u(0,t) = u(1,t) = 0$ and the initial condition
+$u(x,0) = 2\sin(2 \pi x) + \sin(5 \pi x)$.  The value of the solution
+in the ghost cells (required as a result of the wide stencil for the 
+discrete bilaplacian) are filled by taking values from the exact solution: 
+$u(x,t) = 2\sin(2 \pi x)\cos(10000 \pi t) 
+        + \sin(5 \pi x) \left[ 2-\exp(-100\pi^2 t) \right]$.
 }
 \label{fig:4th_order_parabolic_eqn_1d_error}
 \end{center}
@@ -1495,12 +1520,7 @@ As a result, it is crucial that numerical schemes for high-order PDEs use
 high-order discretizations for the spatial derivatives.  Using high-order 
 discretizations increases the computational efficiency of numerical schemes 
 and makes it possible to obtain accurate solutions on relatively coarse 
-grids.  For a PDE of order $n$, explicit schemes typically require 
-the time step to be $O(\dx^n)$.  Thus, it makes sense to choose the order of 
-the finite difference stencils for the spatial derivatives to be at least 
-$n/s$ where $s$ is the order of accuracy for the time integration scheme.  
-This choice yields a finite difference scheme that with an error that is
-$O(\dx^n)$ overall.}.  
+grids.}. 
 Optimal time step selection merely provides a valuable way to leverage the 
 effort spent deriving high-order finite difference schemes in order to further 
 boost the overall accuracy of the numerical method.
@@ -1508,10 +1528,14 @@ boost the overall accuracy of the numerical method.
 Table~\ref{tab:comp_perf_vs_err_4th_order_parabolic} shows the computational 
 performance of various finite difference methods for solving 
 equation~(\ref{eq:4th_order_parabolic_eqn_1d_second_time_derivative}).
-Observe the dramatic decrease in computational cost as a function of 
+Observe the dramatic decrease in computational cost as a function of the
 error by simply replacing a second-order discretization for the bilaplacian 
 operator with a fourth-order discretization.  For the forward Euler scheme,
 using an optimal time step drives the computational cost down even more.
+The performance plot in Figure~\ref{fig:4th_order_parabolic_eqn_1d_error} 
+shows that the theoretical estimates of compute time are in good agreement 
+with timings from actual computational experiments.
+
 Comparing the best forward Euler and Crank-Nicholson schemes shows that
 the optimal forward Euler scheme more efficiently utilizes memory at the
 cost of requiring more computation time.  For the fourth-order parabolic 
@@ -1526,12 +1550,10 @@ desired error level.
 
 \begin{table}[tbh]
 \caption{\label{tab:comp_perf_vs_err_4th_order_parabolic} 
-   Computational cost as a function of the global numerical error $E$
+   Computational cost as a function of the global numerical error $e$
    for various FD schemes that numerically solve the 1D fourth-order
    parabolic equation.  For all FD schemes, the numerical solution is 
-   assumed to be computed over a fixed time interval.  A less negative 
-   power of $E$ for the memory and compute time means that a FD scheme is 
-   more computationally efficient.
+   assumed to be computed over a fixed time interval.
 }
 \begin{minipage}{\textwidth}
 \begin{center} \footnotesize
@@ -1542,8 +1564,8 @@ desired error level.
   & $\dt$\footnote{The time step for the forward Euler scheme is $O(\dx^4)$
    as a result of stability considerations.  The time step for the 
    Crank-Nicholson schemes with second- and fourth-order spatial 
-   discretizations are $O(\dx)$ and $O(\dx^2)$, respectively, so that the 
-   temporal error is subdominant to the spatial error.}
+   discretizations are taken to be $O(\dx)$ and $O(\dx^2)$, respectively, so 
+   that the temporal error is subdominant to the spatial error.}
   & {\bf Memory}\footnote{The memory requirement for each scheme is estimated 
     to be $O(1/\dx)$.} 
   & {\bf Compute Time}\footnote{The computation time is approximated as 
@@ -1552,38 +1574,38 @@ desired error level.
     arise for the Crank-Nicholson method.}  \\
   \hline 
   Forward Euler with 
-    & \multirow{2}{*}{$O\left( E^{1/2} \right)$} 
-    & \multirow{2}{*}{$O\left (E^{2} \right)$}
-    & \multirow{2}{*}{$O\left( E^{-1/2} \right)$} 
-    & \multirow{2}{*}{$O\left( E^{-5/2} \right)$} \\
+    & \multirow{2}{*}{$O\left( e^{1/2} \right)$} 
+    & \multirow{2}{*}{$O\left( e^{2} \right)$}
+    & \multirow{2}{*}{$O\left( e^{-1/2} \right)$} 
+    & \multirow{2}{*}{$O\left( e^{-5/2} \right)$} \\
   \ \ 2nd-Order Bilaplacian & & & & \\
   \hline 
   Forward Euler with 
-    & \multirow{2}{*}{$O\left( E^{1/4} \right)$}
-    & \multirow{2}{*}{$O\left (E \right)$}
-    & \multirow{2}{*}{$O\left( E^{-1/4} \right)$} 
-    & \multirow{2}{*}{$O\left( E^{-{5/4}} \right)$} \\
+    & \multirow{2}{*}{$O\left( e^{1/4} \right)$}
+    & \multirow{2}{*}{$O\left( e \right)$}
+    & \multirow{2}{*}{$O\left( e^{-1/4} \right)$} 
+    & \multirow{2}{*}{$O\left( e^{-{5/4}} \right)$} \\
   \ \ 4th-Order Bilaplacian & & & & \\
   \hline 
   Forward Euler with 
-    & \multirow{2}{*}{$O\left( E^{1/6} \right)$} 
-    & \multirow{2}{*}{$O\left( E^{2/3} \right)$} 
-    & \multirow{2}{*}{$O\left( E^{-1/6} \right)$} 
-    & \multirow{2}{*}{$O\left( E^{-5/6} \right)$} \\ 
+    & \multirow{2}{*}{$O\left( e^{1/6} \right)$} 
+    & \multirow{2}{*}{$O\left( e^{2/3} \right)$} 
+    & \multirow{2}{*}{$O\left( e^{-1/6} \right)$} 
+    & \multirow{2}{*}{$O\left( e^{-5/6} \right)$} \\ 
   \ \ 4th-Order Bilaplacian and OTS & & & & \\
   \hline 
   Crank-Nicholson with 
-    & \multirow{2}{*}{$O\left( E^{1/2} \right)$} 
-    & \multirow{2}{*}{$O\left( E^{1/2} \right)$} 
-    & \multirow{2}{*}{$O\left( E^{-1/2} \right)$} 
-    & \multirow{2}{*}{$O\left( E^{-1} \right)$} \\
+    & \multirow{2}{*}{$O\left( e^{1/2} \right)$} 
+    & \multirow{2}{*}{$O\left( e^{1/2} \right)$} 
+    & \multirow{2}{*}{$O\left( e^{-1/2} \right)$} 
+    & \multirow{2}{*}{$O\left( e^{-1} \right)$} \\
   \ \ 2nd-Order Bilaplacian & & & & \\
   \hline 
   Crank-Nicholson with 
-    & \multirow{2}{*}{$O\left( E^{1/4} \right)$} 
-    & \multirow{2}{*}{$O\left( E^{1/2} \right)$} 
-    & \multirow{2}{*}{$O\left( E^{-1/4} \right)$} 
-    & \multirow{2}{*}{$O\left( E^{-3/4} \right)$} \\
+    & \multirow{2}{*}{$O\left( e^{1/4} \right)$} 
+    & \multirow{2}{*}{$O\left( e^{1/2} \right)$} 
+    & \multirow{2}{*}{$O\left( e^{-1/4} \right)$} 
+    & \multirow{2}{*}{$O\left( e^{-3/4} \right)$} \\
   \ \ 4th-Order Bilaplacian & & & & \\
   \hline
 \end{tabular}
@@ -1594,41 +1616,49 @@ desired error level.
 
 \section{\label{sec:applications_multidim}
          Application to PDEs in Multiple Space Dimensions}
-A key distinction between the error for FD schemes in one space dimension
-and multiple space dimensions is the presence of cross-terms in the 
-discretization error.  In the context of a standard analysis for a finite 
-difference scheme, it is usually safe to ignore the precise form of the 
-cross-terms because they only appear as higher-order corrections in the 
-error.  As a result, the choice of discretization for the spatial derivative 
-operators is not critical to achieve a desired accuracy for the overal FD 
-scheme.  In contrast, knowledge of the form of the cross-terms is critical 
-when attempting to use optimal time step selection.  Without this knowledge, 
-it is impossible to ensure cancellation of higher-order errors.  
+Optimal time step selection can be used to boost the order of accuracy for 
+finite difference schemes in any number of space dimensions.  However, 
+several important issues arise for problems in more than one space dimension.  
+These issues are primarily related to the presence of cross-terms in the 
+discretization error, multiple grid spacing parameters,  and the domain 
+geometry.  In this section, we address these issues and demonstrate the use 
+of optimal time step selection in the construction of finite difference 
+schemes for two linear, time dependent PDEs in two space dimensions on both 
+regular and irregular domains.  It is straightforward to generalize the 
+approach presented in this section to more space dimensions and to construct 
+methods for semilinear PDEs by incorporating ideas discussed in 
+Sections~\ref{sec:optimal_time_step_selection} and~\ref{sec:applications_1d}.  
 
-Recall that optimal time step selection requires that higher-order temporal 
-errors be directly related to higher-order spatial errors through the use 
-of the PDE.  This requirement can be satisfied in one of two ways:
+
+\subsection{\label{sec:ots_multidim_crossterms}
+            Discretization of Spatial Derivatives}
+A significant distinction between the error for FD schemes in one space 
+dimension and multiple space dimensions is the presence of cross-terms in 
+the discretization error.  When analyzing finite difference schemes using 
+conventional numerical analysis techniques, it is usually safe to ignore the 
+precise form of the cross-terms because they only appear as higher-order 
+corrections in the error.  As a result, the order of accuracy for the FD 
+scheme is not sensitive to the particular choice of discretization for the 
+spatial derivative operators.  In contrast, knowledge of the form of the 
+cross-terms is critical when attempting to use optimal time step selection.  
+Without this knowledge, it is impossible to ensure cancellation of 
+higher-order errors.  
+
+Recall that optimal time step selection requires the higher-order temporal 
+errors to be directly related to higher-order spatial errors via the PDE.  
+This requirement can be satisfied in one of two ways:
 \begin{itemize}
 \item by carefully designing the spatial discretization so that 
       higher-order spatial errors are directly related to the spatial 
       derivative operators in the PDE; or
-\item by explicitly adding temporal correction terms to cancel out cross-terms 
-      that are not eliminated  by the original finite difference scheme.
+\item by explicitly adding correction terms to cancel out any cross-terms 
+      in the original finite difference scheme that are cannot be eliminated 
+      by using the PDE.
 \end{itemize}
 While these two approaches may appear to be different, they are actually 
-equivalent because the optimal time step is \emph{not independent} of the 
-grid size.  Thus, the temporal correction terms can be viewed as part of
-an expanded spatial discretization scheme and vice-versa.
-
-In the remainder of this section, we apply optimal time step selection 
-to the construction of finite difference schemes for two classical linear,
-time dependent PDEs in two space dimensions, including an example that
-demonstrates how optimal time step selection can be used to design simple
-schemes for problems on irregular domains.  It is straightforward to 
-generalize the approach presented in this section to more space dimensions 
-and to construct methods for semilinear PDEs by incorporating ideas discussed 
-in Sections~\ref{sec:optimal_time_step_selection} 
-and~\ref{sec:applications_1d}.  
+equivalent because the correction terms can be combined with the original 
+FD schemes.  In essense, the correction terms can be viewed as part of an 
+expanded spatial discretization scheme and vice-versa.
 
 
 \subsection{Linear Advection Equation}
@@ -1663,8 +1693,8 @@ with first-order upwind discretizations of the advection terms:
   \label{eq:advection_eqn_2d_FD_scheme}
 \eeq
 where superscripts and subscripts denote the time and space indices, 
-respectively.  Using standard error analysis, it is straightforward to show
-that this method is formally first-order in both space and time.  
+respectively.  Using conventional error analysis, it is straightforward to 
+show that this method is formally first-order in both space and time.  
 
 To compute the optimal time step and grid spacing ratio, we begin, as
 usual, by analyzing the discretization error 
@@ -1736,9 +1766,8 @@ eliminated by adding the correction term
    A_x A_y \dt^2 \frac{\partial^2 \tu}{\px \py}.
   \label{eq:advection_eqn_2d_corr_term}
 \eea
-With these choices, we have already boosted the order of accuracy for the 
-FD scheme (\ref{eq:advection_eqn_2d_FD_scheme}) from 
-first- to second-order.
+With these choices, we are able to boost the order of accuracy for the 
+FD scheme (\ref{eq:advection_eqn_2d_FD_scheme}) from first- to second-order.
 
 With a careful choice of discretization for the correction term, we can
 boost the order of accuracy even further.  Using the first-order upwind 
@@ -1786,7 +1815,7 @@ of this scheme over the first-order forward Euler
 scheme~(\ref{eq:advection_eqn_2d_FD_scheme}) without any modifications.
 Notice how the sharp corners of the initial conditions are perfectly 
 preserved when the optimal time step, optimal grid spacing ratio, and 
-correction terms are used.  In contrast, the sharp corners are
+correction term are used.  In contrast, the sharp corners are
 completely smoothed out in the solution computed using the standard 
 first-order upwind scheme. 
 
@@ -1805,16 +1834,16 @@ The advection velocity $(A_x, A_y)$ is set to $(-1, -2)$.  The initial
 conditions are taken to be a 2D square function centered at the
 origin: $u(x,y,0) = 1$ if $|x| + |y| \le 2$ and 
 $u(x,y,0) = 0$ if $|x| + |y| > 2$. 
-For the time interval considered, the $u$ is identically zero 
+For the time interval considered, $u$ is identically zero 
 on the boundary.
 }
 \label{fig:advection_eqn_2d_soln}
 \end{center}
 \end{figure}
 
-To see that the temporal correction term can be considered as part of the 
-spatial discretization scheme, we can write out the complete FD scheme 
-including the correction term:
+To see that the correction term can be considered as part of the spatial 
+discretization scheme, we can write out the complete FD scheme including 
+the correction term:
 \bea
   u^{n+1}_{i,j} &=& u^{n}_{i,j}
   - A_x \dt \left( \frac{u^{n}_{i,j} - u^{n}_{i-1,j}}{\dx} \right)
@@ -1854,8 +1883,7 @@ straighforward to generalize
 using a first-order discretization for the spatial derivatives that is an 
 average over the $2^{d-1}$ first-order upwind discretizations in each 
 coordinate direction.   As with the two-dimensional problem, the optimal 
-grid spacings satisfy $\dx_k/A_{x_k} = C$ for $1 \le k \le d$, where $C$ is 
-a constant equal to the optimal time step. 
+grid spacings satisfy $\dx_k/A_{x_k} = \dt_{opt}$ for $1 \le k \le d$.
 
 Like the unit CFL condition for the one-dimensional advection equation, the 
 analogue of (\ref{eq:advection_eqn_2d_FD_scheme_simplified}) in any number
@@ -1863,7 +1891,8 @@ of space dimensions could also have been derived by examining how
 characteristic lines of the $d$-dimensional advection equation pass 
 through grid points.  For the two-dimensional problem, this perspective 
 becomes apparent when we fully simplify 
-(\ref{eq:advection_eqn_2d_FD_scheme_simplified}) to obtain
+(\ref{eq:advection_eqn_2d_FD_scheme_simplified}) using the 
+optimal time step and grid spacing ratio to obtain
 $u^{n+1}_{i,j} = u^{n}_{i-1,j-1}$.
 
 
@@ -1907,7 +1936,7 @@ step.  The forward Euler scheme using the five-point stencil is given by
     \right),
   \label{eq:diffusion_eqn_2d_5pt_scheme}
 \eea
-Standard error analysis shows that this scheme is formally first-order in 
+Conventional error analysis shows that this scheme is formally first-order in 
 time and second-order in space.
 
 While it is certainly possible to directly apply optimal time step selection 
@@ -1916,9 +1945,9 @@ correction terms to deal with the fact that the leading-order error for
 (\ref{eq:laplacian_2d_5pt_stencil}), 
 $\dx^2 \left(u_{xxxx} + u_{yyyy}\right)/12$, cannot be directly related 
 to the spatial derivative operator in the diffusion equation.  
-The analysis is more straightforward straightforward if we construct our
-finite difference scheme using the nine-point stencil for the 
-Laplacian~\cite{iserles_book,patra_2005,??}, which possesses a leading-order 
+The analysis is more straightforward if we construct our finite difference 
+scheme using the nine-point stencil for the 
+Laplacian~\cite{iserles_book,patra_2005}, which possesses a leading-order 
 error directly related to the spatial derivative operator in the PDE 
 (\ref{eq:diffusion_eqn_2d}):
 \bea
@@ -1955,11 +1984,11 @@ uses the nine-point discretization of the Laplacian
   \label{eq:diffusion_eqn_2d_9pt_scheme}
 \eeq
 is $O(\dx^2)$ accurate overall because it has a stability constraint 
-$\dt \le ??\dx^2/2D = O(\dx^2)$.
+$\dt \le 3\dx^2/8D = O(\dx^2)$.
 It is interesting to note that use of a nine-point stencil for the Laplacian 
 naturally arises when directly applying optimal time step selection to the
-five-point scheme through reinterpretion of the temporal correction term
-as a modification to the spatial discretization.
+five-point scheme through reinterpretion of the correction term as a 
+modification to the spatial discretization.
 
 To apply optimal time step selection to (\ref{eq:diffusion_eqn_2d_9pt_scheme}), we 
 proceed in the usual way by first analyzing the leading-order terms of the 
@@ -2003,44 +2032,50 @@ that is $O(\dx^4) + O(\dt^2) = O(\dx^4)$ overall.  Note that there is no need
 to consider an implicit scheme because $\dto$ is stable for the forward Euler 
 time integration scheme.
 
-The improvement in accuracy of the forward Euler scheme when the optimal time 
-step is used is clear in Figure~\ref{fig:diffusion_eqn_2d_src_analysis}.
-The numerical errors of the following three finite difference schemes for 
-the diffusion equation show the expected orders of accuracy: forward Euler 
-with optimal time step, forward Euler with suboptimal time step, and 
-Crank-Nicholson.  As with our other examples, the forward Euler scheme 
-with an optimal time step is much more efficient that the two other schemes.  
-Even with as few as 25 grid points in each space direction, the error in 
-solution computed by the forward Euler scheme with an optimal time step is 
-orders of magnitude smaller. 
-
 \begin{figure}[htb]
 \begin{center}
 \scalebox{0.33}{\includegraphics{figures/diffusion_eqn_2d_src_error_vs_N}} 
 \ \ 
 \scalebox{0.33}{\includegraphics{figures/diffusion_eqn_2d_src_comp_time}} 
-\caption{Error and performance analysis for three finite difference schemes 
-for the 2D diffusion equation: forward Euler with optimal time step (circles), 
-forward Euler with suboptimal time step (squares), and Crank-Nicholson 
-(diamonds).  Using each method, we solve the 2D diffusion equation with 
-$D = 1$ on the domain $0 < x < 1$ subject to the boundary conditions 
-and the initial condition
-$??$
-The exact solution for this problem is
-$u(x,t) = ??$
-The $L^\infty$ error is plotted against the grid spacing $\dx$ for each 
-method.  Note that the errors for the forward Euler with suboptimal time 
-step and Crank-Nicholson schemes lie almost directly on top of each other
-at the resolution of the figures.
+\caption{$L^\infty$ error as a function of number of grid points (left)
+and computation time as a function of $L^\infty$ error (right) for three
+finite difference schemes that solve the 2D diffusion equation:
+forward Euler with optimal time step and correction terms (circles), forward 
+Euler with suboptimal time step (squares), and Crank-Nicholson (diamonds).  
+The forward Euler schemes use a nine-point discretization of the Laplacian;
+the Crank-Nicholson scheme uses the standard five-point discretization of
+the Laplacian.  Using each method, we solve the 2D diffusion equation with 
+$D = 0.25$ on the domain $0 < x, y < 1$ subject to the initial condition
+$u(x,y,0) =  1 + y/3 + x/2 + xy/4 
+          + \sin(2 \pi x) \sin(3 \pi y) - \sin(5 \pi x) \sin(\pi y)$
+and boundary conditions taken from the analytical solution 
+$u(x,t) = 1 + y/3 + x/2 + xy/4 
+          + \sin(2 \pi x) \sin(3 \pi y) \exp(-5 D \pi^2 t) 
+          - \sin(5 \pi x) \sin(\pi y) \exp(-2 D \pi^2 t)
+$.
+Note that the errors for the forward Euler with suboptimal time step and 
+Crank-Nicholson schemes lie almost directly on top of each other at the 
+resolution of the figures.
 }
 \label{fig:diffusion_eqn_2d_src_analysis}
 \end{center}
 \end{figure}
 
+The improvement in the accuracy of the forward Euler scheme when the optimal 
+time step is used is clear in Figure~\ref{fig:diffusion_eqn_2d_src_analysis}.
+The numerical errors of the following three finite difference schemes for 
+the 2D diffusion equation show the expected orders of accuracy: forward Euler 
+with optimal time step and correction terms, forward Euler with suboptimal 
+time step, and Crank-Nicholson.  As with our other examples, the forward 
+Euler scheme with an optimal time step is much more efficient that the two 
+other schemes.  With as few as 25 grid points in each space direction, the 
+error in solution computed by the forward Euler scheme with an optimal time 
+step is orders of magnitude smaller. 
+
 Figure~\ref{fig:diffusion_eqn_2d_src_analysis} also compares the computational
-performance of the three schemes.  For all three schemes, notice that the 
-scaling of the computational time with error is in good agreement with the 
-theoretical expectations (see Table~\ref{tab:comp_perf_vs_dim}).  Again, the 
+performance of the three schemes.  For all three schemes, the scaling of the 
+computational time with error is in good agreement with the theoretical 
+expectations presented in Table~\ref{tab:comp_perf_vs_dim}.  Again, the 
 forward Euler with optimal time step demonstrates much greater efficiency 
 than the other schemes.  In addition to having better scaling properties, 
 the line for the forward Euler scheme with optimal time step appears to be 
@@ -2050,35 +2085,26 @@ significantly shifted to the left (\ie smaller errors).
 \subsubsection{Irregular Domains}
 All of the previous examples share an important feature: they are all
 defined on simple, rectangular domains.  Thus, any of several methods 
-could have been used to achieve similar or even higher accuracy solutions.
+could have been used to obtain solutions with similar or even higher accuracy.
 For example, a fourth-order accurate solution to the diffusion equation
 could be obtained by using a pseudospectral spatial
-discretization~\cite{trefethen_spectral_book, boyd_book} of the Laplacian
-and a fourth-order time integration scheme (\eg Runge-Kutta).
+discretization~\cite{trefethen_spectral_book, boyd_spectral_book} of the 
+Laplacian and a fourth-order time integration scheme (\eg Runge-Kutta).
 When the domain is irregularly shaped, high-order methods are harder to design 
-and implement.  For instance, spectral and pseudospectral methods are no 
-longer appropriate because the domain is not a simple cartesian product of 
-intervals\footnote{Clever phase field approaches have been used successfully 
-to make these methods applicable to problems with irregular 
-boundaries~\cite{liu??}.}.
+and implement.  For instance, spectral and pseudospectral methods are not 
+usually appropriate because the domain is not a simple cartesian product of 
+intervals.
 
 As discussed at the end of Section~\ref{sec:ots_higher_spatial_dims}, we can 
 apply optimal time step selection to construct simple finite difference schemes 
 that yield high-order accurate solutions for problems on irregular domains.  
-In this section, we extend the OTS finite difference scheme for the diffusion
-equation on regular domains to irregular domains by describing a method for 
-computing the values of the solution in ghost cells that ensures that 
-imposing boundary conditions does not decrease the accuracy of the solution.
-
-One important issue that arises when devising numerical schemes for problems 
-on irregular domains is how the domain and boundary should be represented.
-The various ways for representing irregular boundaries can be divided 
-into two categories: explicit and implicit.  A full comparison of the many 
-representations of irregular boundaries is beyond the scope of this paper, 
-so we refer interested readers to~\cite{??} for more detailed discussion 
-about the advantages and disadvantages of several popular methods.  For our 
-purposes, we choose to implicitly represent the irregular boundary as the 
-zero level set of a level set function $\phi$ which satisfies:
+In this section, we extend the OTS finite difference scheme for the 2D
+diffusion equation on regular domains to irregular domains by describing a 
+method for computing the values of the solution in ghost cells that ensures 
+that imposing boundary conditions does not decrease the accuracy of the 
+solution.  For simplicity, we choose to represent the irregular boundary 
+implicitly as the zero level set of a level set function $\phi$ which 
+satisfies:
 \bea
   \begin{array}{ll}
   \phi < 0 & \mathrm{for} \ x \in \Omega \\
@@ -2096,8 +2122,8 @@ near the irregular boundary, we adopt the `ghost cell' or `ghost value'
 approach to imposing boundary conditions~\cite{fedkiw_1999, osher_fedkiw_book, 
 gibou_2005}.  The basic 
 idea is to set the value of grid points that lie outside of the domain 
-\emph{and} are required by the spatial discretization operator for grid 
-points inside the domain by extrapolating from interior grid points using
+and are required by the spatial discretization operator for grid points 
+inside the domain by extrapolating from interior grid points using
 boundary condition information.  Figure~\ref{fig:ghost_cells} shows examples 
 of ghost cells that lie in the vicinity of a irregular boundary.  Notice that
 there are two types of ghost cells:  edge and corner.  Edge and corner
@@ -2121,91 +2147,97 @@ of the values at interior grid points and neighboring edge ghost cells.
 \end{center}
 \end{figure}
 
-The value in each edge ghost cell is set by using 1D, cubic extrapolation of 
+To set the value in each edge ghost cell, we use 1D, cubic extrapolation of 
 the values of $u$ across the interface.  A cubic Lagrange extrapolant is 
-constructed for each edge ghost cell using the point on the domain boundary 
-where the zero level set of $\phi$ intersects the edge connecting the ghost 
-cell to its nearest interior neighbor and three interior grid points along 
-the line parallel to the same edge (see Figure~\ref{fig:ghost_cells}).  
+constructed for each edge ghost cell using a point on the domain boundary 
+and three interior grid points that lie along the line parallel to the edge 
+connecting the ghost cell to its nearest interior neighbor (see 
+Figure~\ref{fig:ghost_cells}).  
 The location of the point $u_B$ can be calculated by inverting the linear 
 interpolant of $\phi$ that passes through the ghost cell and its nearest
-interior neighbor.
+interior neighbor\footnote{We found that using higher-order interpolants to 
+locate boundary points was unnecessary to achieve high-order accuracy in the
+computed solution.}.
 Because the quality of the extrapolant deteriorates if the boundary point is 
 too close to any of the interior grid 
 points used to construct the Lagrange extrapolant, we follow 
 \cite{gibou_2005} and choose the interior grid points so that the nearest
 interior grid point is sufficiently far from the boundary point.  
-Gibou~\etal suggest shifting the interpolation points by one grid point 
+Gibou~\etal~suggest shifting the interpolation points by one grid point 
 when the distance between the boundary point and the nearest interior grid 
 point is less than $\dx^2$.  For the numerical scheme presented in this paper, 
-thie threshold was too low.  We found that better results were obtained if 
-we used a $O(\dx)$ threshold.
+this threshold was too low.  We found that better results were obtained if 
+we used an $O(\dx)$ threshold.
 
-The values in corner ghost cells are set using 2D quadratic extrapolation
-of the values of $u$ across the domain boundary \emph{and} the neighboring
-edge ghost cells (see Figure~\ref{fig:ghost_cells}).  Notice that unlike
-edge ghost cells, corner ghost cells only need to be 3rd-order accurate 
-in order to obtain a 4th-order accurate solution.  The reason for this is ??.
-*** KTC - FILL ME IN ***
-
-To derive quadratic extrapolant at each corner ghost cell, we use a 
-second-order Taylor series expansion around the nearest interior grid point,
-$x_{0,0}$, and use finite differences to approximate all required partial 
-derivatives.  For example, using central differences centered at $x_{0,0}$ for 
-all partial derivatives, the quadratic extrapolant for the corner ghost cell 
-shown in Figure~\ref{fig:ghost_cells} is
+To set the values in corner ghost cells, we use a fourth-order accurate
+Taylor series expansion of $u$ centered at the nearest interior 
+neighbor.  The partial derivatives in the Taylor series expansion are 
+approximated using finite differences constructed from the values of $u$ 
+across the domain boundary and the neighboring edge ghost cells (see 
+Figure~\ref{fig:ghost_cells}).  To obtain a fourth-order accurate value for 
+the corner ghost cell, we need to carefully choose the finite difference 
+stencils used for the partial derivatives.  For the corner ghost cell shown 
+in Figure~\ref{fig:ghost_cells}, the extrapolation stencil is given by
 \bea
-  u_C &=&  -u_{0,0} + \frac{1}{2} u_{-1,-1} 
-      \nonumber \\
-      &+& \frac{5}{4} u_{1,0} + \frac{5}{4} u_{0,1}
-      - \frac{1}{4} u_{1,-1} - \frac{1}{4} u_{-1,1}
-      - \frac{1}{4} u_{0,-1} - \frac{1}{4} u_{-1,0}
+  u_C &=&  -4 u_{0,0} - u_{-1,-1} + 2 u_{1,0} + 2 u_{0,1}
+      - u_{1,-1} - u_{-1,1} + 2 u_{0,-1} + 2 u_{-1,0}
 \eea
-where $u_C$ and $u_{i,j}$ are as indicated in the figure.  Note that the 
-stencil for the quadratic interpolant depends on the choice of finite 
-difference approximation for the partial derivatives.  For the results 
-presented in this paper, we use the above stencil (and its analogues for 
-other positions of the ghost cell relative to the domain) to define the
-quadratic extrapolant.  However, we obtained the same qualitative results 
-when stencils based on other choices of finite difference approximations were
-used.
+where $u_C$ and $u_{i,j}$ are as indicated in the figure.  The stencils for
+corner ghost cells that are in other positions relative to the interior of 
+the domain are obtained by rotations of Figure~\ref{fig:ghost_cells} and 
+remapping of the indicies in the above stencil.
 
+Using these methods for filling edge and corner ghost cells, it is 
+straightforward to compute high-order accurate solutions of the 2D diffusion 
+equation on irregular domains.  We simply use the OTS forward euler scheme 
+designed for regular domains for grid points in the interior of the domain
+after filling the ghost cells with high-order accurate values.  
+Figure~\ref{fig:diffusion_eqn_2d_starfish_domain} shows an example of 
+a solution computed on a starfish shaped domain.  It also shows that the 
+error in the solution is concentrated near the boundaries of the irregular
+domain.  Thus, we see that it is necessary to use high-order accurate 
+extrapolants for the ghost cells to prevent errors at the boundary from 
+destroying high-order accuracy throughout the domain.  The boosted accuracy 
+of the OTS solution compared to a simple forward Euler scheme with a 
+suboptimal time step is illustrated in 
+Figure~\ref{fig:diffusion_eqn_2d_starfish_error}. 
 
 \begin{figure}[htb]
 \begin{center}
 \scalebox{0.35}{\includegraphics{figures/diffusion_eqn_2d_starfish_domain_soln}} 
 \scalebox{0.35}{\includegraphics{figures/diffusion_eqn_2d_starfish_domain_error}} 
 \caption{Numerical solutions (left) and dominant error (right) for the 2D 
-diffusion equation~(\ref{eq:??}) a starfish-shaped domain.  The numerical 
-solution is computed at time $t = 0.1$ using forward Euler time stepping 
-with an optimal time step and correction terms.  In the error plot, the dark 
-regions represent points where the error in the solution is larger than 
-$10$\% of the $L^\infty$ error of the solution.  Notice that the largest 
-errors are concentrated near the boundaries of the mathematical domain.  To 
-generate these results, the computational domain is taken to be 
-$-1 < x,y < 1$ with 400 grid points in each direction.  The diffusion 
-constant $D$ is set equal to $1/4$.  The source term is given by
+diffusion equation on a starfish-shaped domain.  The solution is computed at 
+time $t = 0.1$ using forward Euler time stepping with an optimal time step 
+and correction terms.  In the error plot, the dark regions represent points 
+where the error in the solution is larger than $25$\% of the $L^\infty$ error 
+of the solution.  For these figures, the diffusion constant $D$ is set to 
+$1/4$ and the source term is taken to be 
 $f(x,y,t) = 8 D \pi^2 \sin(2 \pi x) \sin(3 \pi y) 
             \exp\left(-5 D \pi^2 t\right)
           - 24 D \pi^2 \sin(5 \pi x) \sin(\pi y) 
             \exp \left(-2 D \pi^2 t \right).
 $
-The initial conditions are taken to be 
+The initial conditions for the problem are 
 $u(x,y,0) = 1 + y/3 + x/2 + xy/4 
           + \sin(2 \pi x) \sin(3 \pi y) 
           - \sin(5 \pi x) \sin(\pi y)
 $
-and boundary conditions are imposed by using cubic and quadratic 
-extrapolation of interior and boundary values to to fill edge and corner 
-ghost cells, respectively.  Boundary values are obtained from the 
-analytical solution
+and the boundary conditions are obtained from the analytical solution
 $u(x,y,t) = 1 + y/3 + x/2 + xy/4 
               + \sin(2 \pi x) \sin(3 \pi y) \exp(-5 D \pi^2 t) 
-              - \sin(5 \pi x) \sin(\pi y) \exp(-2 D \pi^2 t)$.
-The boundaries of the domains are represented by the zero-level 
-set of the function
+              - \sin(5 \pi x) \sin(\pi y) \exp(-2 D \pi^2 t)
+$.
+The boundary of the starfish domain is represented by the zero-level set of 
+the function
 $\sqrt{x^2 + y^2} - \frac{3}{5} \left(1 + \frac{1}{2}\sin(5 \theta) \right)$, 
 where $\theta = \mathtt{atan}\left( y/x \right)$.
+The numerical solution is calculated using the square computational domain 
+$-1 < x,y < 1$ which is discretized using 800 grid points in each coordinate 
+direction (the plot of the solution has been downsampled for visualization 
+purposes).  Boundary conditions are imposed by using fourth-order accurate
+approximations of the value of the solution in edge and corner ghost cells
+(described in the main text).
 }
 \label{fig:diffusion_eqn_2d_starfish_domain}
 \end{center}
@@ -2215,44 +2247,72 @@ where $\theta = \mathtt{atan}\left( y/x \right)$.
 \begin{center}
 \scalebox{0.35}{
   \includegraphics{figures/diffusion_eqn_2d_starfish_domain_error_vs_N}} 
-\caption{Error analysis for four finite difference schemes 
-for the 2D diffusion equation: forward Euler with optimal time step (circles), 
-forward Euler with suboptimal time step (squares), 
-(diamonds).  Using each method, we solve the 2D diffusion equation with 
-$D = 1$ on the domain $0 < x < 1$ subject to the boundary conditions 
-and the initial condition
-$??$
-The exact solution for this problem is
-$u(x,t) = ??$
-The $L^\infty$ error is plotted against the grid spacing $\dx$ for each 
-method.  Note that the errors for the forward Euler with suboptimal time 
-step and Crank-Nicholson schemes lie almost directly on top of each other
-at the resolution of the figures.
+\caption{$L^\infty$ error as a function of number of grid points for two
+finite difference schemes that solve the 2D diffusion equation on an 
+irregular domain: forward Euler with optimal time step and correction 
+terms (circles) and forward Euler with suboptimal time step (squares).
+Both methods solve the diffusion equation described in the caption for
+Figure~\ref{fig:diffusion_eqn_2d_starfish_domain}.
 }
 \label{fig:diffusion_eqn_2d_starfish_error}
 \end{center}
 \end{figure}
 
 
-\subsubsection{Generalization to Higher Dimensional Problems}
-** COMPLEXITY OF EXTRAPOLATION DEPENDS ON CHOICE OF DISCRETIZATION FOR LAPLACIAN **
+\subsubsection{Diffusion Equation in Higher Dimensions}
+Using optimal time step selection to boost the accuracy of FD schemes for 
+the diffusion equation in higher space dimensions is straightforward.  
+As for the 2D problem, the key step is identification of a finite difference 
+stencil for the Laplacian that has an \emph{isotropic} discretization error.
+For 3D problems, a catalog of several such stencils is available 
+in~\cite{patra_2005}.  For higher dimensional problems, using symbolic 
+algebra software to derive FD stencils with desired discretization error 
+properties can be helpful~\cite{patra_2005, gupta_1998}.  Once an acceptable
+FD approximation for the Laplacian has been chosen, the usual OTS analysis 
+yields an optimal time step of $\dt_{opt} = \dx^2/6D$ for forward Euler
+time integration and a boost of the order of accuracy from two to four.
 
-** PATRA AND KARTTUNEN GIVE ISOTROPIC STENCILS FOR 3D **
-
-
-\subsubsection{Weakly Anisotropic Diffusivity Tensor}
-can use unequal grid spacing when the diffusivity tensor is diagonlizable 
-(i.e. normal) and the eigenvalues are unequal.  first transform to coordinate
-system of principle axes then rescale problem.
-
+Problems on irregular domains can be handled using the ghost cell approach. 
+While the derivation of high accuracy stencils for ghost cells becomes more
+tedious, the general approach is the same as for the 2D problem.  The ghost 
+cells can first be grouped into separate classes based on the number of 
+grid cell edges that must be traversed to reach the nearest interior neighbor.
+The values in the ghost cells can then be set in order starting with those 
+directly connected to their nearest interior neighbor and ending with those 
+whose nearest interior neighbor is on the opposite corner of a grid cell.
+Symbolic algebra programs can be helpful when deriving methods for 
+extrapolating interior and boundary values to ghost cells.
 
 
 \section{\label{sec:summary} Summary} 
-While somewhat tedious, analyzing higher-order errors can suggest simple 
-modifications to numerical methods that greatly improve their accuracy.  
-Symbolic mathematics tools can be helpful to make this easier.
+In this paper, we have presented a novel approach for constructing high-order
+finite difference methods for time dependent PDEs \emph{without} requiring
+the use of high-order stencils or high-order time integration schemes.  
+The basic idea is that the leading-order terms in the discretization error
+can be eliminated by carefully choosing the time step and possibly adding
+a few simple correction terms.  It is straightforward to derive both the 
+optimal time step and the correction terms by (1) taking advantage of the 
+regular structure of finite difference schemes and (2) making use of the
+PDE to relate terms in the discretization error.  The boost in the order
+of accuracy achieved when the optimal time step and correction terms is well
+worth the extra effort required to explicitly retain and analyze the 
+leading-order terms in the discretization error.   
 
-Optimal time step selection is not applicable to all PDEs.  ...
+Through many examples, we have demonstrated the utility of optimal time step
+selection to a wide range of problems.  We showed how OTS selection can be 
+used to very easily to obtain high-order accurate solutions to most linear 
+and semilinear PDEs in any number of space dimensions on both regular
+and irregular domains.  The examples illustrate the surprisingly high-order
+accuracy that can be achieved using only low-order discretizations for 
+spatial derivatives and simple forward Euler time integration.
+
+Optimal time step selection is a simple example of the more general problem
+of optimally selecting numerical parameters to boost the accuracy of 
+numerical methods.  Little research appears to have been done in this area,
+but, as OTS selection demonstrates, optimal selection of numerical parameters 
+can significantly impact on the accuracy of numerical methods.  To realize
+the full potential of numerical methods, both optimal time step selection 
+and optimal numerical parameter selection deserve further investigation.
 
 
 % ACKNOWLEDGMENTS
