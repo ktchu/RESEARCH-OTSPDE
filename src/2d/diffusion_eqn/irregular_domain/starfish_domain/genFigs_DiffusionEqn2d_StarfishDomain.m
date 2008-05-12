@@ -182,6 +182,11 @@ end % end loop over grid sizes
 % Interpolate solution to coarser mesh 
 % for illustration purposes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% load results generated with N = 400
+N = 400;
+filename = sprintf('data_%d', N);
+load([data_dir, '/', filename]);
+
 % subsample solution and convert to matrix form
 N_plot = 50;
 dx = 2/N_plot;
