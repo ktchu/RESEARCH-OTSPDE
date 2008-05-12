@@ -62,9 +62,10 @@ t_final = 0.5;
 grid_sizes = [25 50 100 200 400 800];
 
 % allocate memory for errors
-err_FE_OTS = zeros(size(grid_sizes));
-err_FE     = zeros(size(grid_sizes));
-err_CN     = zeros(size(grid_sizes));
+err_FE_OTS         = zeros(size(grid_sizes));
+err_FE_OTS_no_corr = zeros(size(grid_sizes));
+err_FE             = zeros(size(grid_sizes));
+err_CN             = zeros(size(grid_sizes));
 
 % start clock for timing plot generation time
 t_start = cputime;
@@ -114,6 +115,17 @@ for i = 1:length(grid_sizes)
                                           t_init, t_final, ...
                                           debug_on, timing_on);
 
+    % solve diffusion equation using forward Euler with OTS but no
+    % correction term
+    disp('Forward Euler OTS (no correction)');
+    [u_FE_OTS_no_corr, u_exact, x, timing_data_FE_OTS_no_corr] = ...
+       solveDiffusionEqnForwardEulerOTSNoCorr1d(D, ...
+                                                source_term_type, ...
+                                                u_0, dudx_1, ...
+                                                dx, ...
+                                                t_init, t_final, ...
+                                                debug_on, timing_on);
+
     % solve diffusion equation using forward Euler
     disp('Forward Euler');
     [u_FE, u_exact, x, timing_data_FE] = ...
@@ -137,15 +149,17 @@ for i = 1:length(grid_sizes)
     % save solutions and timing data to MAT-files
     filename = sprintf('data_%d', N);
     save([data_dir, '/', filename], ... 
-         'u_FE_OTS', 'u_FE', 'u_CN', 'u_exact', 'x', ...
-         'timing_data_FE_OTS', 'timing_data_FE', ...
-         'timing_data_CN');
+         'u_FE_OTS', 'u_FE_OTS_no_corr', 'u_FE', 'u_CN', 'u_exact', 'x', ...
+         'timing_data_FE_OTS', 'timing_data_FE_OTS_no_corr', ...
+         'timing_data_FE', 'timing_data_CN');
 
   end % end case:  (use_saved_data ~= 1) ==> recompute solutions
 
   % compute error
   err = u_FE_OTS-u_exact;
   err_FE_OTS(i) = norm(err,'inf');
+  err = u_FE_OTS_no_corr-u_exact;
+  err_FE_OTS_no_corr(i) = norm(err,'inf');
   err = u_FE-u_exact;
   err_FE(i) = norm(err,'inf');
   err = u_CN-u_exact;
@@ -153,6 +167,7 @@ for i = 1:length(grid_sizes)
 
   % collect timing data
   comp_time_FE_OTS(i) = timing_data_FE_OTS;
+  comp_time_FE_OTS_no_corr(i) = timing_data_FE_OTS_no_corr;
   comp_time_FE(i) = timing_data_FE;
   comp_time_CN(i) = timing_data_CN;
 
@@ -231,6 +246,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 P_FE_OTS = polyfit(log(grid_sizes),log(err_FE_OTS),1);
 order_FE_OTS = -P_FE_OTS(1);
+P_FE_OTS_no_corr = polyfit(log(grid_sizes),log(err_FE_OTS_no_corr),1);
+order_FE_OTS_no_corr = -P_FE_OTS_no_corr(1);
 P_FE = polyfit(log(grid_sizes),log(err_FE),1);
 order_FE = -P_FE(1);
 P_CN = polyfit(log(grid_sizes),log(err_CN),1);
@@ -239,6 +256,9 @@ order_CN = -P_CN(1);
 P_comp_time_FE_OTS = polyfit(log(err_FE_OTS(2:end)), ...
                              log(comp_time_FE_OTS(2:end)),1);
 comp_time_exp_FE_OTS = P_comp_time_FE_OTS(1);
+P_comp_time_FE_OTS_no_corr = polyfit(log(err_FE_OTS_no_corr(2:end)), ...
+                                     log(comp_time_FE_OTS_no_corr(2:end)),1);
+comp_time_exp_FE_OTS_no_corr = P_comp_time_FE_OTS_no_corr(1);
 P_comp_time_FE = polyfit(log(err_FE(2:end)),log(comp_time_FE(2:end)),1);
 comp_time_exp_FE = P_comp_time_FE(1);
 P_comp_time_CN = polyfit(log(err_CN(2:end)),log(comp_time_CN(2:end)),1);
@@ -255,22 +275,32 @@ hold on;
 plot(grid_sizes,err_FE_OTS, 'go', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','g');
-order_str = sprintf('Forward Euler (OTS)\nOrder = %1.1f', order_FE_OTS);
-text(20,4.5e-8,order_str);
+order_str = sprintf('Forward Euler OTS (correction)\nOrder = %1.1f', ...
+  order_FE_OTS);
+text(15,4.5e-9,order_str);
 
-loglog(N_plot,exp(log(N_plot)*P_FE(1)+P_FE(2)),'k');
+loglog(N_plot,exp(log(N_plot)*P_FE_OTS_no_corr(1)+P_FE_OTS_no_corr(2)),'k');
 hold on;
-plot(grid_sizes,err_FE, 'bs', ...
+plot(grid_sizes,err_FE_OTS_no_corr, 'm^', ...
      'MarkerSize',14, ...
-     'MarkerFaceColor','b');
+     'MarkerFaceColor','m');
+order_str = sprintf('Forward Euler OTS (no correction)\nOrder = %1.1f', ...
+  order_FE_OTS_no_corr);
+text(30,3e-2,order_str);
 
-loglog(N_plot,exp(log(N_plot)*P_CN(1)+P_CN(2)),'k');
-hold on;
-plot(grid_sizes,err_CN, 'rd', ...
-     'MarkerSize',14, ...
-     'MarkerFaceColor','r');
-order_str = sprintf('Forward Euler, Crank-Nicholson\nOrder = %1.1f', order_FE);
-text(50,3e-2,order_str);
+%loglog(N_plot,exp(log(N_plot)*P_FE(1)+P_FE(2)),'k');
+%hold on;
+%plot(grid_sizes,err_FE, 'bs', ...
+%     'MarkerSize',14, ...
+%     'MarkerFaceColor','b');
+%
+%loglog(N_plot,exp(log(N_plot)*P_CN(1)+P_CN(2)),'k');
+%hold on;
+%plot(grid_sizes,err_CN, 'rd', ...
+%     'MarkerSize',14, ...
+%     'MarkerFaceColor','r');
+%order_str = sprintf('Forward Euler, Crank-Nicholson\nOrder = %1.1f', order_FE);
+%text(50,3e-2,order_str);
 
 axis([10 1000 1e-10 1]);
 xlabel('N');
@@ -289,28 +319,41 @@ hold on;
 loglog(err_FE_OTS(2:end), comp_time_FE_OTS(2:end), 'go', ...
        'MarkerSize',14, ...
        'MarkerFaceColor','g');
-order_str = sprintf('Forward Euler (OTS)\nSlope = %1.1f', comp_time_exp_FE_OTS);
-text(5e-10,1e-1,order_str);
+order_str = sprintf('Forward Euler OTS (correction)\nSlope = %1.1f', ...
+  comp_time_exp_FE_OTS);
+text(3e-10,3e-2,order_str);
 
 loglog(err_plot, ...
-       exp(log(err_plot)*P_comp_time_FE(1)+P_comp_time_FE(2)), ...
+       exp(log(err_plot)*P_comp_time_FE_OTS_no_corr(1) ...
+          +P_comp_time_FE_OTS_no_corr(2)), ...
        'k');
 hold on;
-loglog(err_FE(2:end), comp_time_FE(2:end), 'bs', ...
+loglog(err_FE_OTS_no_corr(2:end), comp_time_FE_OTS_no_corr(2:end), 'm^', ...
        'MarkerSize',14, ...
-       'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler\nSlope = %1.1f', comp_time_exp_FE);
-text(5e-5,1e1,order_str);
+       'MarkerFaceColor','m');
+order_str = sprintf('Forward Euler OTS\n(no correction)\nSlope = %1.1f', ...
+  comp_time_exp_FE_OTS_no_corr);
+text(2e-6,1000,order_str);
 
-loglog(err_plot, ...
-       exp(log(err_plot)*P_comp_time_CN(1)+P_comp_time_CN(2)), ...
-       'k');
-hold on;
-loglog(err_CN(2:end), comp_time_CN(2:end), 'rd', ...
-       'MarkerSize',14, ...
-       'MarkerFaceColor','r');
-order_str = sprintf('Crank-Nicholson\nSlope = %1.1f', comp_time_exp_CN);
-text(1e-6,2e3,order_str);
+%loglog(err_plot, ...
+%       exp(log(err_plot)*P_comp_time_FE(1)+P_comp_time_FE(2)), ...
+%       'k');
+%hold on;
+%loglog(err_FE(2:end), comp_time_FE(2:end), 'bs', ...
+%       'MarkerSize',14, ...
+%       'MarkerFaceColor','b');
+%order_str = sprintf('Forward Euler\nSlope = %1.1f', comp_time_exp_FE);
+%text(5e-5,1e1,order_str);
+
+%loglog(err_plot, ...
+%       exp(log(err_plot)*P_comp_time_CN(1)+P_comp_time_CN(2)), ...
+%       'k');
+%hold on;
+%loglog(err_CN(2:end), comp_time_CN(2:end), 'rd', ...
+%       'MarkerSize',14, ...
+%       'MarkerFaceColor','r');
+%order_str = sprintf('Crank-Nicholson\nSlope = %1.1f', comp_time_exp_CN);
+%text(1e-6,2e3,order_str);
 
 axis([1e-10 1e-2 1e-2 1e4]);
 xlabel('L^\infty Error');

@@ -21,6 +21,7 @@ t_final = 1e-6;
 % set dx and dt
 N = 100;
 dx = 1/N;
+dt_FE = dx^4*3/40;  % maximum stable time step for forward Euler
 dt_FE = dx^4/16;
 
 % solve diffusion equation using forward Euler with OTS
