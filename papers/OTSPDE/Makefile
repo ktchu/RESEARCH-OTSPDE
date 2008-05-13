@@ -7,29 +7,29 @@ PDFLATEX = pdflatex
 
 .SUFFIXES:	.ps .pdf
 
-all: 	optimal_time_steps_for_pdes.ps 
+all: 	OTSPDE.ps 
 	$(RM) *.aux *.log
 
-allpdf: optimal_time_steps_for_pdes.pdf 
+allpdf: OTSPDE.pdf 
 	$(RM) *.aux *.log
 
-optimal_time_steps_for_pdes.ps:	optimal_time_steps_for_pdes.tex \
-                                optimal_time_steps_for_pdes.bib \
+OTSPDE.ps:	OTSPDE.tex \
+                                OTSPDE.bib \
                                 macros.tex
-	$(TEX) optimal_time_steps_for_pdes.tex
-	$(BIBTEX) optimal_time_steps_for_pdes.aux
-	$(TEX) optimal_time_steps_for_pdes.tex
-	$(TEX) optimal_time_steps_for_pdes.tex
-	$(DVIPS) optimal_time_steps_for_pdes.dvi -o optimal_time_steps_for_pdes.ps
+	$(TEX) OTSPDE.tex
+	$(BIBTEX) OTSPDE.aux
+	$(TEX) OTSPDE.tex
+	$(TEX) OTSPDE.tex
+	$(DVIPS) OTSPDE.dvi -o OTSPDE.ps
 
-optimal_time_steps_for_pdes.pdf:  optimal_time_steps_for_pdes.tex \
-                                  optimal_time_steps_for_pdes.bib \
+OTSPDE.pdf:  OTSPDE.tex \
+                                  OTSPDE.bib \
                                   macros.tex
-	$(PDFLATEX) optimal_time_steps_for_pdes.tex
-	$(BIBTEX) optimal_time_steps_for_pdes.aux
-	$(PDFLATEX) optimal_time_steps_for_pdes.tex
-	$(PDFLATEX) optimal_time_steps_for_pdes.tex
-	$(PDFLATEX) optimal_time_steps_for_pdes.tex
+	$(PDFLATEX) OTSPDE.tex
+	$(BIBTEX) OTSPDE.aux
+	$(PDFLATEX) OTSPDE.tex
+	$(PDFLATEX) OTSPDE.tex
+	$(PDFLATEX) OTSPDE.tex
 
 clean:
 	$(RM) *.dvi *.aux *.log *.ps *.pdf *.bbl *.blg
