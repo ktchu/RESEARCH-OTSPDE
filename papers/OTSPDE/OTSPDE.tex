@@ -715,8 +715,8 @@ More effort is required to ensure that Neumann boundary conditions do not
 reduce the order of accuracy of the solution.  In general, Neumann boundary
 conditions require that the accuracy of ghost cells slightly exceed the 
 desired order of accuracy for the solution.  A detailed discussion of 
-appropriate methods for imposing boundary conditions is beyond the scope of 
-this paper.  We refer interested readers to the thorough analysis presented
+methods for imposing boundary conditions is beyond the scope of this paper.  
+We refer interested readers to the thorough analysis presented
 in~\cite{gko_book}.  To avoid complicating the discussion in 
 Sections~\ref{sec:applications_1d} and~\ref{sec:applications_multidim}, 
 Neumann boundary conditions are imposed by taking advantage of knowledge of 
@@ -2085,8 +2085,15 @@ pseudospectral spatial discretization~\cite{trefethen_spectral_book,
 boyd_spectral_book} of the Laplacian and a fourth-order time integration scheme 
 (\eg Runge-Kutta).  When the domain is irregularly shaped, high-order methods 
 are harder to design and implement.  For instance, spectral and pseudospectral 
-methods are not usually appropriate because the domain is not a simple 
-cartesian product of intervals.
+methods are not directly applicable because the domain is not a simple 
+cartesian product of intervals.  While it is possible to use spectral methods
+for problems on irregular domains through the clever introduction of a phase 
+field~\cite{bueno_orovio_2006, feng_2006}, this approach does not 
+actually achieve spectral accuracy because the error is dominated by the 
+width of the smoothed approximation to the phase field (as opposed to the 
+accuracy of the discretization for the spatial 
+derivatives)~\cite{bueno_orovio_2006}.
+
 
 In this section, we extend the OTS finite difference scheme for the 2D 
 diffusion equation on regular domains to irregular domains.  To avoid the 
@@ -2111,14 +2118,8 @@ zero level set of a level set function $\phi$ which satisfies:
 where $\Omega$ and $\partial \Omega$ are the interior and boundary of the 
 irregular domain.
 
-Figure~\ref{fig:ghost_cells} shows examples of ghost cells that lie in the 
-vicinity of an irregular boundary.  Notice that there are two types of ghost 
-cells:  edge and corner.  Edge and corner ghost cells are distinguished by 
-the relative position of the nearest interior grid point.  An edge ghost cell 
-is linked to its nearest interior neighbor by an edge of the computational 
-grid whereas a corner ghost cell and its nearest interior neighbor lie on the 
-opposite corners of a grid cell.
-
+% FIGURE SHOWING GHOST CELLS AT IRREGULAR BOUNDARY
+% PLACED HERE TO SPREAD FIGURES OUT
 \begin{figure}[tb]
 \begin{center}
 \scalebox{0.25}{\includegraphics{figures/ghostcell_edge}} 
@@ -2135,6 +2136,14 @@ approximate the partial derivatives in the expansion.
 \label{fig:ghost_cells}
 \end{center}
 \end{figure}
+
+Figure~\ref{fig:ghost_cells} shows examples of ghost cells that lie in the 
+vicinity of an irregular boundary.  Notice that there are two types of ghost 
+cells:  edge and corner.  Edge and corner ghost cells are distinguished by 
+the relative position of the nearest interior grid point.  An edge ghost cell 
+is linked to its nearest interior neighbor by an edge of the computational 
+grid whereas a corner ghost cell and its nearest interior neighbor lie on the 
+opposite corners of a grid cell.
 
 To set the value of $u$ in each edge ghost cell, we use 1D, cubic 
 extrapolation of the values of $u$ across the interface.  A cubic Lagrange 
@@ -2234,6 +2243,8 @@ of the OTS solution compared to a simple forward Euler scheme with a
 suboptimal time step is illustrated in 
 Figure~\ref{fig:diffusion_eqn_2d_starfish_error}. 
 
+% FIGURE SHOWING SOLUTION OF 2D DIFFUSION EQUATION ON STARFISH DOMAIN
+% PLACED HERE TO SPREAD FIGURES OUT
 \begin{figure}[tb]
 \begin{center}
 \scalebox{0.35}{
