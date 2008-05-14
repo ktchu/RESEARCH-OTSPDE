@@ -985,6 +985,8 @@ $u(x,0) = 1 + x/2 + 2 \sin(5 \pi x/2) + 3 \sin(7 \pi x/2)
 Note that the errors for the forward Euler with suboptimal time 
 step and Crank-Nicholson schemes lie almost directly on top of each other
 at the resolution of the figure.
+These results were obtained using simple MATLAB implementations of the 
+finite difference schemes.
 }
 \label{fig:diffusion_eqn_1d_no_src_error}
 \end{center}
@@ -1075,6 +1077,8 @@ conditions $u(0,t) = 1$ and $u_x(1,t) = 1/2$
 and the initial condition
 $u(x,0) = 1 + x/2 + 2 \sin(5 \pi x/2) + 3 \sin(7 \pi x/2) 
 - 4 \sin(11 \pi x/2)$.  
+These results were obtained using simple MATLAB implementations of the 
+finite difference schemes.
 }
 \label{fig:diffusion_eqn_1d_src_error}
 \end{center}
@@ -1127,6 +1131,8 @@ initial condition $u(x,0) = \exp(-x^2/4)$.  The boundary conditions are set
 using the analytical solution 
 $u(x,t) = \frac{1}{\sqrt{T}} \exp \left( -(x+At)^2/4T \right)$
 where $T = Dt+1$.
+These results were obtained using simple MATLAB implementations of the 
+finite difference schemes.
 }
 \label{fig:ADE_1d_error}
 \end{center}
@@ -1186,8 +1192,9 @@ term:
 equation~(\ref{eq:ADE_1d}) using forward Euler time stepping with 
 optimal time step and correction terms (left) and forward Euler time 
 stepping with suboptimal time step $\dt = 2 \dx^2/3 D$ (right).  
-Both figures show the numerical solution at $t = 1$ computed on the domain 
-$-10 < x < 10$ using 50 grid points.  For details about the initial/boundary 
+Both figures compare the analytical solution (solid line) at $t = 1$ on the 
+domain $-10 < x < 10$ with the numerical solution (circles) computed using 
+50 grid points.  For details about the initial/boundary 
 conditions and physical parameters used to compute these solutions, see the
 caption for Figure~\ref{fig:ADE_1d_error}.
 }
@@ -1281,8 +1288,8 @@ and forward Euler with suboptimal time step $\dt = \dx^2/4\nu$ and no
 correction terms (squares).
 Both schemes use second-order, central finite difference approximations for
 the advection and diffusion terms.
-The viscous Burgers equation is solved on the domain $0 < x < 10$ to 
-time $t=2$ with the viscosity $\nu$ set to $0.1$.  The initial conditions are 
+The viscous Burgers equation is solved to time $t=2$ on the domain 
+$0 < x < 10$ with the viscosity $\nu$ set to $0.1$.  The initial conditions are 
 taken to be 
 $u(x,0) = 1 + \gamma \sqrt{\frac{\nu}{\pi}} \exp\left( -(x-1)^2/4 \nu \right) 
             / \left[ 1 + \frac{\gamma}{2} \ 
@@ -1298,6 +1305,8 @@ $u(x,t) = 1 + \gamma \sqrt{\frac{\nu}{\pi T}}
                          \mathtt{erfc}\left((x-T)/\sqrt{4\nu T} \right) 
     \right]$,
 where $T = t+1$.
+These results were obtained using simple MATLAB implementations of the 
+finite difference schemes.
 }
 \label{fig:burgers_1d_error}
 \end{center}
@@ -1382,8 +1391,10 @@ scheme~(\ref{eq:burgers_1d_FD_scheme}).
 \caption{Comparison of numerical solutions for the 1D viscous Burgers 
 equation~(\ref{eq:burgers_1d}) using forward Euler time stepping with 
 optimal time step and correction terms (left) and forward Euler time 
-stepping with suboptimal time step (right).  Both figures show the 
-numerical solution at $t = 2$ computed using $100$ grid points.
+stepping with suboptimal time step $\dt = \dx^2/4 \nu$ (right).  
+Both figures compare the analytical solution (solid line) at $t = 2$ on the 
+domain $0 < x < 10$ with the numerical solution (circles) computed using 
+$100$ grid points.  
 For details about the initial/boundary conditions and physical parameters 
 used to compute these solutions, see the caption for 
 Figure~\ref{fig:burgers_1d_error}. 
@@ -1506,13 +1517,15 @@ and forward Euler with suboptimal time step $\dt = \dx^2/16$ and no
 correction terms (squares).
 Both schemes use a fourth-order, central finite difference approximation for
 the bilaplacian.  Using each method, we solve the fourth-order parabolic
-equation with $\kappa = 1$ on the domain $0 < x < 1$ subject to the boundary 
-conditions $u(0,t) = u(1,t) = 0$ and the initial condition
-$u(x,0) = 2\sin(2 \pi x) + \sin(5 \pi x)$.  The value of the solution
+equation with $\kappa = 1$ to time $t = 0.001$ on the domain $0 < x < 1
+$ subject to the boundary conditions $u(0,t) = u(1,t) = 0$ and the initial 
+condition $u(x,0) = 2\sin(2 \pi x) + \sin(5 \pi x)$.  The value of the solution
 in the ghost cells (required as a result of the wide stencil for the 
 discrete bilaplacian) are filled by taking values from the exact solution: 
 $u(x,t) = 2\sin(2 \pi x)\cos(10000 \pi t) 
         + \sin(5 \pi x) \left[ 2-\exp(-100\pi^2 t) \right]$.
+These results were obtained using simple MATLAB implementations of the 
+finite difference schemes.
 }
 \label{fig:4th_order_parabolic_eqn_1d_error}
 \end{center}
@@ -2046,21 +2059,30 @@ integration scheme.
 and computation time as a function of $L^\infty$ error (right) for three
 finite difference schemes that solve the 2D diffusion equation:
 forward Euler with optimal time step and correction terms (circles), forward 
-Euler with suboptimal time step (squares), and Crank-Nicholson (diamonds).  
+Euler with suboptimal time step $\dt = \dx^2/4D$ (squares), and 
+Crank-Nicholson with time step $\dt = \dx/16D$ (diamonds).  
 The forward Euler schemes use a nine-point discretization of the Laplacian;
 the Crank-Nicholson scheme uses the standard five-point discretization of
 the Laplacian.  Using each method, we solve the 2D diffusion equation with 
-$D = 0.25$ on the domain $0 < x, y < 1$ subject to the initial condition
+$D = 0.25$ and source term 
+$f(x,y,t) = 8 D \pi^2 \sin(2 \pi x) \sin(3 \pi y) 
+            \exp\left(-5 D \pi^2 t\right)
+          - 24 D \pi^2 \sin(5 \pi x) \sin(\pi y) 
+            \exp \left(-2 D \pi^2 t \right)$.
+to time $t = 0.1$ on the domain $0 < x, y < 1$ subject 
+to the initial condition
 $u(x,y,0) =  1 + y/3 + x/2 + xy/4 
-          + \sin(2 \pi x) \sin(3 \pi y) - \sin(5 \pi x) \sin(\pi y)$
-and boundary conditions taken from the analytical solution 
+          + \sin(2 \pi x) \sin(3 \pi y) - \sin(5 \pi x) \sin(\pi y)$.
+The boundary conditions are taken from the analytical solution 
 $u(x,t) = 1 + y/3 + x/2 + xy/4 
           + \sin(2 \pi x) \sin(3 \pi y) \exp(-5 D \pi^2 t) 
           - \sin(5 \pi x) \sin(\pi y) \exp(-2 D \pi^2 t)
 $.
 Note that the errors for the forward Euler with suboptimal time step and 
 Crank-Nicholson schemes lie almost directly on top of each other at the 
-resolution of the figures.
+resolution of the figures.  
+These results were obtained using simple MATLAB implementations of the 
+finite difference schemes.
 }
 \label{fig:diffusion_eqn_2d_src_analysis}
 \end{center}
@@ -2094,6 +2116,24 @@ width of the smoothed approximation to the phase field (as opposed to the
 accuracy of the discretization for the spatial 
 derivatives)~\cite{bueno_orovio_2006}.
 
+% FIGURE SHOWING GHOST CELLS AT IRREGULAR BOUNDARY
+% PLACED HERE TO SPREAD FIGURES OUT
+\begin{figure}[tb]
+\begin{center}
+\scalebox{0.25}{\includegraphics{figures/ghostcell_edge}} 
+\ \ \ \ \ \ \ \ \ \ \ \ \ 
+\scalebox{0.25}{\includegraphics{figures/ghostcell_corner}}
+\caption{Illustrations of edge (left) and corner (right) ghostcells.
+The edge ghostcell, $u_E$, is filled by using cubic extrapolation of 
+the value on the boundary, $u_B$, and values at three interior grid points.  
+The corner ghostcell, $u_C$, is filled by using a fourth-order accurate
+Taylor series expansion centered at $u_{0,0}$, which uses the values of $u$ 
+at the specified interior grid points and neighboring edge ghost cells to 
+approximate the partial derivatives in the expansion. 
+}
+\label{fig:ghost_cells}
+\end{center}
+\end{figure}
 
 In this section, we extend the OTS finite difference scheme for the 2D 
 diffusion equation on regular domains to irregular domains.  To avoid the 
@@ -2117,25 +2157,6 @@ zero level set of a level set function $\phi$ which satisfies:
 \eea
 where $\Omega$ and $\partial \Omega$ are the interior and boundary of the 
 irregular domain.
-
-% FIGURE SHOWING GHOST CELLS AT IRREGULAR BOUNDARY
-% PLACED HERE TO SPREAD FIGURES OUT
-\begin{figure}[tb]
-\begin{center}
-\scalebox{0.25}{\includegraphics{figures/ghostcell_edge}} 
-\ \ \ \ \ \ \ \ \ \ \ \ \ 
-\scalebox{0.25}{\includegraphics{figures/ghostcell_corner}}
-\caption{Illustrations of edge (left) and corner (right) ghostcells.
-The edge ghostcell, $u_E$, is filled by using cubic extrapolation of 
-the value on the boundary, $u_B$, and values at three interior grid points.  
-The corner ghostcell, $u_C$, is filled by using a fourth-order accurate
-Taylor series expansion centered at $u_{0,0}$, which uses the values of $u$ 
-at the specified interior grid points and neighboring edge ghost cells to 
-approximate the partial derivatives in the expansion. 
-}
-\label{fig:ghost_cells}
-\end{center}
-\end{figure}
 
 Figure~\ref{fig:ghost_cells} shows examples of ghost cells that lie in the 
 vicinity of an irregular boundary.  Notice that there are two types of ghost 
@@ -2178,33 +2199,20 @@ diffusion equation on a starfish-shaped domain.  The solution is computed at
 time $t = 0.1$ using forward Euler time stepping with an optimal time step 
 and correction terms.  In the error plot, the dark regions represent points 
 where the error in the solution is larger than $25$\% of the $L^\infty$ error 
-of the solution.  For these figures, the diffusion constant $D$ is set to 
-$1/4$ and the source term is taken to be 
-$f(x,y,t) = 8 D \pi^2 \sin(2 \pi x) \sin(3 \pi y) 
-            \exp\left(-5 D \pi^2 t\right)
-          - 24 D \pi^2 \sin(5 \pi x) \sin(\pi y) 
-            \exp \left(-2 D \pi^2 t \right).
-$
-The initial conditions for the problem are 
-$u(x,y,0) = 1 + y/3 + x/2 + xy/4 
-          + \sin(2 \pi x) \sin(3 \pi y) 
-          - \sin(5 \pi x) \sin(\pi y)
-$
-and the boundary conditions are obtained from the analytical solution
-$u(x,y,t) = 1 + y/3 + x/2 + xy/4 
-              + \sin(2 \pi x) \sin(3 \pi y) \exp(-5 D \pi^2 t) 
-              - \sin(5 \pi x) \sin(\pi y) \exp(-2 D \pi^2 t)
-$.
-The boundary of the starfish domain is represented by the zero-level set of 
-the function
+of the solution.  For these figures, we use the same diffusion constant, 
+source term, and initial conditions as described in the caption for 
+Figure~\ref{fig:diffusion_eqn_2d_src_analysis}.  The boundary of the 
+starfish-shaped domain is represented by the zero-level set of the function
 $\sqrt{x^2 + y^2} - \frac{3}{5} \left(1 + \frac{1}{2}\sin(5 \theta) \right)$, 
 where $\theta = \mathtt{atan}\left( y/x \right)$.
-The numerical solution is calculated using the square computational domain 
-$-1 < x,y < 1$ which is discretized using 400 grid points in each coordinate 
-direction (the plot of the solution has been downsampled for visualization 
-purposes).  Boundary conditions are imposed by using fourth-order accurate
-approximations of the value of the solution in edge and corner ghost cells
-(described in the main text).
+The Dirichlet boundary conditions are taken from the values of the analytical 
+solution (see caption for Figure~\ref{fig:diffusion_eqn_2d_src_analysis})
+on the irregular boundary.  The numerical solution is calculated using the 
+square computational domain $-1 < x,y < 1$ which is discretized using 400 grid 
+points in each coordinate direction (the plot of the solution has been 
+downsampled for visualization purposes).  Boundary conditions are imposed by 
+using fourth-order accurate approximations of the value of the solution in 
+edge and corner ghost cells (described in the main text).
 }
 \label{fig:diffusion_eqn_2d_starfish_domain}
 \end{center}
@@ -2254,7 +2262,11 @@ finite difference schemes that solve the 2D diffusion equation on an
 irregular domain: forward Euler with optimal time step and correction 
 terms (circles) and forward Euler with suboptimal time step $\dt = \dx^2/8 D$
 (squares).  Both methods solve the 2D diffusion equation described in the 
-caption for Figure~\ref{fig:diffusion_eqn_2d_starfish_domain}.
+caption for Figure~\ref{fig:diffusion_eqn_2d_src_analysis} on the irregular
+domain defined in the caption for 
+Figure~\ref{fig:diffusion_eqn_2d_starfish_domain}.
+These results were obtained using simple MATLAB implementations of the 
+finite difference schemes.
 }
 \label{fig:diffusion_eqn_2d_starfish_error}
 \end{center}
