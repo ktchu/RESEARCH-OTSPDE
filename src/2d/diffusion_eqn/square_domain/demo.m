@@ -23,12 +23,14 @@ D = 0.25;  % diffusion coefficient
 
 % time integration parameters
 % NOTE: t_init = 0.0
-t_final = 0.1;
+t_final = 0.5;
 
 % set dx and dt
 N = 50;
 dx = 1.0/N;
 dt_FE = dx^2/D/3;  % suboptimal time step
+dt_FE = 3/8*dx^2/D;  % suboptimal time step (maximum stable time step)
+dt_FE = (3/8+0.01)*dx^2/D;  % suboptimal time step
 dt_CN = dx/16/D;
 
 % source term type

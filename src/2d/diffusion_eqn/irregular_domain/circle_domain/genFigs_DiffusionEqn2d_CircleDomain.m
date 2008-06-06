@@ -102,7 +102,7 @@ for i = 1:length(grid_sizes)
 
     % set dx and dt
     dx = 2/N;
-    dt_FE = dx^2/8/D;
+    dt_FE = dx^2/4/D;
 
     % compute level set function that defines the domain
     % NOTE:  phi is set to be a signed distance function to make
@@ -236,9 +236,9 @@ text(12,5e-4,order_str);
 
 loglog(N_plot, exp(log(N_plot)*P_FE(1)+P_FE(2)), 'k');
 hold on;
-plot(grid_sizes, err_FE, 'rd', ...
+plot(grid_sizes, err_FE, 'bs', ...
      'MarkerSize', 14, ...
-     'MarkerFaceColor', 'r');
+     'MarkerFaceColor', 'b');
 order_str = sprintf('Forward Euler\nOrder = %1.1f', order_FE);
 text(250,1e-2,order_str);
 
@@ -266,9 +266,9 @@ text(5e-8,5,order_str);
 
 loglog(err_plot, exp(log(err_plot)*P_comp_time_FE(1)+P_comp_time_FE(2)), 'k');
 hold on;
-loglog(err_FE, comp_time_FE, 'rd', ...
+loglog(err_FE, comp_time_FE, 'bs', ...
        'MarkerSize', 14, ...
-       'MarkerFaceColor', 'r');
+       'MarkerFaceColor', 'b');
 order_str = sprintf('Forward Euler\nOrder = %1.1f', comp_time_exp_FE);
 text(3e-3,3e2,order_str);
 
