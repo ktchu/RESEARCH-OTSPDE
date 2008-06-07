@@ -11,6 +11,6 @@ Plot Generation Times
 * 2D Advection Equation: 5s
 * 2D Diffusion Equation, Square Domain, No Source Term: 9200s
 * 2D Diffusion Equation, Square Domain, Source Term:  18000s
-* 2D Diffusion Equation, Circle Domain:  26100s 
-* 2D Diffusion Equation, Starfish Domain:  26300s
+* 2D Diffusion Equation, Circle Domain:  18000s
+* 2D Diffusion Equation, Starfish Domain:  18000s
 * 2D Diffusion Equation, Irregular Domain, Boundary Condition Effects:  3100s
