@@ -7,10 +7,10 @@
 %
 % where
 %
-%   f(x,t) = -3*sin(5*pi*x)*sin(3*t)
-%          + 625*pi^4*sin(5*pi*x)*cos(3*t)
-%          + 4*pi^2*sin(2*pi*x)*exp(-4*pi^2*t)
-%          + 16*pi^4*sin(2*pi*x)*(3-exp(-4*pi^2*t))
+%   f(x,t) = -20000*pi*sin(2*pi*x)*sin(10000*pi*t) ...
+%          + 32*pi^4*sin(2*pi*x)*cos(10000*pi*t) ...
+%          + 100*pi^2*sin(5*pi*x)*exp(-100*pi^2*t) ...
+%          + 625*pi^4*sin(5*pi*x)*(2-exp(-100*pi^2*t))
 %
 % on the domain -1 < x < 1 with homogeneous Dirichlet boundary conditions 
 % imposed at all boundaries.  The numerical solution is computed on a 
