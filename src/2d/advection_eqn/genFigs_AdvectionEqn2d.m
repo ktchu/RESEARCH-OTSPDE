@@ -21,7 +21,7 @@ set(0,'DefaultLineLineWidth',2)
 set(0,'DefaultTextFontSize',18,'DefaultTextFontName','Helvetica')
 
 % set print format
-use_color_figures = 1;
+use_color_figures = 0;
 print_suffix = 'eps';
 if use_color_figures
   print_format = 'epsc';
@@ -103,7 +103,14 @@ u_plot = interp2(reshape(X_FE_OTS,Ny_FE_OTS,N+1), ...
                  reshape(Y_FE_OTS,Ny_FE_OTS,N+1), ...
                  reshape(u_FE_OTS,Ny_FE_OTS,N+1), ...
                  X_plot, Y_plot, '*nearest');
-mesh(X_plot, Y_plot, u_plot);
+if (use_color_figures)
+  mesh(X_plot, Y_plot, u_plot);
+  colormap('default');
+else
+  % black and white
+  mesh(X_plot, Y_plot, u_plot, ones(size(X_plot)));
+  colormap([1 1 1; 0 0 0]);
+end
 axis([-10 10 -10 10 -0.1 1.1])
 xlabel('x'); ylabel('y'); 
 %title('Forward Euler OTS Solution');
@@ -118,7 +125,14 @@ u_plot = interp2(reshape(X_FE,N+1,N+1), ...
                  reshape(Y_FE,N+1,N+1), ...
                  reshape(u_FE,N+1,N+1), ...
                  X_plot, Y_plot, '*nearest');
-mesh(X_plot, Y_plot, u_plot);
+if (use_color_figures)
+  mesh(X_plot, Y_plot, u_plot);
+  colormap('default');
+else
+  % black and white
+  mesh(X_plot, Y_plot, u_plot, ones(size(X_plot)));
+  colormap([1 1 1; 0 0 0]);
+end
 axis([-10 10 -10 10 -0.1 1.1])
 xlabel('x'); ylabel('y'); 
 %title('Forward Euler Solution');

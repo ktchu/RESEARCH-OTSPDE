@@ -215,19 +215,19 @@ comp_time_exp_FE = P_comp_time_FE(1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure(1); clf;
 N_plot = [10 1000];
-loglog(N_plot, exp(log(N_plot)*P_FE_OTS(1)+P_FE_OTS(2)), 'g');
+loglog(N_plot, exp(log(N_plot)*P_FE_OTS(1)+P_FE_OTS(2)), 'b');
 hold on;
-plot(grid_sizes, err_FE_OTS, 'go', ...
+plot(grid_sizes, err_FE_OTS, 'bo', ...
      'MarkerSize', 14, ...
-     'MarkerFaceColor', 'g');
+     'MarkerFaceColor', 'b');
 order_str = sprintf('Forward Euler OTS\nOrder = %1.1f', order_FE_OTS);
 text(30,1e-5,order_str);
 
 loglog(N_plot, exp(log(N_plot)*P_FE(1)+P_FE(2)), 'k');
 hold on;
-plot(grid_sizes, err_FE, 'bs', ...
+plot(grid_sizes, err_FE, 'rs', ...
      'MarkerSize', 14, ...
-     'MarkerFaceColor', 'b');
+     'MarkerFaceColor', 'r');
 order_str = sprintf('Forward Euler\nOrder = %1.1f', order_FE);
 text(250,1e-2,order_str);
 
@@ -245,20 +245,20 @@ print([fig_dir, '/', filename], format_str);
 figure(2); clf;
 err_plot = [1e-10 1e0];
 loglog(err_plot, ...
-  exp(log(err_plot)*P_comp_time_FE_OTS(1)+P_comp_time_FE_OTS(2)), 'g');
+  exp(log(err_plot)*P_comp_time_FE_OTS(1)+P_comp_time_FE_OTS(2)), 'b');
 hold on;
-loglog(err_FE_OTS, comp_time_FE_OTS, 'go', ...
+loglog(err_FE_OTS, comp_time_FE_OTS, 'bo', ...
        'MarkerSize', 14, ...
-       'MarkerFaceColor', 'g');
+       'MarkerFaceColor', 'b');
 order_str = sprintf('Forward Euler OTS\nOrder = %1.1f', ...
                      comp_time_exp_FE_OTS);
 text(5e-8,5,order_str);
 
 loglog(err_plot, exp(log(err_plot)*P_comp_time_FE(1)+P_comp_time_FE(2)), 'k');
 hold on;
-loglog(err_FE, comp_time_FE, 'bs', ...
+loglog(err_FE, comp_time_FE, 'rs', ...
        'MarkerSize', 14, ...
-       'MarkerFaceColor', 's');
+       'MarkerFaceColor', 'r');
 order_str = sprintf('Forward Euler\nOrder = %1.1f', comp_time_exp_FE);
 text(3e-3,3e2,order_str);
 

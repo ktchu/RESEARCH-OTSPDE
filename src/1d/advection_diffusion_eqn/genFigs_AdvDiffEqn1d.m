@@ -195,18 +195,18 @@ figure(1); clf;
 N_plot = [10 1000];
 loglog(N_plot,exp(log(N_plot)*P_FE_OTS(1)+P_FE_OTS(2)),'k');
 hold on;
-plot(grid_sizes,err_FE_OTS, 'go', ...
+plot(grid_sizes,err_FE_OTS, 'bo', ...
      'MarkerSize',14, ...
-     'MarkerFaceColor','g');
+     'MarkerFaceColor','b');
 order_str = sprintf('Forward Euler (OTS)\nOrder = %1.1f', order_FE_OTS);
 text(20,2e-7,order_str);
 
 N_plot = [10 1000];
 loglog(N_plot,exp(log(N_plot)*P_FE(1)+P_FE(2)),'k');
 hold on;
-plot(grid_sizes,err_FE, 'bs', ...
+plot(grid_sizes,err_FE, 'rs', ...
      'MarkerSize',14, ...
-     'MarkerFaceColor','b');
+     'MarkerFaceColor','r');
 order_str = sprintf('Forward Euler\nOrder = %1.1f', order_FE);
 text(200,4e-2,order_str);
 

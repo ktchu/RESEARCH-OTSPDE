@@ -23,7 +23,7 @@ A_y = -3.0;  % flow speed in y-direction
 
 % time integration parameters
 % NOTE: t_init = 0.0
-t_final = 1.0;
+t_final = 2.0;
 
 % set dx and dt
 N = 100;
@@ -31,6 +31,7 @@ x_lo = -10;
 x_hi =  10;
 dx = (x_hi-x_lo)/N;
 dt_FE = 0.5*dx/( abs(A_x) + abs(A_y) );  % suboptimal time step
+dt_FE = 0.99*dx/( abs(A_x) + abs(A_y) );  % suboptimal time step
 
 % set simulation parameters
 debug_on  = 1;
