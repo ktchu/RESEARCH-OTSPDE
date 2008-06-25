@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % This MATLAB script generates figures of the results for the diffusion 
-% equation with a source term.
+% equation with a source term for presentation purposes.
 %  
 % Kevin T. Chu
-% 2008 February
+% 2008 June
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -21,13 +21,7 @@ set(0,'DefaultLineLineWidth',2)
 set(0,'DefaultTextFontSize',18,'DefaultTextFontName','Helvetica')
 
 % set print format
-use_color_figures = 1;
-print_suffix = 'eps';
-if use_color_figures
-  print_format = 'epsc';
-else
-  print_format = 'eps';
-end
+print_format = 'png';
 fig_dir = 'figures';
 if ~exist(fig_dir, 'dir')
   mkdir(fig_dir);
@@ -305,7 +299,7 @@ text(30,3e-2,order_str);
 axis([10 1000 1e-10 1]);
 xlabel('N');
 ylabel('L^\infty Error');
-filename = sprintf('diffusion_eqn_1d_src_error_vs_N.%s', print_suffix);
+filename = sprintf('diffusion_eqn_1d_src_error_vs_N.%s', print_format);
 format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
@@ -358,7 +352,7 @@ text(2e-6,1000,order_str);
 axis([1e-10 1e-2 1e-2 1e4]);
 xlabel('L^\infty Error');
 ylabel('Compute Time');
-filename = sprintf('diffusion_eqn_2d_no_src_comp_time.%s', print_suffix);
+filename = sprintf('diffusion_eqn_2d_no_src_comp_time.%s', print_format);
 format_str = sprintf('-d%s', print_format);
 
 
@@ -368,8 +362,8 @@ hold on;
 plot(x,u_exact,'r')
 xlabel('x');
 %title('Forward Euler OTS Solution')
-filename = sprintf('diffusion_eqn_1d_src_FE_OTS_soln.%s', print_suffix);
-format_str = sprintf('-d%s', print_format);
+filename = sprintf('diffusion_eqn_1d_src_FE_OTS_soln.%s', print_format);
+format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
 figure(4); clf;
@@ -378,8 +372,8 @@ hold on;
 plot(x,u_exact,'r')
 xlabel('x');
 %title('Forward Euler Solution')
-filename = sprintf('diffusion_eqn_1d_src_FE_soln.%s', print_suffix);
-format_str = sprintf('-d%s', print_format);
+filename = sprintf('diffusion_eqn_1d_src_FE_soln.%s', print_format);
+format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
 figure(5); clf;
@@ -388,7 +382,7 @@ hold on;
 plot(x,u_exact,'r')
 xlabel('x');
 %title('Crank-Nicholson Solution')
-filename = sprintf('diffusion_eqn_1d_src_CN_soln.%s', print_suffix);
+filename = sprintf('diffusion_eqn_1d_src_CN_soln.%s', print_format);
 format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 

@@ -278,7 +278,7 @@ axis([10 1000 1e-10 1]);
 xlabel('N');
 ylabel('L^\infty Error');
 filename = sprintf('diffusion_eqn_1d_no_src_error_vs_N.%s', print_suffix);
-format_str = sprintf('-d%s',print_format);
+format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 
@@ -318,7 +318,7 @@ axis([1e-10 1e-2 1e-4 1e2]);
 xlabel('L^\infty Error');
 ylabel('Compute Time (s)');
 filename = sprintf('diffusion_eqn_2d_no_src_comp_time.%s', print_suffix);
-format_str = sprintf('-d%s',print_format);
+format_str = sprintf('-d%s', print_format);
 
 
 figure(3); clf;
@@ -329,7 +329,7 @@ axis([0 1 1 1.6]);
 xlabel('x');
 %title('Forward Euler OTS Solution')
 filename = sprintf('diffusion_eqn_1d_no_src_FE_OTS_soln.%s', print_suffix);
-format_str = sprintf('-d%s',print_format);
+format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 figure(4); clf;
@@ -340,7 +340,7 @@ axis([0 1 1 1.6]);
 xlabel('x');
 %title('Forward Euler Solution')
 filename = sprintf('diffusion_eqn_1d_no_src_FE_soln.%s', print_suffix);
-format_str = sprintf('-d%s',print_format);
+format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 figure(5); clf;
@@ -351,7 +351,7 @@ axis([0 1 1 1.6]);
 xlabel('x');
 %title('Crank-Nicholson Solution')
 filename = sprintf('diffusion_eqn_1d_no_src_CN_soln.%s', print_suffix);
-format_str = sprintf('-d%s',print_format);
+format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 
