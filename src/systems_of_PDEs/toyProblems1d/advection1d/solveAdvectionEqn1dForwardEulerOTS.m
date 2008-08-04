@@ -118,6 +118,7 @@ v = sin(0.5*pi*x);
 t = t_init;
 
 % take first time step using suboptimal time step
+% NOTE: this only contributes an O(dt^2) error to the final solution.
 
 % save solution at previous step
 u_prev = u;
@@ -200,6 +201,8 @@ while (t < t_final)
     % adjust dt so we don't overstep t_final
     dt = t_final - t; 
 
+    % advance solution using suboptimal time step.
+    % NOTE: this only contributes an O(dt^2) error to the final solution.
     u = u - 3*dt*G_minus*u; 
     v = v + 2*dt*G_plus*v; 
 
