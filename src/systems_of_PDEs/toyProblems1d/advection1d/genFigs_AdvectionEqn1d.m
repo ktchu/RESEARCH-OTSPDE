@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% This MATLAB script generates figures of the results for the advectione
-% equation. 
+% This MATLAB script generates figures of the results for a system of
+% decoupled advection equations. 
 %  
 % Kevin T. Chu
 % 2008 August
