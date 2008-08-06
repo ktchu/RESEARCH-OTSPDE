@@ -311,8 +311,9 @@ text(2e-5,20,order_str);
 axis([1e-10 1e-2 1e-4 1e2]);
 xlabel('L^\infty Error');
 ylabel('Compute Time (s)');
-filename = sprintf('diffusion_eqn_2d_no_src_comp_time.%s', print_format);
+filename = sprintf('diffusion_eqn_1d_no_src_comp_time.%s', print_format);
 format_str = sprintf('-d%s', print_format);
+print([fig_dir, '/', filename], format_str);
 
 
 figure(3); clf;
