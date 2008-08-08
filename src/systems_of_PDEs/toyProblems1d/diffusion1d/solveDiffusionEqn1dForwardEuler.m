@@ -19,6 +19,11 @@
 % v(-1, t) = 3*exp(-pi^2*t)
 % v( 1, t) = 3*exp(-pi^2*t)
 %
+% The analytical solution to this system of equations is given by
+%
+% u(x,t) = 1 + exp(-16/7*pi^2*t)*sin(4*pi*x)
+% v(x,t) = 3*exp(-pi^2*t)*cos(2*pi*x) + exp(-9/4*pi^2*t)*sin(3*pi*x)
+%
 % The numerical solution is computed on a node-centered grid using 
 % forward Euler time integration with a first-order upwind difference 
 % approximation for the Laplacians.
