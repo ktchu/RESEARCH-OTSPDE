@@ -1,0 +1,278 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% solveRxnDiffusionEqn1dForwardEulerOTS() computes the solutions of 
+% the system of 1d reaction-diffusion equations
+%
+%   u_t = u_xx   + 2*(v^3 - 3*v^2*u + v*u^2 + u^3)
+%   v_t = D*v_xx + ( (x-t)*v^3 - u^3 + 6*D*v*u^2 - 2*D*v^3 )
+%
+% on the domain -10 < x < 10 subject to the initial conditions
+%
+% u(x,0) = 1/(1+x^2)
+% v(x,0) = x/(1+x^2)
+%
+% and boundary conditions
+%
+% u(-10,t) = 1/(1+(-10-t)^2)
+% u( 10,t) = 1/(1+(10-t)^2)
+%
+% v(-10,t) = (-10-t)/(1+(-10-t)^2)
+% v( 10,t) = (10-t)/(1+(10-t)^2)
+%
+% The analytical solution to this system of equations is given by
+%
+% u(x,t) = 1/(1+(x-t)^2)
+% v(x,t) = (x-t)/(1+(x-t)^2)
+% 
+% The numerical solution is computed on a node-centered grid using forward 
+% Euler time integration with a first-order upwind difference approximation 
+% for the Laplacians.  For both equations, the OTS correction terms are added 
+% to the finite difference scheme.  The solution is advanced in time by using 
+% the OTS for each equation and using quadratic interpolation to boost the 
+% order of accuracy.
+%
+% USAGE:
+%   function [u, v, u_exact, v_exact, x, timing_data] = ...
+%     solveRxnDiffusionEqn1dForwardEulerOTS(D, ...
+%                                           N, ...
+%                                           t_init, t_final, ...
+%                                           debug_on, timing_on)
+%
+% Arguments:
+% - D:                   diffusion constant for v 
+% - N:                   number of grid cells to use for computation.
+%                        NOTE:  num grid points = (num grid cells + 1)
+% - t_init:              initial time
+% - t_final:             final time
+% - debug_on:            flag indicating whether debugging information
+%                        should be displayed.  To turn on debugging,
+%                        set debug_on to 1.
+%                        (default = 0)
+% - timing_on:           flag indicating whether timing information
+%                        should be collected.  To activate timing,
+%                        set timing_on to 1.
+%                        (default = 0)
+%
+% Return values:
+% - u:                   numerical solution for u
+% - v:                   numerical solution for v
+% - u_exact:             analytical solution for u
+% - v_exact:             analytical solution for v
+% - x:                   grid points
+% - timing_data:         time used to compute the solution (set up time
+%                        excluded).  If timing is not activated, timing_data 
+%                        is set to -1.
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% CHANGE LOG:
+% -----------
+% 2008/08/08:  Initial version of code. 
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Kevin T. Chu
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function [u, v, u_exact, v_exact, x, timing_data] = ...
+  solveRxnDiffusionEqn1dForwardEulerOTS(D, ...
+                                        N, ...
+                                        t_init, t_final, ...
+                                        debug_on, timing_on)
+
+
+% check arguments
+if (nargin < 4)
+  error('solveRxnDiffusionEqn1dForwardEulerOTS: missing arguments');
+end
+if (nargin < 5)
+  debug_on = 0;
+end
+if (nargin < 6)
+  timing_on = 0;
+end
+
+% construct grid
+x_lo = -10;
+x_hi = 10;
+dx = (x_hi-x_lo)/N;
+x = x_lo:dx:x_hi;  x = x';
+
+% compute optimal time steps
+dt_u = dx^2/6;
+dt_v = dx^2/6/D;
+dt = min(dt_u, dt_v);
+
+% construct Laplacian operator (with boundary conditions) 
+e = ones(N+1,1);                         
+L = 1/dx^2*spdiags([e -2*e e], -1:1, N+1, N+1);
+L(1,1) = 0; L(1,2) = 0;       % no need to compute Laplacian at x = -10
+L(N+1,N) = 0; L(N+1,N+1) = 0; % no need to compute Laplacian at x =  10
+
+% start clock to measure computation 
+if (timing_on == 1)
+  t_start = cputime;
+end
+
+% set initial conditions
+u = 1./(1+x.^2);
+v = x./(1+x.^2);
+
+% forward Euler time integration
+t = t_init;
+
+% take first time step using suboptimal time step
+% NOTE: this only contributes an O(dt^2) error to the final solution.
+
+% save solution at previous step
+u_prev = u;
+v_prev = v;
+
+% advance each component of solution
+u_t = L*u + 2*(v.^3 + v.*u.^2 - 3*v.^2.*u + u.^3);
+v_t = D*L*v - u.^3 + (x-t).*v.^3 + 6*D*u.^2.*v - 2*D*v.^3;
+u = u + dt*u_t;
+v = v + dt*v_t;
+
+% update time
+t = t + dt;
+
+% fix boundary conditions
+u(1)   = 1/(1+(x_lo-t)^2);
+u(end) = 1/(1+(x_hi-t)^2);
+v(1)   = (x_lo-t)/(1+(x_lo-t)^2);
+v(end) = (x_hi-t)/(1+(x_hi-t)^2);
+
+% take remaining time steps - synchronization uses quadratic interpolation 
+while (t < t_final)
+
+  if (debug_on == 1)
+
+    % compute exact solution and err
+    u_exact = 1./(1+(x-t).^2);
+    v_exact = (x-t)./(1+(x-t).^2);
+    err_u = u-u_exact;
+    err_u_L_inf = norm(err_u,'inf')
+    err_v = v-v_exact;
+    err_v_L_inf = norm(err_v,'inf')
+
+    % plot current solution
+    figure(1); clf;
+    plot(x,u,'bo');
+    hold on;
+    plot(x,u_exact,'r');
+    plot(x,v,'cs');
+    plot(x,v_exact,'g');
+    set(gca, 'XLim', [x_lo x_hi]);
+    title_string = sprintf('t = %f',t);
+    title(title_string);
+
+    % plot current error
+    figure(2); clf;
+    plot(x,err_u,'b');
+    hold on;
+    plot(x,err_v,'g');
+    set(gca, 'XLim', [x_lo x_hi]);
+    title_string = sprintf('t = %f',t);
+    title(title_string);
+    drawnow
+    pause
+
+  end %  end case: (debug_on == 1)
+
+  if (t+dt < t_final)
+    % advance solution using optimal time step and 
+    % quadratic interpolation in time
+
+    % impose boundary conditions
+    u(1)   = 1/(1+(x_lo-t)^2);
+    u(end) = 1/(1+(x_hi-t)^2);
+    v(1)   = (x_lo-t)/(1+(x_lo-t)^2);
+    v(end) = (x_hi-t)/(1+(x_hi-t)^2);
+
+    % compute u_t and v_t 
+    u_t = L*u + 2*(v.^3 + v.*u.^2 - 3*v.^2.*u + u.^3);
+    v_t = D*L*v - u.^3 + (x-t).*v.^3 + 6*D*u.^2.*v - 2*D*v.^3;
+
+    % compute correction terms
+    u_corr = 2*( 3*v.^2.*v_t + u.^2.*v_t + 2*v.*u.*u_t ...
+               - 6*v.*u.*v_t - 3*v.^2.*u_t + 3*u.^2.*u_t ) ...
+           + 2*L*(v.^3 - 3*v.^2.*u + v.*u.^2 + u.^3);
+    v_corr = -v.^3 + 3*(x-t).*v.^2.*v_t + 6*D*u.^2.*v_t ...
+            + 12*D*v.*u.*u_t - 6*D*v.^2.*v_t - 3*u.^2.*u_t ...
+            + D*L*((x-t).*v.^3 - 2*D*v.^3 - u.^3 + 6*D*v.*u.^2);
+
+    % advance each component of solution using optimal time steps
+    % and correction terms
+    u_ots = u + dt_u*u_t + 0.5*dt_u^2*u_corr;
+    v_ots = v + dt_v*v_t + 0.5*dt_v^2*v_corr;
+
+    % synchronize solutions using quadratic interpolation 
+    u_next = (dt-dt_u)/(dt+dt_u)*u_prev - 2*(dt-dt_u)/dt_u*u ...
+           + 2*dt^2/dt_u/(dt+dt_u)*u_ots;
+    v_next = (dt-dt_v)/(dt+dt_v)*v_prev - 2*(dt-dt_v)/dt_v*v ...
+           + 2*dt^2/dt_v/(dt+dt_v)*v_ots;
+
+    % save solution at previous time step and update the current solution
+    u_prev = u;
+    v_prev = v;
+    u = u_next;
+    v = v_next;
+
+  else
+    % adjust dt so we don't overstep t_final
+    dt = t_final - t;
+
+    % advance solution using suboptimal time step.
+    % NOTE: this only contributes an O(dt^2) error to the final solution.
+    % compute u_t and v_t 
+    u_t = L*u + 2*(v.^3 + v.*u.^2 - 3*v.^2.*u + u.^3);
+    v_t = D*L*v - u.^3 + (x-t).*v.^3 + 6*D*u.^2.*v - 2*D*v.^3;
+    u = u + dt*u_t;
+    v = v + dt*v_t;
+
+  end
+
+  % update time
+  t = t + dt;
+
+  % fix boundary conditions
+  u(1)   = 1/(1+(x_lo-t)^2);
+  u(end) = 1/(1+(x_hi-t)^2);
+  v(1)   = (x_lo-t)/(1+(x_lo-t)^2);
+  v(end) = (x_hi-t)/(1+(x_hi-t)^2);
+
+end
+
+% measure time to solve reaction-diffusion equations
+if (timing_on == 1)
+  t_solve = cputime - t_start;
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% output timing statistics
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if (timing_on)
+  timing_data = t_solve;
+
+  if (debug_on)
+    disp(' ');
+    disp('==================================================================');
+    disp('Computation Statistics');
+    comp_t_solve = sprintf('  Solution Time: %f', t_solve);
+    disp(comp_time_str);
+    disp('==================================================================');
+  end
+
+else
+
+  timing_data = -1;
+
+end
+
+% compute exact solution 
+u_exact = 1./(1+(x-t).^2);
+v_exact = (x-t)./(1+(x-t).^2);
