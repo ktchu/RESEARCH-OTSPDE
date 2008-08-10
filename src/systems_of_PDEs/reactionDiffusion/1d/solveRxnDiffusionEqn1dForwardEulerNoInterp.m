@@ -84,13 +84,13 @@ function [u, v, u_exact, v_exact, x, timing_data] = ...
 
 
 % check arguments
-if (nargin < 5)
+if (nargin < 4)
   error('solveRxnDiffusionEqn1dForwardEulerNoInterp: missing arguments');
 end
-if (nargin < 6)
+if (nargin < 5)
   debug_on = 0;
 end
-if (nargin < 7)
+if (nargin < 6)
   timing_on = 0;
 end
 
@@ -178,8 +178,8 @@ while (t < t_final)
              - 6*v.*u.*v_t - 3*v.^2.*u_t + 3*u.^2.*u_t ) ...
          + 2*L*(v.^3 - 3*v.^2.*u + v.*u.^2 + u.^3);
   v_corr = -v.^3 + 3*(x-t).*v.^2.*v_t + 6*D*u.^2.*v_t ...
-          + 12*D*v.*u.*u_t - 6*D*v.^2.*v_t - 3*u.^2.*u_t ...
-          + D*L*((x-t).*v.^3 - 2*D*v.^3 - u.^3 + 6*D*v.*u.^2);
+         + 12*D*v.*u.*u_t - 6*D*v.^2.*v_t - 3*u.^2.*u_t ...
+         + D*L*((x-t).*v.^3 - 2*D*v.^3 - u.^3 + 6*D*v.*u.^2);
 
   % advance each component of solution using optimal time steps
   % and correction terms
