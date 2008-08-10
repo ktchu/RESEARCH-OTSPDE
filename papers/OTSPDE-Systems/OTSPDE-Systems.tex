@@ -1,0 +1,81 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Manuscript started: 2008/09/0?
+% First completed draft: 2008/??/??, Vitamin D, Inc.
+% Submission draft: 2008/??/??, Vitamin D, Inc.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[oneeqnum,onefignum,onetabnum,onethmnum]{siamltex}
+\usepackage{graphics}
+\usepackage{multirow}
+
+\include{macros}
+
+\title{High-Order Accurate Finite Difference Schemes \\
+       for Systems of PDEs via Optimal Time Step Selection}
+
+\author{
+Kevin T. Chu\footnotemark[2] \footnotemark[3]
+}
+
+\begin{document}
+\bibliographystyle{unsrt}
+\maketitle
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\footnotetext[2]{Vitamin D, Inc., Menlo Park, CA 94025} 
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\footnotetext[3]{Institute of High Performance Computing, A*STAR, Singapore, Singapore} 
+
+\renewcommand{\thefootnote}{\arabic{footnote}}
+
+
+\begin{abstract}
+place holder...
+\end{abstract}
+
+
+\begin{keywords}
+optimal time step, finite difference schemes, high-order accurate numerical 
+methods, time dependent PDEs, systems of PDEs
+\end{keywords}
+
+\begin{AMS}
+65-02, 65M06, 65M12, 65M20, ??
+\end{AMS}
+
+\pagestyle{myheadings}
+\thispagestyle{plain}
+\markboth{KEVIN T. CHU}
+         {HIGH-ORDER FD SCHEMES VIA OPTIMAL TIME STEPS}
+
+
+\section*{Introduction}
+High-order numerical methods for partial differential equations (PDEs) will 
+always be valuable for increasing the computational efficiency of numerical 
+simulations.  Thus, it is not at all surprising that a great deal of effort in 
+numerical PDEs continues to be focused on the development of high-order 
+numerical schemes~\cite{bruger_2005, gibou_2005, ito_2005, shukla_2005, 
+shukla_2007}.  
+Typically, high-order accuracy is achieved by constructing
+schemes that have high formal orders of accuracy.  However, high-order 
+accurate numerical solutions can also be obtained by using formally low-order 
+schemes in clever ways.  When possible, the latter approach can be a powerful 
+way to boost the accuracy of a numerical method \emph{without} introducing too 
+much additional algorithmic (and programming) complexity.
+
+\section{\label{sec:summary} Summary} 
+
+
+\section*{Acknowledgments}
+The author gratefully acknowledges the support of Vitamin D, Inc.
+and the Institute for High-Performance Computing (IHPC) in Singapore. 
+The author would like to thank K.-H. Chiam, ?? 
+for helpful suggestions on the manuscript.  
+The author particularly thanks K.-H. Chiam for pointing him to the 
+mathematical biology literature for interesting examples of reaction-diffusion 
+systems.
+
+\bibliography{OTSPDE-Systems}
+
+\end{document}
