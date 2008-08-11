@@ -146,7 +146,7 @@ while (t < t_final)
   % update time
   t = t + dt;
 
-  % update soluation at boundaries
+  % update solution at boundaries
   T = t+1;
   u(1)   =  U +  sqrt(nu/T)*gamma*exp(-(x(1)-U*T).^2/(4*nu*T)) ...
                ./( sqrt(pi)*(1 + 0.5*gamma*erfc((x(1)-U*T)/sqrt(4*nu*T))) );

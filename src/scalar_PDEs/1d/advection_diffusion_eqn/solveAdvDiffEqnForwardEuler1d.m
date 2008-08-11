@@ -131,7 +131,7 @@ while (t < t_final)
   % update time
   t = t + dt;
 
-  % update soluation at boundaries
+  % update solution at boundaries
   u(1)   = exp( -0.25*(-10+A*t)^2/(D*t+1) ) / sqrt(D*t+1);
   u(end) = exp( -0.25*(10+A*t)^2/(D*t+1) )  / sqrt(D*t+1);
 

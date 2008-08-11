@@ -146,7 +146,7 @@ while (t < t_final)
   % update time
   t = t + dt;
 
-  % update soluation at boundaries
+  % update solution at boundaries
   T = t+1;
   u(1)   =  x(1)/T * sqrt(1/T)*exp(-x(1)^2/(4*nu*T)) ...
                    / (1 + sqrt(1/T)*exp(-x(1)^2/(4*nu*T)));
