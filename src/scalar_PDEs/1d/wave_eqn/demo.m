@@ -15,16 +15,17 @@ format compact
 % physical parameters
 c = 1.0;  % wave speed
 c = 0.5;  % wave speed
-use_source_term = 1;
+use_source_term = 0;
 
 % time integration parameters
 % NOTE: t_init = 0.0
-t_final = 3.0;
+t_final = 2.0;
+t_final = 1.5;
 
 % set dx and dt
-x_lo = -0.5;
-x_hi =  0.5;
-N = 200;
+x_lo = -1.0;
+x_hi =  1.0;
+N = 400;
 dx = (x_hi-x_lo)/N;
 dt_KPY = dx/c;
 dt_KPY = 0.5*dx/c;

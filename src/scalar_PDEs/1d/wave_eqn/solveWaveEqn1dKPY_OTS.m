@@ -6,24 +6,24 @@
 %
 % on the domain -1 < x < 1 subject to the initial conditions
 %
-%   u(x,0)   = 2*exp( -10 (sin(pi*x))^2 )
-%   u_t(x,0) = -pi*sin(2*pi*x) + g(x)
+%   u(x,0)   = 2*exp( -10 (sin(0.5*pi*x))^2 )
+%   u_t(x,0) = -0.5*pi*sin(pi*x) + g(x)
 %
 % and periodic boundary conditions.
 %
 % When use_source_term is set to 0, f(x,t) = 0, g(x) = 0 and the analytical 
 % solution is given by
 % 
-%   u = exp(-10*(sin(pi*(x-c*t))).^2)+exp(-10*(sin(pi*(x+c*t))).^2)) ...
-%     + 0.25/c*(cos(2*pi*(x+c*t)) - cos(2*pi*(x-c*t))) 
+%   u = exp(-10*(sin(0.5*pi*(x-c*t))).^2)+exp(-10*(sin(0.5*pi*(x+c*t))).^2)) ...
+%     + 0.25/c*(cos(pi*(x+c*t)) - cos(pi*(x-c*t))) 
 %
-% When use_source_term is set to 1, f(x,t) = 0.5 pi^2 sin(2 pi (x - 0.25t)),
-% g(x) = pi/c*cos(2*pi*x) and the analytical solution to this problem is 
+% When use_source_term is set to 1, f(x,t) = 0.125/c*pi^2*sin(pi*(x - 0.25*t)),
+% g(x) = 0.5*pi/c*cos(pi*x) and the analytical solution to this problem is 
 %
-%   u = exp(-10*(sin(pi*(x-c*t))).^2)+exp(-10*(sin(pi*(x+c*t))).^2)) ...
-%     + 0.25/c*(cos(2*pi*(x+c*t)) - cos(2*pi*(x-c*t))) ...
-%     + -0.25/c/(c+0.25)*( sin(2*pi*(x-0.25*t)) - sin(2*pi*(x+c*t)) ) ...
-%     +  0.25/c/(c-0.25)*( sin(2*pi*(x-0.25*t)) - sin(2*pi*(x-c*t)) )
+%   u = exp(-10*(sin(0.5*pi*(x-c*t))).^2)+exp(-10*(sin(0.5*pi*(x+c*t))).^2)) ...
+%     + 0.25/c*(cos(pi*(x+c*t)) - cos(pi*(x-c*t))) ...
+%     - 0.25/c/(c+0.25)*( sin(pi*(x-0.25*t)) - sin(pi*(x+c*t)) ) ...
+%     + 0.25/c/(c-0.25)*( sin(pi*(x-0.25*t)) - sin(pi*(x-c*t)) )
 %
 % The numerical solution is computed on a node-centered grid using the
 % direct completely centered discretization of the second-order wave 
@@ -87,8 +87,8 @@ if (nargin < 5)
 end
 
 % construct grid
-x_lo = -0.5;
-x_hi =  0.5;
+x_lo = -1.0;
+x_hi =  1.0;
 dx = (x_hi-x_lo)/N;
 x = x_lo:dx:x_hi-dx; x = x';  % periodic grid point not included
 
@@ -111,22 +111,24 @@ t = 0.0;
 
 % set initial conditions
 if (use_source_term > 0)
-  u   = 2*exp(-10*(sin(pi*x)).^2);
-  u_t = -pi*sin(2*pi*x) ...
-      + pi/c*cos(2*pi*x);
+  u   = 2*exp(-10*(sin(0.5*pi*x)).^2);
+  u_t = -0.5*(pi*sin(pi*x) - pi/c*cos(pi*x));
 else
-  u   = 2*exp(-10*(sin(pi*x)).^2);
-  u_t = -pi*sin(2*pi*x);
+  u   = 2*exp(-10*(sin(0.5*pi*x)).^2);
+  u_t = -0.5*pi*sin(pi*x);
 end
 
 % use second-order forward Euler for first time step
 if (use_source_term > 0)
-  f = 0.5/c*pi^2*sin(2*pi*x);
+  f = 0.125/c*pi^2*sin(pi*x);
 else
   f = 0;
 end
 u_tt = c^2*L*u + f;
 u_next = u + dt*u_t + 0.5*dt^2*u_tt;
+
+% TODO: check why we don't need to add u_ttt term to get 4th-order accuracy
+%dt^3*norm(c^2*L*u_t-0.25*pi^3*cos(2*pi*x)/c,'inf')
 
 % update u_prev and u
 u_prev = u;
@@ -141,15 +143,15 @@ while (t < t_final)
 
     % compute exact solution and err
     if (use_source_term > 0)
-      u_exact = ...
-          (exp(-10*(sin(pi*(x-c*t))).^2)+exp(-10*(sin(pi*(x+c*t))).^2)) ...
-        + 0.25/c*(cos(2*pi*(x+c*t)) - cos(2*pi*(x-c*t))) ...
-        + -0.25/c/(c+0.25)*( sin(2*pi*(x-0.25*t)) - sin(2*pi*(x+c*t)) ) ...
-        +  0.25/c/(c-0.25)*( sin(2*pi*(x-0.25*t)) - sin(2*pi*(x-c*t)) );
+      u_exact = (exp(-10*(sin(0.5*pi*(x-c*t))).^2) ...
+                +exp(-10*(sin(0.5*pi*(x+c*t))).^2)) ...
+              + 0.25/c*(cos(pi*(x+c*t)) - cos(pi*(x-c*t))) ...
+              - 0.25/c/(c+0.25)*( sin(pi*(x-0.25*t)) - sin(pi*(x+c*t)) ) ...
+              + 0.25/c/(c-0.25)*( sin(pi*(x-0.25*t)) - sin(pi*(x-c*t)) );
     else
-      u_exact = (exp(-10*(sin(pi*(x-c*t))).^2) ...
-                +exp(-10*(sin(pi*(x+c*t))).^2)) ...
-              + 0.25/c*(cos(2*pi*(x+c*t)) - cos(2*pi*(x-c*t)));
+      u_exact = (exp(-10*(sin(0.5*pi*(x-c*t))).^2) ...
+                +exp(-10*(sin(0.5*pi*(x+c*t))).^2)) ...
+              + 0.25/c*(cos(pi*(x+c*t)) - cos(pi*(x-c*t)));
     end
     err = u-u_exact;
     err_L_inf = norm(err,'inf')
@@ -175,8 +177,8 @@ while (t < t_final)
 
   % compute source term and its second derivative wrt time
   if (use_source_term > 0)
-    f = 0.5/c*pi^2*sin(2*pi*(x-0.25*t));
-    f_tt = -pi^4/8/c*sin(2*pi*(x-0.25*t));
+    f = 0.125/c*pi^2*sin(pi*(x-0.25*t));
+    f_tt = -pi^4/128/c*sin(pi*(x-0.25*t));
     u_tt_corr = dt^2/12*(c^2*L*f + f_tt); % correction term for u_tt
   else
     f = 0;
@@ -186,7 +188,6 @@ while (t < t_final)
 
   % compute u_tt
   u_tt = c^2*L*u + f;
-
 
   % update solution
   u_next = 2*u - u_prev + dt^2*(u_tt + u_tt_corr);
@@ -212,13 +213,15 @@ end
 
 % compute exact solution 
 if (use_source_term > 0)
-  u_exact = (exp(-10*(sin(pi*(x-c*t))).^2)+exp(-10*(sin(pi*(x+c*t))).^2)) ...
-          + 0.25/c*(cos(2*pi*(x+c*t)) - cos(2*pi*(x-c*t))) ...
-          + -0.25/c/(c+0.25)*( sin(2*pi*(x-0.25*t)) - sin(2*pi*(x+c*t)) ) ...
-          +  0.25/c/(c-0.25)*( sin(2*pi*(x-0.25*t)) - sin(2*pi*(x-c*t)) );
+  u_exact = (exp(-10*(sin(0.5*pi*(x-c*t))).^2) ...
+            +exp(-10*(sin(0.5*pi*(x+c*t))).^2)) ...
+          + 0.25/c*(cos(pi*(x+c*t)) - cos(pi*(x-c*t))) ...
+          - 0.25/c/(c+0.25)*( sin(pi*(x-0.25*t)) - sin(pi*(x+c*t)) ) ...
+          + 0.25/c/(c-0.25)*( sin(pi*(x-0.25*t)) - sin(pi*(x-c*t)) );
 else
-  u_exact = (exp(-10*(sin(pi*(x-c*t))).^2)+exp(-10*(sin(pi*(x+c*t))).^2)) ...
-          + 0.25/c*(cos(2*pi*(x+c*t)) - cos(2*pi*(x-c*t)));
+  u_exact = (exp(-10*(sin(0.5*pi*(x-c*t))).^2) ...
+            +exp(-10*(sin(0.5*pi*(x+c*t))).^2)) ...
+          + 0.25/c*(cos(pi*(x+c*t)) - cos(pi*(x-c*t)));
 end
 
 % add back periodic grid point
