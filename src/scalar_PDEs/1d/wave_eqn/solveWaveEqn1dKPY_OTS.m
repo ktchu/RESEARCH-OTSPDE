@@ -177,16 +177,16 @@ while (t < t_final)
   if (use_source_term > 0)
     f = 0.5/c*pi^2*sin(2*pi*(x-0.25*t));
     f_tt = -pi^4/8/c*sin(2*pi*(x-0.25*t));
+    u_tt_corr = dt^2/12*(c^2*L*f + f_tt); % correction term for u_tt
   else
     f = 0;
     f_tt = 0;
+    u_tt_corr = 0; % correction term for u_tt
   end
 
   % compute u_tt
   u_tt = c^2*L*u + f;
 
-  % compute correction term for u_tt
-  u_tt_corr = dt^2/12*(c^2*L*f + f_tt);
 
   % update solution
   u_next = 2*u - u_prev + dt^2*(u_tt + u_tt_corr);
