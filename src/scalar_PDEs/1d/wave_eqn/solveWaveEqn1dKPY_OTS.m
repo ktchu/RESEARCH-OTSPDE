@@ -31,6 +31,16 @@
 % time step of dt = dx/c (unit CFL condition) is used and a correction term
 % is added when a source term is present.
 %
+% NOTES:
+% - Because quadratic interpolation is used when on the final time step, 
+%   the numerical solution is only guaranteed to be third-order accurate. 
+%   This situation occurs when t_final is not close to a multiple of the 
+%   optimal time step dt = dx/c.
+% - When the final time step is close to a multiple of the optimal time
+%   step dt = dx/c, then the numerical solution is fourth-order accurate 
+%   when there is no source term and third-order accurate when a source
+%   term is present.
+%
 % USAGE:
 %   function [u, u_exact, x] = solveWaveEqn1dKPY_OTS(c, ...
 %                                                    use_source_term, ...
@@ -121,14 +131,14 @@ end
 % use second-order forward Euler for first time step
 if (use_source_term > 0)
   f = 0.125/c*pi^2*sin(pi*x);
+  u_ttt_corr = -0.03125/c*pi^3*cos(pi*x);
 else
   f = 0;
+  u_ttt_corr = 0;
 end
 u_tt = c^2*L*u + f;
-u_next = u + dt*u_t + 0.5*dt^2*u_tt;
-
-% TODO: check why we don't need to add u_ttt term to get 4th-order accuracy
-%dt^3*norm(c^2*L*u_t-0.25*pi^3*cos(2*pi*x)/c,'inf')
+u_next = u + dt*u_t + 0.5*dt^2*u_tt ...
+       + 1/6*dt^3*(c^2*L*u_t+u_ttt_corr);
 
 % update u_prev and u
 u_prev = u;
@@ -192,20 +202,23 @@ while (t < t_final)
   % update solution
   u_next = 2*u - u_prev + dt^2*(u_tt + u_tt_corr);
 
-  % update u_prev and u
-  u_prev = u;
-  u = u_next;
-
   % update time
   t = t + dt;
 
-  % if we have overstepped t_final, use linear interpolation to obtain
-  % u(t_final).
-  % NOTE:  solution is still second-order accurate because error in 
-  %        linear interpolation is O(dt^2).
-  if (t > t_final)
-    dt_final = t-t_final;
-    u = dt_final/dt*u_prev + (1-dt_final/dt)*u;
+  % update u_prev and u 
+  if (t < t_final)
+    u_prev = u;
+    u = u_next;
+
+  else
+    % if we have overstepped t_final, use quadratic interpolation to obtain
+    % u(t_final).
+    % NOTE:  solution is third-order accurate because error in quadratic 
+    %        interpolation is O(dt^3).
+    dt_final = t_final - (t-dt);
+    u = 1/dt^2*( 0.5*dt_final*(dt_final-dt)*u_prev ...
+               - (dt_final-dt)*(dt_final+dt)*u ...
+               + 0.5*dt_final*(dt_final+dt)*u_next );
     t = t_final;
   end
 

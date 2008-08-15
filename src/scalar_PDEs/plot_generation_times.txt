@@ -7,6 +7,8 @@ Plot Generation Times
 * 1D Advection-Diffusion Equation: 3.5s
 * 1D Burgers Equation: 3.6s
 * 1D Fourth-order Parabolic Equation: 14700s
+* 1D Wave Equation, No Source Term: 6s
+* 1D Wave Equation, Source Term: 11s
 
 * 2D Advection Equation: 5s
 * 2D Diffusion Equation, Square Domain, No Source Term: 9200s
