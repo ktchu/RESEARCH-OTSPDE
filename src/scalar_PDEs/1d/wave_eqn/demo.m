@@ -30,7 +30,7 @@ dx = (x_hi-x_lo)/N;
 dt_KPY = dx/c;
 dt_KPY = 0.5*dx/c;
 
-% solve diffusion equation using forward Euler with OTS
+% solve 1d wave equation using KPY time integration with OTS
 debug_on = 0;
 [u_KPY_OTS, u_exact, x] = solveWaveEqn1dKPY_OTS(c, ...
                                                 use_source_term, ...
@@ -38,7 +38,7 @@ debug_on = 0;
                                                 t_final, ...
                                                 debug_on);
 
-% solve diffusion equation using forward Euler
+% solve 1d wave equation using KPY time integration without OTS
 [u_KPY, u_exact, x] = solveWaveEqn1dKPY(c, ...
                                         use_source_term, ...
                                         N, dt_KPY, ...
@@ -56,18 +56,18 @@ figure(1); clf;
 plot(x,u_KPY_OTS,'bo')
 hold on;
 plot(x,u_exact,'r')
-title('Forward Euler OTS Solution')
+title('KPY-OTS Solution')
 
 figure(2); clf;
 plot(x,err_KPY_OTS);
-title('Error in Forward Euler OTS Solution')
+title('Error in KPY-OTS Solution')
 
 figure(3); clf;
 plot(x,u_KPY,'bo')
 hold on;
 plot(x,u_exact,'r')
-title('Forward Euler Solution')
+title('KPY Solution')
 
 figure(4); clf;
 plot(x,err_KPY);
-title('Error in Forward Euler Solution')
+title('Error in KPY Solution')
