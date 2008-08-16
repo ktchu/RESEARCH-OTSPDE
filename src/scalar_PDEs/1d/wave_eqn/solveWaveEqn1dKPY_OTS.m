@@ -131,14 +131,14 @@ end
 % use second-order forward Euler for first time step
 if (use_source_term > 0)
   f = 0.125/c*pi^2*sin(pi*x);
-  u_ttt_corr = -0.03125/c*pi^3*cos(pi*x);
+  f_t = -0.03125/c*pi^3*cos(pi*x);
 else
   f = 0;
-  u_ttt_corr = 0;
+  f_t = 0;
 end
 u_tt = c^2*L*u + f;
 u_next = u + dt*u_t + 0.5*dt^2*u_tt ...
-       + 1/6*dt^3*(c^2*L*u_t+u_ttt_corr);
+       + 1/6*dt^3*(c^2*L*u_t+f_t);
 
 % update u_prev and u
 u_prev = u;
