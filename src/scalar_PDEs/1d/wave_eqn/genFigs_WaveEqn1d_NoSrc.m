@@ -241,7 +241,7 @@ text(2000,1e-3,order_str);
 axis([100 10000 1e-15 1e0]);
 xlabel('N');
 ylabel('L^\infty Error');
-filename = sprintf('wave_eqn_1d_error_vs_N.%s', print_suffix);
+filename = sprintf('wave_eqn_1d_no_src_error_vs_N.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
@@ -252,7 +252,7 @@ plot(x_hi_res,u_exact_hi_res,'r')
 axis([x_lo x_hi -5 5]);
 xlabel('x');
 %title('KPY-OTS Solution')
-filename = sprintf('wave_eqn_1d_KPY_OTS_soln.%s', print_suffix);
+filename = sprintf('wave_eqn_1d_no_src_KPY_OTS_soln.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
@@ -263,7 +263,7 @@ plot(x_hi_res,u_exact_hi_res,'r')
 axis([x_lo x_hi -5 5]);
 xlabel('x');
 %title('KPY Solution')
-filename = sprintf('wave_eqn_1d_KPY_soln.%s', print_suffix);
+filename = sprintf('wave_eqn_1d_no_src_KPY_soln.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
