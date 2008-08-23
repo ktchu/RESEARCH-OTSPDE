@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% solveTransformedWaveEqn1dKPY() computes the solutions of the 1d wave 
+% solveWaveEqn1dKPY_Transformed() computes the solutions of the 1d wave 
 % equation 
 %
 %   u_tt = (c(x))^2 u_xx + f(x,t)
@@ -49,9 +49,9 @@
 % equation introduced by Kreiss, Petersson, and Ystrom (2002).
 %
 % USAGE:
-%   function [u, u_exact, x] = solveTransformedWaveEqn1dKPY(N, dt, ...
-%                                                           t_final, ...
-%                                                           debug_on)
+%   function [u, u_exact, x] = solveWaveEqn1dKPY_Transformed(N, dt, ...
+%                                                            t_final, ...
+%                                                            debug_on)
 %
 % Arguments:
 % - N:                   number of grid cells to use for computation.
@@ -82,14 +82,14 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [u, u_exact, x] = solveTransformedWaveEqn1dKPY(N, dt, ...
-                                                        t_final, ...
-                                                        debug_on)
+function [u, u_exact, x] = solveWaveEqn1dKPY_Transformed(N, dt, ...
+                                                         t_final, ...
+                                                         debug_on)
 
 
 % check arguments
 if (nargin < 3)
-  error('solveTransformedWaveEqn1dKPY: missing arguments');
+  error('solveWaveEqn1dKPY_Transformed: missing arguments');
 end
 if (nargin < 4)
   debug_on = 0;

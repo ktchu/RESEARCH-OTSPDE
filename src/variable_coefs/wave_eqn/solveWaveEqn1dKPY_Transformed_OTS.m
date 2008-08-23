@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% solveTransformedWaveEqn1dKPY_OTS() computes the solutions of the 1d wave 
+% solveWaveEqn1dKPY_Transformed_OTS() computes the solutions of the 1d wave 
 % equation 
 %
 %   u_tt = (c(x))^2 u_xx + f(x,t)
@@ -51,9 +51,9 @@
 % lower-order spatial derivative and source terms are used.
 %
 % USAGE:
-%   function [u, u_exact, x] = solveTransformedWaveEqn1dKPY_OTS(N, ...
-%                                                               t_final, ...
-%                                                               debug_on)
+%   function [u, u_exact, x] = solveWaveEqn1dKPY_Transformed_OTS(N, ...
+%                                                                t_final, ...
+%                                                                debug_on)
 %
 % Arguments:
 % - N:                   number of grid cells to use for computation.
@@ -83,14 +83,14 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [u, u_exact, x] = solveTransformedWaveEqn1dKPY_OTS(N, ...
-                                                            t_final, ...
-                                                            debug_on)
+function [u, u_exact, x] = solveWaveEqn1dKPY_Transformed_OTS(N, ...
+                                                             t_final, ...
+                                                             debug_on)
 
 
 % check arguments
 if (nargin < 2)
-  error('solveTransformedWaveEqn1dKPY_OTS: missing arguments');
+  error('solveWaveEqn1dKPY_Transformed_OTS: missing arguments');
 end
 if (nargin < 3)
   debug_on = 0;
