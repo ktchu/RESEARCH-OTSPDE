@@ -1,0 +1,6 @@
+
+Plot Generation Times
+---------------------
+
+* 1D Variable-Coefficient Wave Equation: 200s
+* 1D Variable-Coefficient Diffusion Equation: ??s
