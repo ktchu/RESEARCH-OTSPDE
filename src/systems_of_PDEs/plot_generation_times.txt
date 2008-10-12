@@ -1,0 +1,5 @@
+
+Plot Generation Times
+---------------------
+
+* 1D Reaction-Diffusion Equations: 18000s
