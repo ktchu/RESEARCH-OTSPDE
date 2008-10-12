@@ -25,18 +25,18 @@ t_final = 1.2345;
 % set dx and dt
 x_lo = -1.0;
 x_hi =  1.0;
-N = 400;
+N = 100;
 dx = (x_hi-x_lo)/N;
 dt_KPY = dx/c;
 dt_KPY = 0.5*dx/c;
 
 % solve 1d wave equation using KPY time integration with OTS
 debug_on = 0;
-[u_KPY_OTS, u_exact, x] = solveWaveEqn1dKPY_OTS(c, ...
-                                                use_source_term, ...
-                                                N, ...
-                                                t_final, ...
-                                                debug_on);
+[u_KPY_OTS, u_exact_OTS, x] = solveWaveEqn1dKPY_OTS(c, ...
+                                                    use_source_term, ...
+                                                    N, ...
+                                                    t_final, ...
+                                                    debug_on);
 
 % solve 1d wave equation using KPY time integration without OTS
 [u_KPY, u_exact, x] = solveWaveEqn1dKPY(c, ...
@@ -46,7 +46,7 @@ debug_on = 0;
                                         debug_on);
 
 % compute error
-err_KPY_OTS = u_KPY_OTS-u_exact;
+err_KPY_OTS = u_KPY_OTS-u_exact_OTS;
 err_L_inf_KPY_OTS = norm(err_KPY_OTS,'inf')
 err_KPY = u_KPY-u_exact;
 err_L_inf_KPY = norm(err_KPY,'inf')
@@ -55,7 +55,7 @@ err_L_inf_KPY = norm(err_KPY,'inf')
 figure(1); clf;
 plot(x,u_KPY_OTS,'bo')
 hold on;
-plot(x,u_exact,'r')
+plot(x,u_exact_OTS,'r')
 title('KPY-OTS Solution')
 
 figure(2); clf;
