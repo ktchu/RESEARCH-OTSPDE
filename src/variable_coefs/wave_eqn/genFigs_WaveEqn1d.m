@@ -56,6 +56,8 @@ t_final = 1.0;
 grid_sizes = [100 200 400 800 1600 3200 6400];
 
 % allocate memory for errors
+err_KPY_VarMesh_OTS     = zeros(size(grid_sizes));
+err_KPY_VarMesh         = zeros(size(grid_sizes));
 err_KPY_Transformed_OTS = zeros(size(grid_sizes));
 err_KPY_Transformed     = zeros(size(grid_sizes));
 err_KPY                 = zeros(size(grid_sizes));
@@ -98,6 +100,16 @@ for i = 1:length(grid_sizes)
     dt_KPY = dx/4;
 
     % solve wave equation using KPY on a transformed domain with OTS
+    disp('KPY-VarMesh-OTS');
+    [u_KPY_VarMesh_OTS, u_exact_VarMesh, x_VarMesh] = ...
+      solveWaveEqn1dKPY_VarMesh_OTS(N, t_final, debug_on);
+
+    % solve wave equation using KPY on a transformed domain without OTS
+    disp('KPY-VarMesh');
+    [u_KPY_VarMesh, u_exact_VarMesh, x_VarMesh] = ...
+      solveWaveEqn1dKPY_VarMesh(N, dt_KPY, t_final, debug_on);
+
+    % solve wave equation using KPY on a transformed domain with OTS
     disp('KPY-Transformed-OTS');
     [u_KPY_Transformed_OTS, u_exact_Transformed, x_Transformed] = ...
       solveWaveEqn1dKPY_Transformed_OTS(N, t_final, debug_on);
@@ -114,13 +126,19 @@ for i = 1:length(grid_sizes)
     % save solutions and timing data to MAT-files
     filename = sprintf('data_%d', N);
     save([data_dir, '/', filename], ...
-         'u_KPY_Transformed_OTS', 'u_KPY_Transformed', 'u_KPY', ...
-         'u_exact_Transformed', 'u_exact', ...
-         'x_Transformed', 'x');
+         'u_KPY_VarMesh_OTS', 'u_KPY_VarMesh', ...
+         'u_KPY_Transformed_OTS', 'u_KPY_Transformed', ...
+         'u_KPY', ...
+         'u_exact_VarMesh', 'u_exact_Transformed', 'u_exact', ...
+         'x_VarMesh', 'x_Transformed', 'x');
 
   end % end case:  (use_saved_data ~= 1) ==> recompute solutions
 
   % compute error
+  err = u_KPY_VarMesh_OTS-u_exact_VarMesh;
+  err_KPY_VarMesh_OTS(i) = norm(err,'inf');
+  err = u_KPY_VarMesh-u_exact_VarMesh;
+  err_KPY_VarMesh(i) = norm(err,'inf');
   err = u_KPY_Transformed_OTS-u_exact_Transformed;
   err_KPY_Transformed_OTS(i) = norm(err,'inf');
   err = u_KPY_Transformed-u_exact_Transformed;
@@ -160,6 +178,18 @@ else
   dt_KPY = dx/4;
 
   % solve wave equation using KPY on transformed domain with OTS
+  disp('KPY-VarMesh-OTS');
+  [u_KPY_VarMesh_OTS_lo_res, u_exact_VarMesh_lo_res, ...
+   x_VarMesh_lo_res] = ...
+    solveWaveEqn1dKPY_VarMesh_OTS(N_lo_res, t_final, debug_on);
+
+  % solve wave equation using KPY on transformed domain without OTS
+  disp('KPY-VarMesh');
+  [u_KPY_VarMesh_lo_res, u_exact_VarMesh_lo_res, ...
+   x_VarMesh_lo_res] = ...
+    solveWaveEqn1dKPY_VarMesh(N_lo_res, dt_KPY, t_final, debug_on);
+
+  % solve wave equation using KPY on transformed domain with OTS
   disp('KPY-Transformed-OTS');
   [u_KPY_Transformed_OTS_lo_res, u_exact_Transformed_lo_res, ...
    x_Transformed_lo_res] = ...
@@ -192,9 +222,10 @@ else
   % save solutions and timing data to MAT-files
   filename = 'data_plotting';
   save([data_dir, '/', filename], ...
+       'u_KPY_VarMesh_OTS_lo_res', 'u_KPY_VarMesh_lo_res', ...
        'u_KPY_Transformed_OTS_lo_res', 'u_KPY_Transformed_lo_res', ...
        'u_KPY_lo_res', ...
-       'x_lo_res', 'x_Transformed_lo_res', ...
+       'x_lo_res', 'x_VarMesh_lo_res', 'x_Transformed_lo_res', ...
        'u_exact_hi_res', 'x_hi_res');
 
 end
@@ -203,6 +234,12 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Analyze Results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+P_KPY_VarMesh_OTS = ...
+  polyfit(log(grid_sizes(1:end-2)),log(err_KPY_VarMesh_OTS(1:end-2)),1);
+order_KPY_VarMesh_OTS = -P_KPY_VarMesh_OTS(1);
+P_KPY_VarMesh = ...
+  polyfit(log(grid_sizes(1:end-2)),log(err_KPY_VarMesh(1:end-2)),1);
+order_KPY_VarMesh = -P_KPY_VarMesh(1);
 P_KPY_Transformed_OTS = ...
   polyfit(log(grid_sizes(1:end-2)),log(err_KPY_Transformed_OTS(1:end-2)),1);
 order_KPY_Transformed_OTS = -P_KPY_Transformed_OTS(1);
@@ -219,14 +256,30 @@ order_KPY = -P_KPY(1);
 figure(1); clf;
 N_plot = [100 10000];
 loglog(N_plot, ...
-  exp(log(N_plot)*P_KPY_Transformed_OTS(1)+P_KPY_Transformed_OTS(2)),'k');
+  exp(log(N_plot)*P_KPY_VarMesh_OTS(1)+P_KPY_VarMesh_OTS(2)),'k');
 hold on;
-plot(grid_sizes,err_KPY_Transformed_OTS, 'bo', ...
+plot(grid_sizes,err_KPY_VarMesh_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
-order_str = sprintf('KPY-Transformed-OTS\nOrder = %1.1f', ...
+
+N_plot = [100 10000];
+loglog(N_plot, ...
+  exp(log(N_plot)*P_KPY_Transformed_OTS(1)+P_KPY_Transformed_OTS(2)),'k');
+hold on;
+plot(grid_sizes,err_KPY_Transformed_OTS, 'cd', ...
+     'MarkerSize',10, ...
+     'MarkerFaceColor','c');
+order_str = sprintf('KYP-OptMesh-OTS,\nKPY-Transformed-OTS\nOrder = %1.1f', ...
   order_KPY_Transformed_OTS);
 text(200,2e-8,order_str);
+
+N_plot = [100 10000];
+loglog(N_plot, ...
+  exp(log(N_plot)*P_KPY_VarMesh(1)+P_KPY_VarMesh(2)),'k');
+hold on;
+plot(grid_sizes,err_KPY_VarMesh, 'mv', ...
+     'MarkerSize',14, ...
+     'MarkerFaceColor','m');
 
 N_plot = [100 10000];
 loglog(N_plot, ...
@@ -242,7 +295,8 @@ hold on;
 plot(grid_sizes,err_KPY, 'rs', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','r');
-order_str = sprintf('KPY, KPY-Transformed\nOrder = %1.1f', order_KPY);
+order_str = sprintf('KPY, KPY-OptMesh,\nKPY-Transformed\nOrder = %1.1f', ...
+                    order_KPY);
 text(800,5e-3,order_str);
 
 axis([100 10000 1e-9 1e-1]);
@@ -254,6 +308,30 @@ format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
 figure(2); clf;
+plot(x_VarMesh_lo_res,u_KPY_VarMesh_OTS_lo_res,'bo')
+hold on;
+plot(x_hi_res,u_exact_hi_res,'r')
+axis([x_lo x_hi -5 5]);
+xlabel('x');
+%title('KPY-VarMesh OTS Solution')
+filename = sprintf('var_coef_wave_eqn_1d_KPY_VarMesh_OTS_soln.%s', ...
+                   print_suffix);
+format_str = sprintf('-d%s',print_format);
+print([fig_dir, '/', filename], format_str);
+
+figure(3); clf;
+plot(x_VarMesh_lo_res,u_KPY_VarMesh_lo_res,'bo')
+hold on;
+plot(x_hi_res,u_exact_hi_res,'r')
+axis([x_lo x_hi -5 5]);
+xlabel('x');
+%title('KPY-VarMesh Solution')
+filename = sprintf('var_coef_wave_eqn_1d_KPY_VarMesh_soln.%s', ...
+                   print_suffix);
+format_str = sprintf('-d%s',print_format);
+print([fig_dir, '/', filename], format_str);
+
+figure(4); clf;
 plot(x_Transformed_lo_res,u_KPY_Transformed_OTS_lo_res,'bo')
 hold on;
 plot(x_hi_res,u_exact_hi_res,'r')
@@ -265,7 +343,7 @@ filename = sprintf('var_coef_wave_eqn_1d_KPY_Transformed_OTS_soln.%s', ...
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
-figure(3); clf;
+figure(5); clf;
 plot(x_Transformed_lo_res,u_KPY_Transformed_lo_res,'bo')
 hold on;
 plot(x_hi_res,u_exact_hi_res,'r')
@@ -277,7 +355,7 @@ filename = sprintf('var_coef_wave_eqn_1d_KPY_Transformed_soln.%s', ...
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
-figure(4); clf;
+figure(6); clf;
 plot(x_lo_res,u_KPY_lo_res,'bo')
 hold on;
 plot(x_hi_res,u_exact_hi_res,'r')

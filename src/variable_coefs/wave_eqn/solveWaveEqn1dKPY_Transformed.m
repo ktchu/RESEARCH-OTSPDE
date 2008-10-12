@@ -42,7 +42,8 @@
 %   u(-1,t) = sin(2*pi*(-1-t)) + cos(3*pi*(-1+t))
 %   u(1,t)  = sin(2*pi*(1-t)) + cos(3*pi*(1+t))
 %
-% appropriately transformed initial conditions.
+% and appropriately transformed initial conditions.  c_bar has a value of 
+% sqrt(3)/4.
 %
 % The numerical solution is computed a node-centered grid using the
 % direct completely centered discretization of the second-order wave 
@@ -113,7 +114,7 @@ G = 0.5/dy*spdiags([e -e], [1,-1], N+1, N+1);
 G(1,:) = 0;    % no need to update boundary condition
 G(end,:) = 0;  % no need to update boundary condition
 
-% compute transformation from x to y
+% compute transformation from y to x
 x = 4/pi*atan(0.5*(sqrt(3)*tan(pi/4*(y+1)-pi/6) - 1));
 
 % set c_bar

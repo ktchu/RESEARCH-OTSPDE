@@ -1,6 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% solveWaveEqn1dKPY() computes the solutions of the 1d wave equation 
+% solveWaveEqn1dKPY_VarMesh() computes the solutions of the 1d wave 
+% equation 
 %
 %   u_tt = (c(x))^2 u_xx + f(x,t)
 %
@@ -9,8 +10,12 @@
 %   u(x,0)   = sin(2*pi*x) + cos(3*pi*x)
 %   u_t(x,0) = -pi*(2*cos(2*pi*x) + 3*sin(3*pi*x))
 %
-% and periodic boundary conditions.  The wave speed and source term are 
-% given by
+% and boundary conditions
+%
+%   u(-1,t) = sin(2*pi*(-1-t)) + cos(3*pi*(-1+t))
+%   u(1,t)  = sin(2*pi*(1-t)) + cos(3*pi*(1+t))
+%
+% The wave speed and source term are given by
 %
 %   c(x) = 1 + 0.5*sin(0.5*pi*x)
 %
@@ -23,14 +28,27 @@
 %
 %   u(x,t) = sin(2*pi*(x-t)) + cos(3*pi*(x+t))
 %
-% The numerical solution is computed on a node-centered grid using the
-% direct completely centered discretization of the second-order wave 
-% equation introduced by Kreiss, Petersson, and Ystrom (2002).
+% The numerical solution is computed on the variable grid size mesh induced 
+% by taking a uniform mesh in a transformed domain where the wave speed is 
+% constant.  The time integration scheme is based on the centered 
+% discretization of the second-order wave equation introduced by Kreiss, 
+% Petersson, and Ystrom (2002).
+%
+% On the transformed domain 
+%
+%   y = 4/pi*( atan((2*tan(pi*x/4)+1)/sqrt(3)) + pi/6 ) - 1,
+%
+% the variable coefficient wave equation above becomes a wave equation
+% that has a constant coefficient leading-order spatial derivative term:
+%
+%   u_tt = 4 c_bar^2 u_yy - 2 c_bar c'(x) u_y  + f(x,t),
+%
+% where c_bar has a value of sqrt(3)/4.
 %
 % USAGE:
-%   function [u, u_exact, x] = solveWaveEqn1dKPY(N, dt, ...
-%                                                t_final, ...
-%                                                debug_on)
+%   function [u, u_exact, x] = solveWaveEqn1dKPY_VarMesh(N, dt, ...
+%                                                        t_final, ...
+%                                                        debug_on)
 %
 % Arguments:
 % - N:                   number of grid cells to use for computation.
@@ -52,7 +70,7 @@
 %
 % CHANGE LOG:
 % -----------
-% 2008/08:  Initial version of code. 
+% 2008/10:  Initial version of code. 
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -61,30 +79,38 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [u, u_exact, x] = solveWaveEqn1dKPY(N, dt, ...
-                                             t_final, ...
-                                             debug_on)
+function [u, u_exact, x] = solveWaveEqn1dKPY_VarMesh(N, dt, ...
+                                                     t_final, ...
+                                                     debug_on)
 
 
 % check arguments
 if (nargin < 3)
-  error('solveWaveEqn1dKPY: missing arguments');
+  error('solveWaveEqn1dKPY_VarMesh: missing arguments');
 end
 if (nargin < 4)
   debug_on = 0;
 end
 
 % construct grid
-x_lo = -1.0;
-x_hi =  1.0;
-dx = (x_hi-x_lo)/N;
-x = x_lo:dx:x_hi-dx; x = x';  % periodic grid point not included
+y_lo = -1.0;
+y_hi =  1.0;
+dy = (y_hi-y_lo)/N;
+y = y_lo:dy:y_hi; y = y';  
 
-% construct Laplacian operator (with periodic boundary conditions) 
-e = ones(N,1);
-L = 1/dx^2*spdiags([e -2*e e], -1:1, N, N);
-L(1,end) = 1/dx^2;    % periodic BC at x = -1
-L(end,1) = 1/dx^2;  % periodic BC at x =  1
+% compute transformation from y to x
+x = 4/pi*atan(0.5*(sqrt(3)*tan(pi/4*(y+1)-pi/6) - 1));
+
+% construct Laplacian operator (with boundary conditions) 
+diag_plus  = (2./(x(3:end)-x(1:end-2))) .* (1./(x(3:end)-x(2:end-1)));
+diag_minus = (2./(x(3:end)-x(1:end-2))) .* (1./(x(2:end-1)-x(1:end-2)));
+diag_center = -(diag_plus + diag_minus);
+diag_plus = [0; 0; diag_plus];
+diag_minus = [diag_minus; 0; 0];
+diag_center = [0; diag_center; 0];
+L = spdiags([diag_minus diag_center diag_plus], -1:1, N+1, N+1);
+L(1,:) = 0;    % no need to update boundary condition
+L(end,:) = 0;  % no need to update boundary condition
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -116,6 +142,10 @@ u = u_next;
 % update time
 t = t + dt;
 
+% update boundary conditions
+u(1) = sin(2*pi*(-1-t)) + cos(3*pi*(-1+t));
+u(end) = sin(2*pi*(1-t)) + cos(3*pi*(1+t));
+
 while (t < t_final)
 
   if (debug_on == 1)
@@ -131,7 +161,7 @@ while (t < t_final)
     hold on;
     plot(x,u_exact,'r');
     title_string = sprintf('t = %f',t);
-    axis([x_lo x_hi -5 5]);
+    axis([y_lo y_hi -5 5]);
     title(title_string);
 
     % plot current error
@@ -173,12 +203,11 @@ while (t < t_final)
     t = t_final;
   end
 
+  % update boundary conditions
+  u(1) = sin(2*pi*(-1-t)) + cos(3*pi*(-1+t));
+  u(end) = sin(2*pi*(1-t)) + cos(3*pi*(1+t));
+
 end
 
 % compute exact solution 
 u_exact = sin(2*pi*(x-t)) + cos(3*pi*(x+t));
-
-% add back periodic grid point
-x = [x; x_hi];
-u = [u; u(1)];
-u_exact = [u_exact; u_exact(1)];

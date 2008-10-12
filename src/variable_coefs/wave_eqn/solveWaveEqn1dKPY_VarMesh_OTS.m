@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% solveWaveEqn1dKPY_Transformed_OTS() computes the solutions of the 1d wave 
+% solveWaveEqn1dKPY_VarMesh_OTS() computes the solutions of the 1d wave 
 % equation 
 %
 %   u_tt = (c(x))^2 u_xx + f(x,t)
@@ -28,33 +28,30 @@
 %
 %   u(x,t) = sin(2*pi*(x-t)) + cos(3*pi*(x+t))
 %
-% We solve the variable coefficient wave equation on the transformed domain 
-% 
-%   y = 4/pi*( atan((2*tan(pi*x/4)+1)/sqrt(3)) + pi/6 ) - 1
+% The numerical solution is computed on the variable grid size mesh induced 
+% by taking a uniform mesh in a transformed domain where the wave speed is 
+% constant.  The time integration scheme is based on the centered 
+% discretization of the second-order wave equation introduced by Kreiss, 
+% Petersson, and Ystrom (2002).  The optimal time step of dt = dy/(2*c_bar) 
+% is used.  In this expression, dy is the grid spacing of the uniform mesh
+% on the transformed domain and c_bar is the harmonic average of the wave 
+% speed.  The expression for c_bar is given below.
 %
-% so that the leading-order spatial derivative has a constant coefficient.
-% The wave equation in the transformed domain is given by
+% On the transformed domain 
 %
-%   u_tt = 4 c_bar^2 u_yy - 2 c_bar c'(x) u_y  + f(x,t)
+%   y = 4/pi*( atan((2*tan(pi*x/4)+1)/sqrt(3)) + pi/6 ) - 1,
 %
-% on the domain -1 < y < 1 with boundary conditions 
+% the variable coefficient wave equation above becomes a wave equation
+% that has a constant coefficient leading-order spatial derivative term:
 %
-%   u(-1,t) = sin(2*pi*(-1-t)) + cos(3*pi*(-1+t))
-%   u(1,t)  = sin(2*pi*(1-t)) + cos(3*pi*(1+t))
+%   u_tt = 4 c_bar^2 u_yy - 2 c_bar c'(x) u_y  + f(x,t),
 %
-% and appropriately transformed initial conditions.  c_bar has a value of 
-% sqrt(3)/4.
-%
-% The numerical solution is computed a node-centered grid using the
-% direct completely centered discretization of the second-order wave 
-% equation introduced by Kreiss, Petersson, and Ystrom (2002).  The optimal
-% time step of dt = dy/(2*c_bar) is used and correction terms for the 
-% lower-order spatial derivative and source terms are used.
+% where c_bar has a value of sqrt(3)/4.
 %
 % USAGE:
-%   function [u, u_exact, x] = solveWaveEqn1dKPY_Transformed_OTS(N, ...
-%                                                                t_final, ...
-%                                                                debug_on)
+%   function [u, u_exact, x] = solveWaveEqn1dKPY_VarMesh_OTS(N, ...
+%                                                            t_final, ...
+%                                                            debug_on)
 %
 % Arguments:
 % - N:                   number of grid cells to use for computation.
@@ -75,7 +72,7 @@
 %
 % CHANGE LOG:
 % -----------
-% 2008/08:  Initial version of code. 
+% 2008/10:  Initial version of code. 
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -84,14 +81,14 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [u, u_exact, x] = solveWaveEqn1dKPY_Transformed_OTS(N, ...
-                                                             t_final, ...
-                                                             debug_on)
+function [u, u_exact, x] = solveWaveEqn1dKPY_VarMesh_OTS(N, ...
+                                                         t_final, ...
+                                                         debug_on)
 
 
 % check arguments
 if (nargin < 2)
-  error('solveWaveEqn1dKPY_Transformed_OTS: missing arguments');
+  error('solveWaveEqn1dKPY_VarMesh_OTS: missing arguments');
 end
 if (nargin < 3)
   debug_on = 0;
@@ -103,27 +100,31 @@ y_hi =  1.0;
 dy = (y_hi-y_lo)/N;
 y = y_lo:dy:y_hi; y = y';  
 
-e = ones(N+1,1);
-L = 1/dy^2*spdiags([e -2*e e], -1:1, N+1, N+1);
+% compute transformation from y to x
+x = 4/pi*atan(0.5*(sqrt(3)*tan(pi/4*(y+1)-pi/6) - 1));
+
+% construct Laplacian operator (with boundary conditions) 
+diag_plus  = (2./(x(3:end)-x(1:end-2))) .* (1./(x(3:end)-x(2:end-1)));
+diag_minus = (2./(x(3:end)-x(1:end-2))) .* (1./(x(2:end-1)-x(1:end-2)));
+diag_center = -(diag_plus + diag_minus);
+diag_plus = [0; 0; diag_plus];
+diag_minus = [diag_minus; 0; 0];
+diag_center = [0; diag_center; 0];
+L = spdiags([diag_minus diag_center diag_plus], -1:1, N+1, N+1);
 L(1,:) = 0;    % no need to update boundary condition
 L(end,:) = 0;  % no need to update boundary condition
 
 % construct gradient operator (with boundary conditions) 
-e = ones(N+1,1);
-G = 0.5/dy*spdiags([e -e], [1,-1], N+1, N+1);
+diag_plus  = 1./(x(3:end)-x(1:end-2));
+diag_minus = -diag_plus;
+diag_plus = [0; 0; diag_plus];
+diag_minus = [diag_minus; 0; 0];
+G = spdiags([diag_minus diag_plus], [-1,1], N+1, N+1);
 G(1,:) = 0;    % no need to update boundary condition
 G(end,:) = 0;  % no need to update boundary condition
 
-% compute transformation from y to x
-x = 4/pi*atan(0.5*(sqrt(3)*tan(pi/4*(y+1)-pi/6) - 1));
-
-% set c_bar
+% compute optimal time step 
 c_bar = sqrt(3)/4;
-
-% set c_prime
-c_prime = 0.25*pi*cos(0.5*pi*x);
-
-% compute optimal time step
 dt = 0.5*dy/c_bar;
 
 
@@ -138,6 +139,9 @@ t = 0.0;
 u   = sin(2*pi*x) + cos(3*pi*x);
 u_t = -pi*(2*cos(2*pi*x) + 3*sin(3*pi*x));
 
+% compute wave speed
+c = 1 + 0.5*sin(0.5*pi*x);
+
 % use second-order forward Euler for first time step
 f =  0.25*pi^2*sin(0.5*pi*x) ...
   .* ( 16*sin(2*pi*x) + 36*cos(3*pi*x) ...
@@ -147,8 +151,8 @@ f_t = -0.25*pi^3*sin(0.5*pi*x) ...
     .* ( 32*cos(2*pi*x) + 108*sin(3*pi*x) ...
        + 8*sin(0.5*pi*x).*cos(2*pi*x) ...
        + 27*sin(0.5*pi*x).*sin(3*pi*x) );
-u_tt = 4*c_bar^2*(L*u) - 2*c_bar*c_prime.*(G*u) + f;
-u_ttt = 4*c_bar^2*(L*u_t) -2*c_bar*c_prime.*(G*u_t) + f_t;
+u_tt = c.^2.*(L*u) + f;
+u_ttt = c.^2.*(L*u_t) + f_t;
 u_next = u + dt*u_t + 0.5*dt^2*u_tt + 1/6*dt^3*u_ttt;
 
 % update u_prev and u
@@ -197,19 +201,16 @@ while (t < t_final)
        + 9*sin(0.5*pi*x).*cos(3*pi*(x+t)) );
 
   % compute u_tt
-  u_tt = 4*c_bar^2*(L*u) - 2*c_bar*c_prime.*(G*u) + f;
+  u_tt = c.^2.*(L*u) + f;
 
   % compute correction term for u_tt
   f_tt = -0.25*pi^4*sin(0.5*pi*x) ...
        .*( 64*sin(2*pi*(x-t)) + 324*cos(3*pi*(x+t)) ...
          + 16*sin(0.5*pi*x).*sin(2*pi*(x-t)) ...
          + 81*sin(0.5*pi*x).*cos(3*pi*(x+t)) );
-  u_tt_corr = dt^2/12*(-16*c_bar^3*(G*c_prime).*(L*u) ...
-                      - 8*c_bar^3*(L*c_prime).*(G*u) ...
-                      + 4*c_bar^2*(c_prime.^2).*(L*u) ...
-                      + 4*c_bar^2*c_prime.*(G*c_prime).*(G*u) ...
-                      + 4*c_bar^2*L*f - 2*c_bar*c_prime.*(G*f) ...
-                      + f_tt);
+  u_xx = L*u;
+  u_tt_corr = dt^2/12*( (c.^2).*(L*(c.^2).*u_xx) ...
+                      + c.^2.*(L*f) + f_tt );
 
   % update solution
   u_next = 2*u - u_prev + dt^2*(u_tt + u_tt_corr);
@@ -229,8 +230,8 @@ while (t < t_final)
     %        interpolation is O(dt^3).
     dt_final = t_final - (t-dt);
     u = 1/dt^2*( 0.5*dt_final*(dt_final-dt)*u_prev ...
-               - (dt_final-dt)*(dt_final+dt)*u ...
-               + 0.5*dt_final*(dt_final+dt)*u_next );
+      - (dt_final-dt)*(dt_final+dt)*u ...
+      + 0.5*dt_final*(dt_final+dt)*u_next );
     t = t_final;
   end
 
