@@ -1,0 +1,53 @@
+Referee #2 (Remarks to the Author): 
+
+The paper introduces two techniques to increase the accuracy of finite 
+difference discretizations of time dependent partial differential equations 
+(PDEs). One technique is to choose the time step to raise the accuracy (OTS) 
+and the other is to add terms in the numerical scheme to compensate for the 
+remaining truncation error. 
+
+The method is applied to many examples including convection and diffusion in 
+one and two space dimensions. The expected improvement in accuracy is observed 
+in numerical experiments. 
+
+The drawbacks of the method of adapting the time step for higher order are 
+discussed on pp. 10-11: 
+* the leading order space derivative must have a constant coefficient 
+* extension to systems of equations is hard 
+* extension to several dimensions is possible only if there is a relation 
+between the constant space steps in the dimensions given by the equation and 
+the time step. 
+
+The method to add terms to improve the numerical accuracy has similarities 
+with iterative improvement or deferred correction, e.g. used by V Pereyra for 
+boundary value problems for ordinary differential equations in the 1960's. 
+This method appears to be easier to generalize to systems of equations and 
+more space dimensions although the corrections may become rather complicated. 
+
+The Burgers equation with a small viscosity constant is a model equation for 
+shocks in gas dynamics. Then it is of interest to let the solution steepen to 
+a shock to test the method. The correction term in (2.29) can become large. 
+How does the method work in that case? 
+
+The accuracy is compared in the Figures for different number of grid points 
+and different methods. It is important to consider the computational work also 
+to achieve the accuracy. This is compared in Table 2.1 for different methods. 
+The compute time is of O(e^{-5/6}) and O(e^{-1}) for two methods. Suppose 
+e=10^{-6} which is a severe error requirement. Then the compute time is 
+O(10^5) and O(10^6) for the two methods. To be able to see the difference 
+between them, the constants is the O-expressions are needed (it may 10 times 
+larger for the first method). An alternative is to measure the CPU time in a 
+calculation. This is not done for any of the proposed methods. 
+
+The novelty in the paper is in the systematic choice of time steps to increase 
+the accuracy but the idea is of limited value if there are difficulties with 
+systems of equations and non-constant coefficients. Most PDEs of interest in 
+physics and engineering do not satisfy these constraints. Maxwell's equations 
+of electromagnetics in free space has constant coefficients but there are six 
+coupled equations and the Navier-Stokes equations are both a system and 
+nonlinear. Parabolic equations like the heat equation are usually solved by a 
+finite element discretization where the suggested method is difficult to apply. 
+
+In conclusion, the paper is too long for its contents and the method is too 
+limited for publication in SIAM J Numer Anal but a shorter version could be 
+suitable for a more application oriented journal for numerical methods.
