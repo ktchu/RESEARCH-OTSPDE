@@ -148,7 +148,7 @@ else
 
   % set dx and dt
   dx = 10.0/N_lo_res;
-  dt_FE = dx^2/3/nu;
+  dt_FE = dx^2/4/nu;
 
   % solve viscous Burgers equation using forward Euler with OTS
   [u_FE_OTS_lo_res, u_exact_lo_res, x_lo_res] = ...
