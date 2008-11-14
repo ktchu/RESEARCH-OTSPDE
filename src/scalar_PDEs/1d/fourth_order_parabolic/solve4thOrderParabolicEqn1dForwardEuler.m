@@ -1,16 +1,16 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% solve4thOrderParabolicEqnForwardEuler1d() computes the solutions of 
+% solve4thOrderParabolicEqn1dForwardEuler() computes the solutions of 
 % the 4th-order parabolic equation in one spatial dimensions
 %
 %   u_t = -u_xxxx + f
 %
 % where
 %
-%   f(x,t) = -20000*pi*sin(2*pi*x)*sin(10000*pi*t) ...
-%          + 32*pi^4*sin(2*pi*x)*cos(10000*pi*t) ...
-%          + 100*pi^2*sin(5*pi*x)*exp(-100*pi^2*t) ...
-%          + 625*pi^4*sin(5*pi*x)*(2-exp(-100*pi^2*t))
+%   f(x,t) = -20*pi*sin(2*pi*x)*sin(10*pi*t) ...
+%          + 32*pi^4*sin(2*pi*x)*cos(10*pi*t) ...
+%          + 10*pi^2*sin(5*pi*x)*exp(-10*pi^2*t) ...
+%          + 625*pi^4*sin(5*pi*x)*(2-exp(-10*pi^2*t))
 %
 % on the domain -1 < x < 1 with homogeneous Dirichlet boundary conditions 
 % imposed at all boundaries.  The numerical solution is computed on a 
@@ -19,7 +19,7 @@
 %
 % USAGE:
 %   function [u, u_exact, x, timing_data] = ...
-%     solve4thOrderParabolicEqnForwardEuler1d(dx, dt, ...
+%     solve4thOrderParabolicEqn1dForwardEuler(dx, dt, ...
 %                                             t_init, t_final, ...
 %                                             debug_on, timing_on)
 %
@@ -68,14 +68,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [u, u_exact, x, timing_data] = ...
-  solve4thOrderParabolicEqnForwardEuler1d(dx, dt, ...
+  solve4thOrderParabolicEqn1dForwardEuler(dx, dt, ...
                                           t_init, t_final, ...
                                           debug_on, timing_on)
 
 
 % check arguments
 if (nargin < 4)
-  error('solve4thOrderParabolicEqnForwardEuler1d: missing arguments');
+  error('solve4thOrderParabolicEqn1dForwardEuler: missing arguments');
 end
 if (nargin < 5)
   debug_on = 0;
@@ -143,7 +143,7 @@ while (t < t_final)
   if (debug_on == 1)
  
     % compute exact solution
-    u_exact = 2*sin(2*pi*x)*cos(10000*pi*t) + sin(5*pi*x)*(2-exp(-100*pi^2*t));
+    u_exact = 2*sin(2*pi*x)*cos(10*pi*t) + sin(5*pi*x)*(2-exp(-10*pi^2*t));
     err = u-u_exact;
     err(1:3) = 0; err(N-2:N) = 0;
     err_L_inf = norm(err,'inf');
@@ -180,16 +180,16 @@ while (t < t_final)
   end
 
   % impose boundary conditions
-  u(1:3) = 2*sin(2*pi*x(1:3))*cos(10000*pi*t) ...
-         + sin(5*pi*x(1:3))*(2-exp(-100*pi^2*t));
-  u(N-2:N) = 2*sin(2*pi*x(N-2:N))*cos(10000*pi*t) ...
-           + sin(5*pi*x(N-2:N))*(2-exp(-100*pi^2*t));
+  u(1:3) = 2*sin(2*pi*x(1:3))*cos(10*pi*t) ...
+         + sin(5*pi*x(1:3))*(2-exp(-10*pi^2*t));
+  u(N-2:N) = 2*sin(2*pi*x(N-2:N))*cos(10*pi*t) ...
+           + sin(5*pi*x(N-2:N))*(2-exp(-10*pi^2*t));
 
   % compute source terms
-  f = -20000*pi*sin(2*pi*x)*sin(10000*pi*t) ...
-    + 32*pi^4*sin(2*pi*x)*cos(10000*pi*t) ...
-    + 100*pi^2*sin(5*pi*x)*exp(-100*pi^2*t) ...
-    + 625*pi^4*sin(5*pi*x)*(2-exp(-100*pi^2*t));
+  f = -20*pi*sin(2*pi*x)*sin(10*pi*t) ...
+    + 32*pi^4*sin(2*pi*x)*cos(10*pi*t) ...
+    + 10*pi^2*sin(5*pi*x)*exp(-10*pi^2*t) ...
+    + 625*pi^4*sin(5*pi*x)*(2-exp(-10*pi^2*t));
 
   % update solution
   u = u + dt*(-L*u + f);
@@ -235,7 +235,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % compute exact solution
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-u_exact = 2*sin(2*pi*x)*cos(10000*pi*t) + sin(5*pi*x)*(2-exp(-100*pi^2*t));
+u_exact = 2*sin(2*pi*x)*cos(10*pi*t) + sin(5*pi*x)*(2-exp(-10*pi^2*t));
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
