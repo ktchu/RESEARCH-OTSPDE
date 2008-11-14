@@ -278,7 +278,7 @@ text(1.7e-10,1e3,order_str);
 axis([1e-12 1e-2 1e-4 1e4]);
 set(gca, 'xtick', [1e-12 1e-10 1e-8 1e-6 1e-4 1e-2]);
 xlabel('L^\infty Error');
-ylabel('Compute Time');
+ylabel('Compute Time (s)');
 filename = sprintf('diffusion_eqn_2d_no_src_comp_time.%s', print_suffix);
 format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);

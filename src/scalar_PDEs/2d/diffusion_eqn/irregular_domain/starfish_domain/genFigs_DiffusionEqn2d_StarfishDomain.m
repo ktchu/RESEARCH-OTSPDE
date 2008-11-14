@@ -274,7 +274,7 @@ text(3e-3,3e2,order_str);
 
 axis([1e-8 1e0 1e-2 1e5]);
 xlabel('L^\infty Error');
-ylabel('Compute Time');
+ylabel('Compute Time (s)');
 set(gca, 'YTick', 10.^[-2:5]);
 set(gca, 'YMinorTick', 'off');
 filename = sprintf('diffusion_eqn_2d_starfish_domain_comp_time.%s', ...
