@@ -13,20 +13,13 @@ all: 	OTSPDE.ps
 allpdf: OTSPDE.pdf 
 	$(RM) *.aux *.log
 
-OTSPDE.ps:	OTSPDE.tex \
-                                OTSPDE.bib \
-                                macros.tex
+OTSPDE.ps:	OTSPDE.tex 
 	$(TEX) OTSPDE.tex
-	$(BIBTEX) OTSPDE.aux
 	$(TEX) OTSPDE.tex
 	$(TEX) OTSPDE.tex
 	$(DVIPS) OTSPDE.dvi -o OTSPDE.ps
 
-OTSPDE.pdf:  OTSPDE.tex \
-                                  OTSPDE.bib \
-                                  macros.tex
-	$(PDFLATEX) OTSPDE.tex
-	$(BIBTEX) OTSPDE.aux
+OTSPDE.pdf:  OTSPDE.tex 
 	$(PDFLATEX) OTSPDE.tex
 	$(PDFLATEX) OTSPDE.tex
 	$(PDFLATEX) OTSPDE.tex

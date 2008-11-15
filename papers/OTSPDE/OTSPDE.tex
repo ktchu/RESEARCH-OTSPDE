@@ -13,7 +13,30 @@
 \PassOptionsToPackage{ctagsplt,righttag}{amsmath}
 \usepackage{multirow}
 
-\include{macros}
+
+%******* MACROS *******
+
+% MATH MACROS
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\bea}{\begin{eqnarray}}
+\newcommand{\eea}{\end{eqnarray}}
+
+\def\pt{\partial t}
+\def\px{\partial x}
+\def\py{\partial y}
+
+% NUMERICS MACROS
+\def\tu{\tilde{u}}
+\def\dt{\Delta t}
+\def\dx{\Delta x}
+\def\dy{\Delta y}
+\def\dto{\dt_{opt}}
+
+% MISC MACROS
+\def\eg{\emph{e.g., }}
+\def\ie{\emph{i.e., }}
+\def\etal{\emph{et al.}}
 
 
 %******************************SIZE DECLARATIONS********************************
@@ -1901,6 +1924,121 @@ $O(\dx^2) + O(\dt) = O(\dx^2)$.  Thus, the accuracy of the
 method is completely controlled by the grid spacing; the temporal error can 
 never dominate the spatial error.
 
-\bibliography{OTSPDE}
+%*********************************BIBLIOGRAPHY**********************************
+%\bibliography{OTSPDE}
+
+\begin{thebibliography}{10}
+
+\bibitem{bruger_2005}
+A.~Br\"uger, B.~Gustafsson, P.~L\"otstedt, and J.~Nilsson.
+\newblock High order accurate solution of the incompressible {N}avier-{S}tokes
+  equations.
+\newblock {\em J. Comput. Phys.}, 203:49--71, 2005.
+
+\bibitem{gibou_2005}
+F.~Gibou and R.~Fedkiw.
+\newblock A fourth order accurate discretization for the {L}aplace and heat
+  equations on arbitrary domains, with applications to the {S}tefan problem.
+\newblock {\em J. Comput. Phys.}, 202:577--601, 2005.
+
+\bibitem{ito_2005}
+K.~Ito, Z.~Li, and Y.~Kyei.
+\newblock {H}igher-order, {C}artesian {G}rid {B}ased {F}inite {D}ifference
+  {S}chemes for {E}lliptic {E}quations on {I}rregular {D}omains.
+\newblock {\em SIAM J. SCI. COMPUT.}, 27:346--367, 2005.
+
+\bibitem{shukla_2005}
+R.~K. Shukla and X.~Zhong.
+\newblock Derivation of high-order compact finite difference schemes for
+  non-uniform grid using polynomial interpolation.
+\newblock {\em J. Comput. Phys.}, 204:404--429, 2005.
+
+\bibitem{shukla_2007}
+R.~K. Shukla, M.~Tatineni, and X.~Zhong.
+\newblock Very high-order compact finite difference schemes on non-uniform
+  grids for incompressible {N}avier-{S}tokes equations.
+\newblock {\em J. Comput. Phys.}, 224:1064--1094, 2007.
+
+\bibitem{zhao_2006}
+F.~Zhao.
+\newblock Weighting {F}actors for {S}ingle-{S}tep {T}rapezoidal {M}ethod.
+\newblock {\em J. Heat Transf.-Trans. ASME}, 128:409--412, 2006.
+
+\bibitem{fedkiw_1999}
+R.~Fedkiw, T.~Aslam, B.~Merriman, and S.~Osher.
+\newblock A {N}on-{O}scillatory {E}ulerian {A}pproach to {I}nterfaces in
+  {M}ultimaterial {F}lows ({T}he {G}host {F}luid {M}ethod).
+\newblock {\em J. Comput. Phys.}, 152:457--492, 1999.
+
+\bibitem{osher_fedkiw_book}
+S.~Osher and R.~Fedkiw.
+\newblock {\em Level Set Methods and Dynamic Implicit Surfaces}.
+\newblock Springer, New York, NY, 2003.
+
+\bibitem{iserles_book}
+A.~Iserles.
+\newblock {\em A First Course in the Numerical Analysis of Differential
+  Equations}.
+\newblock Cambridge University Press, Cambridge, UK, 1996.
+
+\bibitem{shampine_2005}
+L.F. Shampine.
+\newblock {E}rror {E}stimation and {C}ontrol for {ODE}s.
+\newblock {\em J. Sci. Comput.}, 25:3--16, 2005.
+
+\bibitem{gko_book}
+B.~Gustafsson, H.-O. Kreiss, and J.~Oliger.
+\newblock {\em Time Dependent Problems and Difference Methods}.
+\newblock John Wiley \& Sons, Inc., New York, NY, 1995.
+
+\bibitem{leveque_book_1992}
+R.~J. LeVeque.
+\newblock {\em Numerical Methods for Conservation Laws}.
+\newblock Birkh\"auser Verlag, Berlin, 1992.
+
+\bibitem{leveque_book_2002}
+R.~J. LeVeque.
+\newblock {\em Finite Volume Methods for Hyperbolic Problems}.
+\newblock Cambridge University Press, Cambridge, UK, 2002.
+
+\bibitem{whitham_book}
+G.~B. Whitham.
+\newblock {\em Linear and Nonlinear Waves}.
+\newblock John Wiley \& Sons, Inc., New York, NY, 1999.
+
+\bibitem{chan_1984}
+T.~Chan.
+\newblock Stability {A}nalysis of {F}inite {D}ifference {S}chemes for the
+  {A}vection-{D}iffusion {E}quation.
+\newblock {\em SIAM J. NUMER. ANAL.}, 21:272--284, 1984.
+
+\bibitem{greer_2006}
+J.~B. Greer, A.~L. Bertozzi, and G.~Sapiro.
+\newblock Fourth order partial differential equations on general geometries.
+\newblock {\em J. Comput. Phys.}, 216:216--246, 2006.
+
+\bibitem{patra_2005}
+M.~Patra and M.~Karttunen.
+\newblock {S}tencils with {I}sotropic {D}iscretization {E}rror for
+  {D}ifferential {O}perators.
+\newblock {\em Numer. Meth. for Part. Diff. Eq.}, 22:936--953, 2005.
+
+\bibitem{trefethen_spectral_book}
+L.~N. Trefethen.
+\newblock {\em Spectral Methods in MATLAB}.
+\newblock SIAM, Philadelphia, PA, 2000.
+
+\bibitem{boyd_spectral_book}
+J.~P. Boyd.
+\newblock {\em Chebyshev and Fourier Spectral Methods}.
+\newblock Dover Publications, Inc., Mineola, NY, 2nd edition, 2001.
+
+\bibitem{gupta_1998}
+M.~M. Gupta and J.~Kouatchou.
+\newblock {S}ymbolic {D}erivation of {F}inite {D}ifference {A}pproximations for
+  the {T}hree-{D}imensional {P}oisson {E}quation.
+\newblock {\em Numer. Meth. for Part. Diff. Eq.}, 14:593--606, 1998.
+
+\end{thebibliography}
 
 \end{document}
