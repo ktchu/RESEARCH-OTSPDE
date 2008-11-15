@@ -10,14 +10,12 @@
 FIGURES_DIR="figures"
 
 SRC_DIR="../../src"
-EXAMPLE_DIR_LIST="1d/advection_diffusion_eqn                            \
-                  1d/burgers_eqn/single_hump                            \
-                  1d/diffusion_eqn                                      \
-                  1d/fourth_order_parabolic                             \
-                  2d/advection_eqn                                      \
-                  2d/diffusion_eqn/square_domain                        \
-                  2d/diffusion_eqn/irregular_domain/circle_domain       \
-                  2d/diffusion_eqn/irregular_domain/starfish_domain     \
+EXAMPLE_DIR_LIST="scalar_PDEs/1d/burgers_eqn/single_hump                       \
+                  scalar_PDEs/1d/diffusion_eqn                                 \
+                  scalar_PDEs/1d/fourth_order_parabolic                        \
+                  scalar_PDEs/2d/advection_eqn                                 \
+                  scalar_PDEs/2d/diffusion_eqn/square_domain                   \
+                  scalar_PDEs/2d/diffusion_eqn/irregular_domain/starfish_domain\
                  "
 
 # create directory for figures if it doesn't already exist
