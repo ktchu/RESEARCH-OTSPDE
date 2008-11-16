@@ -2,7 +2,7 @@
 % Manuscript started: 2007/09/01
 % First completed draft: 2008/05/12, Vitamin D, Inc.
 % Submission draft: 2008/06/08, Vitamin D, Inc.
-% Resubmission draft: 2008/11/15, Vitamin D, Inc.
+% Resubmission draft: 2008/11/16, Vitamin D, Inc.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %\documentclass[fleqn,12pt,twoside,draft]{article}
@@ -71,9 +71,8 @@ minimal additional effort.  Through straightforward numerical
 analysis arguments, we explain the origin of the boost in accuracy and 
 estimate the computational cost of the resulting numerical 
 method.  We demonstrate the utility of optimal time step (OTS) selection on a 
-wide array of classical PDEs in one and more space dimensions to illustrate 
-its applicability to linear and semilinear PDEs on both regular and irregular 
-domains.  
+wide array of classical linear and semilinear PDEs in one and more space 
+dimensions on both regular and irregular domains.  
 \end{abstract}
 
 \noindent \rule{6.3in}{1pt}
@@ -309,7 +308,7 @@ $\dt$~\cite{gko_book}:
 e = O(\dx^p) + O(\dt^q).
 \label{eq:global_error_ots}
 \eeq
-Thus, because $p > r$ and $q > s$, we see that using an optimal time step 
+Because $p > r$ and $q > s$, we see that using an optimal time step 
 boosts the overall accuracy of the finite difference scheme.
 
 It is important to emphasize that $\dx$ and $\dt$ are \emph{not} independent 
@@ -326,7 +325,7 @@ e = O \left( \dx^{\min(p,rq/s)} \right).
 
 
 \subsubsection*{Stability Considerations}
-Thus far, we have not considered the issue of numerical stability of finite
+We have not yet considered the issue of numerical stability of finite
 difference schemes when the time step is set to $\dto$.  For explicit time 
 integration schemes, OTS selection is ineffective when the optimal time step 
 is greater than the smallest stable time step.  In this situation, we can 
@@ -411,7 +410,8 @@ For both schemes, second-order, isotropic stencils are used to discretize
 the Laplacian.  
 Note that the computation time for the Crank-Nicholson method assumes an 
 $O(N) = O \left( 1/\dx^d \right)$ matrix inversion algorithm 
-and that the optimal time step for the forward Euler scheme is $\dto = \dx^2/6$.
+and that the optimal time step for the forward Euler scheme is 
+$\dto = \dx^2/6D$.
 }
 \label{tab:comp_perf_vs_dim}
 \renewcommand{\arraystretch}{1.5}
@@ -1111,8 +1111,8 @@ leading-order local truncation error is given by
         \right)
   \label{eq:4th_order_parabolic_eqn_1d_err_eqn}
 \eeq
-Thus, the optimal time step is $\dto = 7 \dx^4/120\kappa$ and the correction
-term is 
+Therefore, the optimal time step is $\dto = 7 \dx^4/120\kappa$ and the 
+correction term is 
 \beq
   - \frac{\dt^2}{2} 
       \left( \kappa \frac{\partial^4 f}{\px^4} 
@@ -1420,8 +1420,8 @@ the truncation error~(\ref{eq:advection_eqn_2d_trunc_err}) becomes
   \label{eq:advection_eqn_2d_trunc_err_mod},
 \eea
 which vanishes when the optimal time step and grid spacing ratio are used.
-Thus, when (\ref{eq:advection_eqn_2d_upwind_corr_approx}) is used in
-conjunction with the optimal time step and grid spacing ratio, we obtain
+In other words, when (\ref{eq:advection_eqn_2d_upwind_corr_approx}) is used 
+in conjunction with the optimal time step and grid spacing ratio, we obtain
 a finite difference scheme that introduces no truncation error at each time 
 step.  Figure~\ref{fig:advection_eqn_2d_soln} demonstrates the amazing accuracy 
 of this scheme over the first-order forward Euler 
@@ -1658,15 +1658,15 @@ finite difference schemes run on a 2.4 GHz MacBook Pro.
 The improvement in the accuracy of the forward Euler scheme when the optimal 
 time step is used is shown in Figure~\ref{fig:diffusion_eqn_2d_src_analysis}.
 Figure~\ref{fig:diffusion_eqn_2d_src_analysis} also shows that the 
-scaling of the computational time with the error is in good agreement with 
-theoretical estimates (see Table~\ref{tab:comp_perf_vs_dim}).  As with the
+scaling of the computational time with the error is in good agreement with the
+theoretical estimates given in Table~\ref{tab:comp_perf_vs_dim}.  As with the
 other examples, the forward Euler scheme with an optimal time step is much 
 more computationally efficient than the two other schemes.  
 
 
 \subsubsection{Irregular Domains}
 All of the examples we have considered so far share an important feature: they 
-are all defined on simple, rectangular domains.  Thus, any of several methods 
+are all defined on simple, rectangular domains.  Any of several methods 
 could have been used to obtain solutions with similar or even higher accuracy.
 For example, a fourth-order accurate solution to the diffusion equation
 (in any number of space dimensions) could be obtained by using a 
@@ -1920,9 +1920,10 @@ second-order central difference stencil for the Laplacian, stability
 considerations require that we choose $\dt = O(\dx^2)$.  
 Combining this stability constraint with the formal error for the scheme
 shows that the practical error is 
-$O(\dx^2) + O(\dt) = O(\dx^2)$.  Thus, the accuracy of the 
+$O(\dx^2) + O(\dt) = O(\dx^2)$.  Therefore, the accuracy of the 
 method is completely controlled by the grid spacing; the temporal error can 
 never dominate the spatial error.
+
 
 %*********************************BIBLIOGRAPHY**********************************
 %\bibliography{OTSPDE}
