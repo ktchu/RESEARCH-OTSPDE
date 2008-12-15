@@ -1,0 +1,122 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Manuscript started: 2008/11/24
+% First completed draft: 2008/??/??
+% Submission draft: 2008/??/??
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[fleqn,12pt,twoside]{article}
+\usepackage[headings]{espcrc1}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\PassOptionsToPackage{ctagsplt,righttag}{amsmath}
+\usepackage{multirow}
+
+
+%********************************** MACROS ************************************
+
+% COMMON EXPRESSIONS
+\def\eg{\emph{e.g., }}
+\def\ie{\emph{i.e., }}
+\def\etal{\emph{et al.}}
+\def\etc{\emph{etc.}}
+
+% UTILITY COMMANDS
+\newcommand{\bc}{\begin{center}}
+\newcommand{\ec}{\end{center}}
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\bea}{\begin{eqnarray}}
+\newcommand{\eea}{\end{eqnarray}}
+\newcommand{\ba}{\begin{array}}
+\newcommand{\ea}{\end{array}}
+
+% NOTATION
+\def\div{\ensuremath{\nabla \cdot}}
+\def\grad{\ensuremath{\nabla}}
+\def\lapl{\ensuremath{\nabla^2}}
+\def\bilapl{\ensuremath{\nabla^4}}
+
+% PDE MACROS
+\def\pt{\partial t}
+\def\px{\partial x}
+\def\py{\partial y}
+\def\pz{\partial z}
+\def\tU{\tilde{U}}
+\def\tP{\tilde{P}}
+\def\tu{\tilde{u}}
+\def\tv{\tilde{v}}
+\def\tw{\tilde{w}}
+
+% NUMERICS MACROS
+\def\dt{\Delta t}
+\def\dx{\Delta x}
+\def\dy{\Delta y}
+\def\dz{\Delta z}
+\def\dto{\dt_{opt}}
+
+
+%****************************** SIZE DECLARATIONS *****************************
+\topmargin -0.7in
+
+
+%****************************** DOCUMENT BEGIN ********************************
+
+\begin{document}
+\bibliographystyle{unsrt}
+
+\title{Fourth-Order Finite Difference Schemes for Maxwell's Equations 
+       via Optimal Time Step Selection}
+
+\author{
+A. Lee\address{YAHOO}
+and
+K. T. Chu\address{Vitamin D, Inc., Menlo Park, CA 94025}$^,$\address[IHPC]{Institute of High Performance Computing, A*STAR, Singapore, Singapore}
+}
+
+\runtitle{Fourth-Order Scheme for Maxwell's Equations via OTS Selection}
+\runauthor{A. Lee and K.T. Chu}
+
+\maketitle
+
+\noindent \rule{6.3in}{1pt}
+
+\begin{abstract}
+place holder...
+\end{abstract}
+
+\noindent \rule{6.3in}{1pt}
+
+% KEYWORDS
+% optimal time step, Maxwell's equations, computational electrodynamics
+
+\section{Introduction}
+place holder...
+Optimal time step selection~\cite{chu_2009}
+
+
+\section{Method}
+
+\subsection{Highlights}
+The proposed fourth-order scheme for Maxwell's equations only requires 
+leap-frog time integration and second-order stencils for the spatial
+derivatives.
+
+We can use either the Yee staggered grid configuration or an unstaggered
+colocated grid with $\dx = \dy = \dz $. 
+
+
+\subsection{Details}
+Maxwell's equations
+
+
+\section{\label{sec:summary} Summary} 
+
+
+\section*{Acknowledgments}
+The author gratefully acknowledges the support of Vitamin D, Inc.
+and the Institute for High-Performance Computing (IHPC) in Singapore. 
+The author would like to thank ??  for helpful suggestions on the manuscript.  
+
+\bibliography{OTS-MaxwellsEqns}
+
+\end{document}

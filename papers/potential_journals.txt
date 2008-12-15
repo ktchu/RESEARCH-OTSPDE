@@ -6,6 +6,7 @@
 Journal Name                       Impact Factor    Articles/Year
 ------------------------           -------------    -------------
 J Computational Physics              2.372            464
+SIAM J Scientific Computing          1.784            122
 SIAM J Numerical Analysis            1.470            142
 IMA J Numerical Analysis             1.118            36
 Applied Numerical Mathematics        0.986            89
