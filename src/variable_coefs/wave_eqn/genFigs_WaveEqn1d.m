@@ -35,7 +35,7 @@ if ~exist(fig_dir, 'dir')
 end
 
 % set flag for loading data from saved files (instead of recomputing solution)
-use_saved_data = 1;
+use_saved_data = 0;
 data_dir = 'data-var_coef_wave_eqn_1d';
 if ~exist(data_dir, 'dir')
   mkdir(data_dir);
@@ -271,7 +271,7 @@ plot(grid_sizes,err_KPY_Transformed_OTS, 'cd', ...
      'MarkerFaceColor','c');
 order_str = sprintf('KYP-OptMesh-OTS,\nKPY-Transformed-OTS\nOrder = %1.1f', ...
   order_KPY_Transformed_OTS);
-text(200,2e-8,order_str);
+text(150,1e-10,order_str);
 
 N_plot = [100 10000];
 loglog(N_plot, ...
@@ -297,10 +297,10 @@ plot(grid_sizes,err_KPY, 'rs', ...
      'MarkerFaceColor','r');
 order_str = sprintf('KPY, KPY-OptMesh,\nKPY-Transformed\nOrder = %1.1f', ...
                     order_KPY);
-text(800,5e-3,order_str);
+text(1200,3e-3,order_str);
 
-axis([100 10000 1e-9 1e-1]);
-set(gca, 'ytick', 10.^[-9:2:-1]);
+axis([100 10000 1e-12 1e-1]);
+set(gca, 'ytick', 10.^[-12:2:-1]);
 xlabel('N');
 ylabel('L^\infty Error');
 filename = sprintf('var_coef_wave_eqn_1d_error_vs_N.%s', print_suffix);

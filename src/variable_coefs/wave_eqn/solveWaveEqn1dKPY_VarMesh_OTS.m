@@ -142,7 +142,7 @@ u_t = -pi*(2*cos(2*pi*x) + 3*sin(3*pi*x));
 % compute wave speed
 c = 1 + 0.5*sin(0.5*pi*x);
 
-% use second-order forward Euler for first time step
+% use fifth-order Taylor series expansion for first time step
 f =  0.25*pi^2*sin(0.5*pi*x) ...
   .* ( 16*sin(2*pi*x) + 36*cos(3*pi*x) ...
      + 4*sin(0.5*pi*x).*sin(2*pi*x)   ...
@@ -151,9 +151,15 @@ f_t = -0.25*pi^3*sin(0.5*pi*x) ...
     .* ( 32*cos(2*pi*x) + 108*sin(3*pi*x) ...
        + 8*sin(0.5*pi*x).*cos(2*pi*x) ...
        + 27*sin(0.5*pi*x).*sin(3*pi*x) );
-u_tt = c.^2.*(L*u) + f;
+f_tt = -0.25*pi^4*sin(0.5*pi*x) ...
+     .*( 64*sin(2*pi*x) + 324*cos(3*pi*x) ...
+       + 16*sin(0.5*pi*x).*sin(2*pi*x) ...
+       + 81*sin(0.5*pi*x).*cos(3*pi*x) );
+
+u_tt = -c.^2.*(4*pi^2*sin(2*pi*x) + 9*pi^2*cos(3*pi*x)) + f;
 u_ttt = c.^2.*(L*u_t) + f_t;
-u_next = u + dt*u_t + 0.5*dt^2*u_tt + 1/6*dt^3*u_ttt;
+u_tttt = c.^2.*(L*u_tt) + f_tt;
+u_next = u + dt*u_t + 0.5*dt^2*u_tt + 1/6*dt^3*u_ttt + 1/24*dt^4*u_tttt;
 
 % update u_prev and u
 u_prev = u;
@@ -218,20 +224,22 @@ while (t < t_final)
   % update time
   t = t + dt;
 
-  % update u_prev and u 
+  % update u_minus_two, u_prev and u 
   if (t < t_final)
+    u_minus_two = u_prev;
     u_prev = u;
     u = u_next;
 
   else
-    % if we have overstepped t_final, use quadratic interpolation to obtain
+    % if we have overstepped t_final, use cubic interpolation to obtain
     % u(t_final).
-    % NOTE:  solution is third-order accurate because error in quadratic 
-    %        interpolation is O(dt^3).
+    % NOTE:  solution is fourth-order accurate because error in cubic
+    %        interpolation is O(dt^4).
     dt_final = t_final - (t-dt);
-    u = 1/dt^2*( 0.5*dt_final*(dt_final-dt)*u_prev ...
-      - (dt_final-dt)*(dt_final+dt)*u ...
-      + 0.5*dt_final*(dt_final+dt)*u_next );
+    u = 1/dt^3*(-1/6*(dt_final+dt)*dt_final*(dt_final-dt)*u_minus_two ...
+               + 0.5*(dt_final+2*dt)*dt_final*(dt_final-dt)*u_prev ...
+               - 0.5*(dt_final+2*dt)*(dt_final+dt)*(dt_final-dt)*u ...
+               + 1/6*(dt_final+2*dt)*(dt_final+dt)*dt_final*u_next );
     t = t_final;
   end
 
