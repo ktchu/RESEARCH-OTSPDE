@@ -31,16 +31,6 @@
 % time step of dt = dx/c (unit CFL condition) is used and a correction term
 % is added when a source term is present.
 %
-% NOTES:
-% - Because quadratic interpolation is used when on the final time step, 
-%   the numerical solution is only guaranteed to be third-order accurate. 
-%   This situation occurs when t_final is not close to a multiple of the 
-%   optimal time step dt = dx/c.
-% - When the final time step is close to a multiple of the optimal time
-%   step dt = dx/c, then the numerical solution is fourth-order accurate 
-%   when there is no source term and third-order accurate when a source
-%   term is present.
-%
 % USAGE:
 %   function [u, u_exact, x] = solveWaveEqn1dKPY_OTS(c, ...
 %                                                    use_source_term, ...
@@ -128,17 +118,32 @@ else
   u_t = -0.5*pi*sin(pi*x);
 end
 
-% use second-order forward Euler for first time step
+% use fifth-order Taylor-series expansion for first time step
+% NOTE: the numerical approximation to u_tt provides part of 
+%       contribution to the O(dt^4) term
 if (use_source_term > 0)
   f = 0.125/c*pi^2*sin(pi*x);
   f_t = -0.03125/c*pi^3*cos(pi*x);
+  f_tt = -0.0078125/c*pi^4*sin(pi*x);
 else
   f = 0;
   f_t = 0;
 end
-u_tt = c^2*L*u + f;
-u_next = u + dt*u_t + 0.5*dt^2*u_tt ...
-       + 1/6*dt^3*(c^2*L*u_t+f_t);
+
+u_tt = c^2*L*u + f;  % second-order accurate approx to u_tt.
+                     % the leading-order spatial error partially cancels
+                     % out the O(dt^4) term in the Taylor series expansion
+
+if (use_source_term > 0)
+  % NOTE: 1/24*dt^4*u_tttt term is accounted for by the leading-order
+  %       error in the numerical approximation for u_tt
+  u_next = u + dt*u_t + 0.5*dt^2*u_tt + 1/6*dt^3*(c^2*L*u_t+f_t) ...
+         + 1/24*dt^4*(c^2*L*f + f_tt); 
+else
+  % NOTE: 1/24*dt^4*u_tttt term is accounted for by the leading-order
+  %       error in the numerical approximation for u_tt
+  u_next = u + dt*u_t + 0.5*dt^2*u_tt + 1/6*dt^3*(c^2*L*u_t); 
+end
 
 % update u_prev and u
 u_prev = u;
@@ -207,18 +212,20 @@ while (t < t_final)
 
   % update u_prev and u 
   if (t < t_final)
+    u_minus_two = u_prev;
     u_prev = u;
     u = u_next;
 
   else
-    % if we have overstepped t_final, use quadratic interpolation to obtain
+    % if we have overstepped t_final, use cubic interpolation to obtain
     % u(t_final).
-    % NOTE:  solution is third-order accurate because error in quadratic 
-    %        interpolation is O(dt^3).
+    % NOTE:  solution is fourth-order accurate because error in cubic
+    %        interpolation is O(dt^4).
     dt_final = t_final - (t-dt);
-    u = 1/dt^2*( 0.5*dt_final*(dt_final-dt)*u_prev ...
-               - (dt_final-dt)*(dt_final+dt)*u ...
-               + 0.5*dt_final*(dt_final+dt)*u_next );
+    u = 1/dt^3*(-1/6*(dt_final+dt)*dt_final*(dt_final-dt)*u_minus_two ...
+               + 0.5*(dt_final+2*dt)*dt_final*(dt_final-dt)*u_prev ...
+               - 0.5*(dt_final+2*dt)*(dt_final+dt)*(dt_final-dt)*u ...
+               + 1/6*(dt_final+2*dt)*(dt_final+dt)*dt_final*u_next );
     t = t_final;
   end
 

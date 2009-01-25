@@ -227,9 +227,9 @@ plot(grid_sizes,err_KPY_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
 order_str = sprintf('KPY-OTS\nOrder = %1.1f', order_KPY_OTS);
-text(200,1e-9,order_str);
+text(200,4e-12,order_str);
 
-N_plot = [100 10000];
+N_plot = [95 10000];
 loglog(N_plot,exp(log(N_plot)*P_KPY(1)+P_KPY(2)),'k');
 hold on;
 plot(grid_sizes,err_KPY, 'rs', ...
@@ -238,8 +238,8 @@ plot(grid_sizes,err_KPY, 'rs', ...
 order_str = sprintf('KPY\nOrder = %1.1f', order_KPY);
 text(2000,2e-4,order_str);
 
-axis([100 10000 1e-12 1e-2]);
-set(gca, 'ytick', 10.^[-12:2:-2]);
+axis([100 10000 1e-14 1e-2]);
+set(gca, 'ytick', 10.^[-14:2:-2]);
 xlabel('N');
 ylabel('L^\infty Error');
 filename = sprintf('wave_eqn_1d_src_error_vs_N.%s', print_suffix);
