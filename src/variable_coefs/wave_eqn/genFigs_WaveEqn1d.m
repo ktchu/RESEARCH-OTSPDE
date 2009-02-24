@@ -45,7 +45,7 @@ end
 debug_on = 0;
 
 % grid parameters
-x_lo = -1;
+x_lo = 0;
 x_hi = 1;
 
 % time integration parameters

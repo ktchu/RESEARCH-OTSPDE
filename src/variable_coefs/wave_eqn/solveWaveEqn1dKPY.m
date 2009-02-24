@@ -4,24 +4,24 @@
 %
 %   u_tt = (c(x))^2 u_xx + f(x,t)
 %
-% on the domain -1 < x < 1 subject to the initial conditions
+% on the domain 0 < x < 1 subject to the initial conditions
 %
-%   u(x,0)   = sin(2*pi*x) + cos(3*pi*x)
-%   u_t(x,0) = -pi*(2*cos(2*pi*x) + 3*sin(3*pi*x))
+%   u(x,0)   = sin(2*pi*x) + cos(6*pi*x)
+%   u_t(x,0) = -pi*(2*cos(2*pi*x) + 6*sin(6*pi*x))
 %
 % and periodic boundary conditions.  The wave speed and source term are 
 % given by
 %
-%   c(x) = 1 + 0.5*sin(0.5*pi*x)
+%   c(x) = 1 - 0.5*cos(pi*x)
 %
-%   f(x,t) = 0.25*pi^2*sin(0.5*pi*x) ...
-%          * ( 16*sin(2*pi*(x-t)) + 36*cos(3*pi*(x+t)) ...
-%            + 4*sin(0.5*pi*x)*sin(2*pi*(x-t)) ...
-%            + 9*sin(0.5*pi*x)*cos(3*pi*(x+t)) )
+%   f(x,t) = pi^2*cos(pi*x) ...
+%          * ( -4*sin(2*pi*(x-t)) - 36*cos(6*pi*(x+t)) ...
+%            + cos(pi*x)*sin(2*pi*(x-t)) ...
+%            + 9*cos(pi*x)*cos(6*pi*(x+t)) )
 %
 % The analytical solution to this problem is 
 %
-%   u(x,t) = sin(2*pi*(x-t)) + cos(3*pi*(x+t))
+%   u(x,t) = sin(2*pi*(x-t)) + cos(6*pi*(x+t))
 %
 % The numerical solution is computed on a node-centered grid using the
 % direct completely centered discretization of the second-order wave 
@@ -50,13 +50,6 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% CHANGE LOG:
-% -----------
-% 2008/08:  Initial version of code. 
-%
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
 % Kevin T. Chu
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -75,7 +68,7 @@ if (nargin < 4)
 end
 
 % construct grid
-x_lo = -1.0;
+x_lo = 0.0;
 x_hi =  1.0;
 dx = (x_hi-x_lo)/N;
 x = x_lo:dx:x_hi-dx; x = x';  % periodic grid point not included
@@ -83,7 +76,7 @@ x = x_lo:dx:x_hi-dx; x = x';  % periodic grid point not included
 % construct Laplacian operator (with periodic boundary conditions) 
 e = ones(N,1);
 L = 1/dx^2*spdiags([e -2*e e], -1:1, N, N);
-L(1,end) = 1/dx^2;    % periodic BC at x = -1
+L(1,end) = 1/dx^2;    % periodic BC at x = 0
 L(end,1) = 1/dx^2;  % periodic BC at x =  1
 
 
@@ -95,17 +88,17 @@ L(end,1) = 1/dx^2;  % periodic BC at x =  1
 t = 0.0;
 
 % set initial conditions
-u   = sin(2*pi*x) + cos(3*pi*x);
-u_t = -pi*(2*cos(2*pi*x) + 3*sin(3*pi*x));
+u   = sin(2*pi*x) + cos(6*pi*x);
+u_t = -pi*(2*cos(2*pi*x) + 6*sin(6*pi*x));
 
 % compute wave speed
-c = 1 + 0.5*sin(0.5*pi*x);
+c = 1 - 0.5*cos(pi*x);
 
 % use second-order Taylor series expansion for first time step
-f =  0.25*pi^2*sin(0.5*pi*x) ...
-  .* ( 16*sin(2*pi*x) + 36*cos(3*pi*x) ...
-     + 4*sin(0.5*pi*x).*sin(2*pi*x)   ...
-     + 9*sin(0.5*pi*x).*cos(3*pi*x) );
+f = pi^2*cos(pi*x) ...
+  .* ( -4*sin(2*pi*(x-t)) - 36*cos(6*pi*(x+t)) ...
+     + cos(pi*x).*sin(2*pi*(x-t)) ...
+     + 9*cos(pi*x).*cos(6*pi*(x+t)) );
 u_tt = c.^2.*(L*u) + f;
 u_next = u + dt*u_t + 0.5*dt^2*u_tt;
 
@@ -121,7 +114,7 @@ while (t < t_final)
   if (debug_on == 1)
 
     % compute exact solution and err
-    u_exact = sin(2*pi*(x-t)) + cos(3*pi*(x+t));
+    u_exact = sin(2*pi*(x-t)) + cos(6*pi*(x+t));
     err = u-u_exact;
     err_L_inf = norm(err,'inf')
 
@@ -145,10 +138,10 @@ while (t < t_final)
   end %  end case: (debug_on == 1)
 
   % compute source term
-  f =  0.25*pi^2*sin(0.5*pi*x) ...
-    .* ( 16*sin(2*pi*(x-t)) + 36*cos(3*pi*(x+t)) ...
-       + 4*sin(0.5*pi*x).*sin(2*pi*(x-t)) ...
-       + 9*sin(0.5*pi*x).*cos(3*pi*(x+t)) );
+  f = pi^2*cos(pi*x) ...
+    .* ( -4*sin(2*pi*(x-t)) - 36*cos(6*pi*(x+t)) ...
+       + cos(pi*x).*sin(2*pi*(x-t)) ...
+       + 9*cos(pi*x).*cos(6*pi*(x+t)) );
 
   % compute u_tt
   u_tt = c.^2.*(L*u) + f;
@@ -176,7 +169,7 @@ while (t < t_final)
 end
 
 % compute exact solution 
-u_exact = sin(2*pi*(x-t)) + cos(3*pi*(x+t));
+u_exact = sin(2*pi*(x-t)) + cos(6*pi*(x+t));
 
 % add back periodic grid point
 x = [x; x_hi];

@@ -5,45 +5,45 @@
 %
 %   u_tt = (c(x))^2 u_xx + f(x,t)
 %
-% on the domain -1 < x < 1 subject to the initial conditions
+% on the domain 0 < x < 1 subject to the initial conditions
 %
-%   u(x,0)   = sin(2*pi*x) + cos(3*pi*x)
-%   u_t(x,0) = -pi*(2*cos(2*pi*x) + 3*sin(3*pi*x))
+%   u(x,0)   = sin(2*pi*x) + cos(6*pi*x)
+%   u_t(x,0) = -pi*(2*cos(2*pi*x) + 6*sin(6*pi*x))
 %
 % and boundary conditions
 %
-%   u(-1,t) = sin(2*pi*(-1-t)) + cos(3*pi*(-1+t))
-%   u(1,t)  = sin(2*pi*(1-t)) + cos(3*pi*(1+t))
+%   u(0,t) = sin(2*pi*(-t)) + cos(6*pi*t)
+%   u(1,t)  = sin(2*pi*(1-t)) + cos(6*pi*(1+t))
 %
 % The wave speed and source term are given by
 %
-%   c(x) = 1 + 0.5*sin(0.5*pi*x)
+%   c(x) = 1 - 0.5*cos(pi*x)
 %
-%   f(x,t) = 0.25*pi^2*sin(0.5*pi*x) ...
-%          * ( 16*sin(2*pi*(x-t)) + 36*cos(3*pi*(x+t)) ...
-%            + 4*sin(0.5*pi*x)*sin(2*pi*(x-t)) ...
-%            + 9*sin(0.5*pi*x)*cos(3*pi*(x+t)) )
+%   f(x,t) = pi^2*cos(pi*x) ...
+%          * ( -4*sin(2*pi*(x-t)) - 36*cos(6*pi*(x+t)) ...
+%            + cos(pi*x)*sin(2*pi*(x-t)) ...
+%            + 9*cos(pi*x)*cos(6*pi*(x+t)) )
 %
 % The analytical solution to this problem is 
 %
-%   u(x,t) = sin(2*pi*(x-t)) + cos(3*pi*(x+t))
+%   u(x,t) = sin(2*pi*(x-t)) + cos(6*pi*(x+t))
 %
 % We solve the variable coefficient wave equation on the transformed domain 
 % 
-%   y = 4/pi*( atan((2*tan(pi*x/4)+1)/sqrt(3)) + pi/6 ) - 1
+%   y = 2/pi*( atan(sqrt(3)*tan(pi*x/2)) )
 %
 % so that the leading-order spatial derivative has a constant coefficient.
 % The wave equation in the transformed domain is given by
 %
-%   u_tt = 4 c_bar^2 u_yy - 2 c_bar c'(x) u_y  + f(x,t)
+%   u_tt = c_bar^2 u_yy - c_bar c'(x) u_y  + f(x,t)
 %
-% on the domain -1 < y < 1 with boundary conditions 
+% on the domain 0 < y < 1 with boundary conditions 
 %
-%   u(-1,t) = sin(2*pi*(-1-t)) + cos(3*pi*(-1+t))
-%   u(1,t)  = sin(2*pi*(1-t)) + cos(3*pi*(1+t))
+%   u(0,t) = sin(2*pi*(-t)) + cos(6*pi*t)
+%   u(1,t)  = sin(2*pi*(1-t)) + cos(6*pi*(1+t))
 %
 % and appropriately transformed initial conditions.  c_bar has a value of 
-% sqrt(3)/4.
+% sqrt(3)/2.
 %
 % The numerical solution is computed a node-centered grid using the
 % direct completely centered discretization of the second-order wave 
@@ -72,13 +72,6 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% CHANGE LOG:
-% -----------
-% 2008/08:  Initial version of code. 
-%
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
 % Kevin T. Chu
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -97,8 +90,8 @@ if (nargin < 4)
 end
 
 % construct grid
-y_lo = -1.0;
-y_hi =  1.0;
+y_lo = 0.0;
+y_hi = 1.0;
 dy = (y_hi-y_lo)/N;
 y = y_lo:dy:y_hi; y = y';  
 
@@ -115,13 +108,13 @@ G(1,:) = 0;    % no need to update boundary condition
 G(end,:) = 0;  % no need to update boundary condition
 
 % compute transformation from y to x
-x = 4/pi*atan(0.5*(sqrt(3)*tan(pi/4*(y+1)-pi/6) - 1));
+x = 2/pi*atan(tan(0.5*pi*y)/sqrt(3));
 
 % set c_bar
-c_bar = sqrt(3)/4;
+c_bar = sqrt(3)/2;
 
 % compute c_prime
-c_prime = 0.25*pi*cos(0.5*pi*x);
+c_prime = 0.5*pi*sin(pi*x);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -132,15 +125,15 @@ c_prime = 0.25*pi*cos(0.5*pi*x);
 t = 0.0;
 
 % set initial conditions
-u   = sin(2*pi*x) + cos(3*pi*x);
-u_t = -pi*(2*cos(2*pi*x) + 3*sin(3*pi*x));
+u   = sin(2*pi*x) + cos(6*pi*x);
+u_t = -pi*(2*cos(2*pi*x) + 6*sin(6*pi*x));
 
 % use second-order Taylor series expansion for first time step
-f =  0.25*pi^2*sin(0.5*pi*x) ...
-  .* ( 16*sin(2*pi*x) + 36*cos(3*pi*x) ...
-     + 4*sin(0.5*pi*x).*sin(2*pi*x)   ...
-     + 9*sin(0.5*pi*x).*cos(3*pi*x) );
-u_tt = 4*c_bar^2*(L*u) - 2*c_bar*c_prime.*(G*u) + f;
+f = pi^2*cos(pi*x) ...
+  .* ( -4*sin(2*pi*(x-t)) - 36*cos(6*pi*(x+t)) ...
+     + cos(pi*x).*sin(2*pi*(x-t)) ...
+     + 9*cos(pi*x).*cos(6*pi*(x+t)) );
+u_tt = c_bar^2*(L*u) - c_bar*c_prime.*(G*u) + f;
 u_next = u + dt*u_t + 0.5*dt^2*u_tt;
 
 % update u_prev and u
@@ -151,15 +144,15 @@ u = u_next;
 t = t + dt;
 
 % update boundary conditions
-u(1) = sin(2*pi*(-1-t)) + cos(3*pi*(-1+t));
-u(end) = sin(2*pi*(1-t)) + cos(3*pi*(1+t));
+u(1) = sin(2*pi*(-t)) + cos(6*pi*t);
+u(end) = sin(2*pi*(1-t)) + cos(6*pi*(1+t));
 
 while (t < t_final)
 
   if (debug_on == 1)
 
     % compute exact solution and err
-    u_exact = sin(2*pi*(x-t)) + cos(3*pi*(x+t));
+    u_exact = sin(2*pi*(x-t)) + cos(6*pi*(x+t));
     err = u-u_exact;
     err_L_inf = norm(err,'inf')
 
@@ -183,13 +176,13 @@ while (t < t_final)
   end %  end case: (debug_on == 1)
 
   % compute source term
-  f =  0.25*pi^2*sin(0.5*pi*x) ...
-    .* ( 16*sin(2*pi*(x-t)) + 36*cos(3*pi*(x+t)) ...
-       + 4*sin(0.5*pi*x).*sin(2*pi*(x-t)) ...
-       + 9*sin(0.5*pi*x).*cos(3*pi*(x+t)) );
+  f = pi^2*cos(pi*x) ...
+    .* ( -4*sin(2*pi*(x-t)) - 36*cos(6*pi*(x+t)) ...
+       + cos(pi*x).*sin(2*pi*(x-t)) ...
+       + 9*cos(pi*x).*cos(6*pi*(x+t)) );
 
   % compute u_tt
-  u_tt = 4*c_bar^2*(L*u) - 2*c_bar*c_prime.*(G*u) + f;
+  u_tt = c_bar^2*(L*u) - c_bar*c_prime.*(G*u) + f;
 
   % update solution
   u_next = 2*u - u_prev + dt^2*u_tt;
@@ -212,10 +205,10 @@ while (t < t_final)
   end
 
   % update boundary conditions
-  u(1) = sin(2*pi*(-1-t)) + cos(3*pi*(-1+t));
-  u(end) = sin(2*pi*(1-t)) + cos(3*pi*(1+t));
+  u(1) = sin(2*pi*(-t)) + cos(6*pi*t);
+  u(end) = sin(2*pi*(1-t)) + cos(6*pi*(1+t));
 
 end
 
 % compute exact solution 
-u_exact = sin(2*pi*(x-t)) + cos(3*pi*(x+t));
+u_exact = sin(2*pi*(x-t)) + cos(6*pi*(x+t));

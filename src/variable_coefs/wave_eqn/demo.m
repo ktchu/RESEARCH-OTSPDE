@@ -21,8 +21,8 @@ t_final = 10.0;
 t_final = 1.0;
 
 % set dx and dt
-x_lo = -1.0;
-x_hi =  1.0;
+x_lo = 0.0;
+x_hi = 1.0;
 N = 200;
 dx = (x_hi-x_lo)/N;
 dt_KPY = dx/4;
