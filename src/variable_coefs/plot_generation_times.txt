@@ -4,4 +4,4 @@ Plot Generation Times
 
 * 1D Variable-Coefficient Wave Equation: 200s
 * 1D Variable-Coefficient Diffusion Equation (Fokker-Planck): 2200s
-* 1D Variable-Coefficient Diffusion Equation (Non-Divergence Form): ??s 
+* 1D Variable-Coefficient Diffusion Equation (Non-Divergence Form): 550s
