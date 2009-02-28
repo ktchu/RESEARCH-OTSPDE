@@ -209,7 +209,7 @@ hold on;
 plot(grid_sizes,err_FE_OTS_OptGrid, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
-order_str = sprintf('FE-OTS-OptGrid \n(Order = %1.1f)', order_FE_OTS_OptGrid);
+order_str = sprintf('FE-OTS-OptGrid \nOrder = %1.1f', order_FE_OTS_OptGrid);
 text(20,5e-7,order_str);
 
 N_plot = [10 1000];
@@ -218,8 +218,8 @@ hold on;
 loglog(grid_sizes,err_FE, 'rs', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','r');
-order_str = sprintf('FE (Order = %1.1f)', order_FE);
-text(100,8e-2,order_str);
+order_str = sprintf('FE\nOrder = %1.1f', order_FE);
+text(200,4e-2,order_str);
 
 axis([10 1000 1e-10 1]);
 set(gca, 'ytick', 10.^[-10:2:0]);
@@ -246,8 +246,9 @@ hold on;
 plot(x_hi_res,u_exact_hi_res,'r')
 axis([x_lo x_hi 0 4]);
 xlabel('x');
-%title('FE Solution')
-filename = sprintf('var_coef_diffusion_eqn_1d_FE_soln.%s', print_suffix);
+%title('FE OTS-OptGrid Solution')
+filename = sprintf('var_coef_diffusion_eqn_1d_FE_OTS_OptGrid_soln.%s', ...
+  print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
