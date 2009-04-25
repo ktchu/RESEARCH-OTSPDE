@@ -78,7 +78,7 @@ minus3pt\let\@listi\@listI}
 % make title bold and 14 pt font (Latex default is non-bold, 16pt)
 \title{\huge \bf {Using Optimal Time Step Selection to \\ 
        Boost the Accuracy of FD Schemes for \\
-       Variable Coefficient PDEs }}
+       Variable-Coefficient PDEs }}
 
 % >>>>>>>>>>>>>>>>>>>>>>> Author's Name, Thanks or Affliation <<<<<<<<
 \author{Kevin T. Chu\thanks{
@@ -108,12 +108,12 @@ to define an optimal computational grid for the FD scheme on the
 \emph{original} domain.   By using both the optimal grid and OTS selection, we are
 able to boost the order of accuracy above what would be expected from a formal
 analysis of the FD scheme.  We illustrate the utility of our method by 
-applying it to variable coefficient wave and diffusion equations.  In 
+applying it to variable-coefficient wave and diffusion equations.  In 
 addition, we demonstrate the viability of OTS selection for the two-step 
 Kreiss-Petersson-Ystr\"om discretization of the wave equation.
 
 \em Keywords: optimal time step selection, optimal grid selection, finite 
-    difference schemes, time dependent PDEs, variable coefficient PDEs}}
+    difference schemes, time dependent PDEs, variable-coefficient PDEs}}
  }
 
 % >>>>>>>>>>>>>>>>>>>>>> START OF PAPER <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -149,7 +149,7 @@ for PDEs with a constant-coefficient leading-order spatial derivative term.
 Next, we show how to combine optimal grid and optimal time step selection to 
 boost the accuracy of finite difference schemes for variable-coefficient PDEs.  
 We then demonstrate the use of variable-coefficient OTS selection on the 
-variable-coefficient wave and heat equations.  Our analysis of the wave is 
+variable-coefficient wave and diffusion equations.  Our analysis of the wave is 
 equation is particularly noteworthy because it is \emph{not} based on a one-step 
 time integration scheme.  We conclude with a summary of our main results
 and thoughts on future directions for research.
@@ -237,10 +237,10 @@ that variable coefficients and nonlinearities in the lower-order spatial
 derivative terms do not pose a problem for OTS selection.  
 
 
-\section{OTS Selection for Variable Coefficient PDEs
+\section{OTS Selection for Variable-Coefficient PDEs
   \label{sec:ots_var_coef_pdes}}
 Transformation of the spatial domain is a natural way to extend OTS selection 
-to semilinear PDEs that have variable coefficient leading-order spatial 
+to semilinear PDEs that have variable-coefficient leading-order spatial 
 derivatives.  Consider a semilinear PDE of the form:
 \bea
   \frac{\partial u}{\partial t} = a^n(x) \frac{\partial^n u}{\partial x^n}
@@ -383,9 +383,9 @@ assertion has yet to be proven, it seems to hold for the PDEs we have examined.
 
 \section{Application to Model Problems}
 
-\subsection{Variable Coefficient Wave Equation}
+\subsection{Variable-Coefficient Wave Equation}
 In this section, we apply OTS and optimal grid selection to the
-variable coefficient wave equation.  Because we choose a FD scheme based on 
+variable-coefficient wave equation.  Because we choose a FD scheme based on 
 the Kreiss-Petersson-Ystr\"om discretization scheme for the wave 
 equation~\cite{kreiss2002}, we begin by analyzing OTS selection for 
 the constant-coefficient wave equation and demonstrate its applicability to
@@ -530,8 +530,8 @@ exercised if finite differences are used to compute the derivatives in
 automatically (implicitly) included by lower-order terms in the expansion.
 
 
-\subsubsection*{OTS Selection for Variable Coefficient Wave Equation}
-We now consider the variable coefficient second-order wave equation
+\subsubsection*{OTS Selection for Variable-Coefficient Wave Equation}
+We now consider the variable-coefficient second-order wave equation
 \beq
     u_{tt} - c(x)^2 u_{xx} = f,
     \label{eq:var_coef_wave_eqn}
@@ -569,7 +569,7 @@ eliminated by the use of $\dt_{opt}$, is given by
   \right).
 \eea
 Using the optimal time step and the correction term, we obtain a fourth-order
-accurate KPY scheme for the variable coefficient wave equation 
+accurate KPY scheme for the variable-coefficient wave equation 
 (see Figure~\ref{fig:var_coef_wave_eqn_1d_error}).  As mentioned earlier,
 a fifth-order accurate first time step is required to achieve this level of
 accuracy.
@@ -578,7 +578,7 @@ accuracy.
 \begin{center}
 \scalebox{0.30}{\includegraphics{figures/var_coef_wave_eqn_1d_error_vs_N}}
 \caption{$L^\infty$ error as a function of number of grid points for various
-KPY discretizations of the variable coefficient second-order wave equation:
+KPY discretizations of the variable-coefficient second-order wave equation:
 KPY using a uniform grid on the original domain (red squares),
 KPY using a uniform grid on the transformed domain (green triangles),
 KPY using the optimal grid without OTS selection the original domain 
@@ -626,7 +626,7 @@ of the optimal time step.  Thus, the correction term is
 
 As shown in Figure~\ref{fig:var_coef_wave_eqn_1d_error}, by using the optimal 
 grid, optimal time step, and the correction terms, we are able to obtain a 
-fourth-order accurate scheme for the variable coefficient wave equation on
+fourth-order accurate scheme for the variable-coefficient wave equation on
 the original domain.  The error on the variable-spaced grid is almost 
 identical to the error obtained when solving the equation on the transformed 
 domain. 
@@ -644,7 +644,7 @@ OTS selection (red squares).
 \end{center}
 \end{figure}
 
-\subsection{Application to Variable Coefficient Diffusion Equation}
+\subsection{Application to Variable-Coefficient Diffusion Equation}
 In this section, we apply OTS and optimal grid selection to the 
 variable-coefficient diffusion equation
 \beq
@@ -661,13 +661,14 @@ change of variables used to define the optimal grid is given by
 $y = \dbar\int_0^x D(\xi)^{-1/2} d\xi$ where
 $\dbar = \left(\int_0^1 D(\xi)^{-1/2} d\xi \right) ^ {-1}$.
 Since the optimal time step for the constant coefficient diffusion equation 
-is given by $\dto = \dx^2/6D$, the optimal time step for the variable
-coefficient diffusion equation is given by $\dto = \left(\dy/\dbar\right)^2/6$.
+is given by $\dto = \dx^2/6D$, the optimal time step for the 
+variable-coefficient diffusion equation is given by 
+$\dto = \left(\dy/\dbar\right)^2/6$.
 The correction term for this scheme is 
 \bea
   \frac{\dt^2}{2} \left[
   \begin{array}{c}
-  6 D D_{xx} u_{xx} + 4 D D_{xxx} u_x D D_{xxxx} u + D f_{xx} \\
+  6 D D_{xx} u_{xx} + 4 D D_{xxx} u_x + D D_{xxxx} u + D f_{xx} \\
   + \ 6 D_x D_{xx} u_x + 2 D_x D_{xxx} u + 2 D_x f_x \\
   + \ D_{xx} u_t + f_t
   \end{array}
@@ -690,7 +691,7 @@ solutions computed with and without the optimal grid and OTS selection.
 \begin{center}
 \scalebox{0.24}{\includegraphics{figures/var_coef_diffusion_eqn_1d_FE_OTS_OptGrid_soln}} \ 
 \scalebox{0.24}{\includegraphics{figures/var_coef_diffusion_eqn_1d_FE_soln}}
-\caption{Comparison of numerical solutions for the variable coefficient
+\caption{Comparison of numerical solutions for the variable-coefficient
 diffusion equation~(\ref{eq:var_coef_diffusion_eqn}) computed using 
 the optimal grid and OTS selection (left) and a uniform grid without OTS
 selection (right).  Both figures compare the analytical solution (solid line)
@@ -705,14 +706,15 @@ with the numerical solution (circles) computed using $25$ grid points.
 In this paper, we have extended the philosophy of optimizing the parameters
 of FD schemes (\eg the time step size) for accuracy to the selection of the 
 computational grid.  In particular, we have presented a method to boost the 
-order of accuracy of FD schemes for PDEs where the leading-order spatial derivative has a 
-variable coefficient by using an optimal time step and an optimal grid.  We have 
-described the basic procedure for constructing the optimal grid, computing the optimal time step, 
-and deriving the required correction terms.  To demonstrate the power of these 
-techniques, we have applied them to the variable coefficient wave equation and 
-the Fokker-Planck form of the diffusion equation in an inhomogeneous medium.  
-Our analysis of the KPY scheme (used to solve the wave equation) also serves 
-as an example of OTS selection applied to multistep time integration schemes.  
+order of accuracy of FD schemes for PDEs where the leading-order spatial 
+derivative has a variable coefficient by using an optimal time step and an 
+optimal grid.  We have described the basic procedure for constructing the 
+optimal grid, computing the optimal time step, and deriving the required 
+correction terms.  To demonstrate the power of these techniques, we have 
+applied them to the variable-coefficient wave equation and the Fokker-Planck 
+form of the diffusion equation in an inhomogeneous medium.  Our analysis of 
+the KPY scheme (used to solve the wave equation) also serves as an example of 
+OTS selection applied to multistep time integration schemes.  
 
 
 \subsection{Future Work}
