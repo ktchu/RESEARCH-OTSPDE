@@ -25,7 +25,7 @@
 % v(x,t) = (x-t)/(1+(x-t)^2)
 % 
 % The numerical solution is computed on a node-centered grid using 
-% forward Euler time integration with a first-order upwind difference 
+% forward Euler time integration with a second-order central difference 
 % approximation for the Laplacians.  For both equations, the OTS correction 
 % terms are added to the finite difference scheme.  The time step is taken
 % to be the smaller of the optimal time steps for the two equations. 

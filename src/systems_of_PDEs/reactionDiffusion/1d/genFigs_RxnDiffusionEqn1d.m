@@ -283,7 +283,7 @@ hold on;
 plot(grid_sizes,err_u_FE_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS)\nOrder = %1.1f', order_u_FE_OTS);
+order_str = sprintf('Forward Euler-OTS\n(Time Synchronization)\nOrder = %1.1f', order_u_FE_OTS);
 text(150,3.e-7,order_str);
 
 loglog(N_plot,exp(log(N_plot)*P_u_FE_NoInterp(1)+P_u_FE_NoInterp(2)),'k');
@@ -291,9 +291,9 @@ hold on;
 plot(grid_sizes,err_u_FE_NoInterp, 'g^', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','g');
-order_str = sprintf('Forward Euler\n(No Time Interpolation)\nOrder = %1.1f', ...
+order_str = sprintf('Forward Euler-OTS\n(No Time Synchronization)\nOrder = %1.1f', ...
                     order_u_FE_NoInterp);
-text(1200,6.e-2,order_str);
+text(950,9.e-2,order_str);
 
 loglog(N_plot,exp(log(N_plot)*P_u_FE(1)+P_u_FE(2)),'k');
 hold on;
@@ -319,7 +319,7 @@ hold on;
 plot(grid_sizes,err_v_FE_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS)\nOrder = %1.1f', order_v_FE_OTS);
+order_str = sprintf('Forward Euler-OTS\n(Time Synchronization)\nOrder = %1.1f', order_v_FE_OTS);
 text(150,3.e-7,order_str);
 
 loglog(N_plot,exp(log(N_plot)*P_v_FE_NoInterp(1)+P_v_FE_NoInterp(2)),'k');
@@ -327,9 +327,8 @@ hold on;
 plot(grid_sizes,err_v_FE_NoInterp, 'g^', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','g');
-order_str = sprintf('Forward Euler\n(No Time Interpolation)\nOrder = %1.1f', ...
-                    order_u_FE_NoInterp);
-text(1200,7.e-2,order_str);
+order_str = sprintf('Forward Euler-OTS\n(No Time Synchronization)\nOrder = %1.1f', order_u_FE_NoInterp);
+text(950,9.e-2,order_str);
 
 loglog(N_plot,exp(log(N_plot)*P_v_FE(1)+P_v_FE(2)),'k');
 hold on;
@@ -337,7 +336,7 @@ plot(grid_sizes,err_v_FE, 'rs', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','r');
 order_str = sprintf('Forward Euler\nOrder = %1.1f', order_v_FE);
-text(2000,4e-6,order_str);
+text(2000,3e-6,order_str);
 
 axis([100 10000 1e-8 1]);
 xlabel('N');
@@ -356,7 +355,7 @@ hold on;
 plot(grid_sizes,err_FE_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS)\nOrder = %1.1f', order_FE_OTS);
+order_str = sprintf('Forward Euler-OTS\n(Time Synchronization)\nOrder = %1.1f', order_FE_OTS);
 text(150,3.e-7,order_str);
 
 loglog(N_plot,exp(log(N_plot)*P_FE_NoInterp(1)+P_FE_NoInterp(2)),'k');
@@ -364,9 +363,8 @@ hold on;
 plot(grid_sizes,err_FE_NoInterp, 'g^', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','g');
-order_str = sprintf('Forward Euler\n(No Time Interpolation)\nOrder = %1.1f', ...
-                    order_FE_NoInterp);
-text(1200,6.e-2,order_str);
+order_str = sprintf('Forward Euler-OTS\n(No Time Synchronization)\nOrder = %1.1f', order_FE_NoInterp);
+text(950,9.e-2,order_str);
 
 loglog(N_plot,exp(log(N_plot)*P_FE(1)+P_FE(2)),'k');
 hold on;
@@ -374,7 +372,7 @@ plot(grid_sizes,err_FE, 'rs', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','r');
 order_str = sprintf('Forward Euler\nOrder = %1.1f', order_FE);
-text(2000,3e-6,order_str);
+text(2000,4e-6,order_str);
 
 axis([100 10000 1e-8 1]);
 xlabel('N');
