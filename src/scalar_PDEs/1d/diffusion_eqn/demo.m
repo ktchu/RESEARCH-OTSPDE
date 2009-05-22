@@ -2,7 +2,9 @@
 %
 % This MATLAB script demonstrates the use of 
 % solveDiffusionEqnForwardEuler1d(),
-% solveDiffusionEqnForwardEulerOTS1d(), and
+% solveDiffusionEqnForwardEulerOTS1d(), 
+% solveDiffusionEqnDuFortFrankel1d(),
+% solveDiffusionEqnDuFortFrankelOTS1d(), and
 % solveDiffusionEqnCrankNicholson1d().
 %  
 % Kevin T. Chu
@@ -29,10 +31,12 @@ t_final = 0.1;
 N = 100;
 dx = 1/N;
 dt_FE = dx^2/4/D;
+dt_DF = dx^2/4/D;
 dt_CN = dx/8/D;
 
 % source term type
 source_term_type = 0;
+source_term_type = 1;
 
 % solve diffusion equation using forward Euler with OTS
 debug_on = 0;
@@ -46,6 +50,15 @@ debug_on = 0;
 
 % solve diffusion equation using forward Euler
 [u_FE, u_exact, x] = solveDiffusionEqnForwardEuler1d( ...
+                             D, ...
+                             source_term_type, ...
+                             u_0, dudx_1, ...
+                             dx, dt_FE, ...
+                             t_init, t_final, ...
+                             debug_on);
+
+% solve diffusion equation using DuFort-Frankel
+[u_DF, u_exact, x] = solveDiffusionEqnDuFortFrankel1d( ...
                              D, ...
                              source_term_type, ...
                              u_0, dudx_1, ...
@@ -67,6 +80,8 @@ err_FE_OTS = u_FE_OTS-u_exact;
 err_L_inf_FE_OTS = norm(err_FE_OTS,'inf')
 err_FE = u_FE-u_exact;
 err_L_inf_FE = norm(err_FE,'inf')
+err_DF = u_DF-u_exact;
+err_L_inf_DF = norm(err_DF,'inf')
 err_CN = u_CN-u_exact;
 err_L_inf_CN = norm(err_CN,'inf')
 
@@ -92,11 +107,21 @@ plot(x,err_FE);
 title('Error in Forward Euler Solution')
 
 figure(5); clf;
+plot(x,u_DF,'bo')
+hold on;
+plot(x,u_exact,'r')
+title('DuFort-Frankel Solution')
+
+figure(6); clf;
+plot(x,err_DF);
+title('Error in DuFort-Frankel Solution')
+
+figure(9); clf;
 plot(x,u_CN,'bo')
 hold on;
 plot(x,u_exact,'r')
 title('Crank-Nicholson Solution')
 
-figure(6); clf;
+figure(10); clf;
 plot(x,err_CN);
 title('Error in Crank-Nicholson Solution')
