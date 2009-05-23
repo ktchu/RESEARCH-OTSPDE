@@ -16,9 +16,9 @@
 clear 
 format long
 format compact
-set(0,'DefaultAxesFontSize',18,'DefaultAxesFontName','Helvetica')
+set(0,'DefaultAxesFontSize',16,'DefaultAxesFontName','Helvetica')
 set(0,'DefaultLineLineWidth',2)
-set(0,'DefaultTextFontSize',18,'DefaultTextFontName','Helvetica')
+set(0,'DefaultTextFontSize',16,'DefaultTextFontName','Helvetica')
 
 % set print format
 print_format = 'png';
@@ -285,8 +285,8 @@ hold on;
 plot(grid_sizes,err_FE_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS)\nOrder = %1.1f', order_FE_OTS);
-text(30,1e-9,order_str);
+order_str = sprintf('Forward Euler (OTS-NIDC)\nOrder = %1.1f', order_FE_OTS);
+text(15,1e-9,order_str);
 annotation(f, 'arrow', [.63 .7], [.2 .2], ...
            'linewidth', 4, 'headstyle', 'plain');
 
@@ -371,9 +371,9 @@ hold on;
 loglog(err_FE_OTS, comp_time_FE_OTS, 'bo', ...
        'MarkerSize',14, ...
        'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS)\nSlope = %1.2f', comp_time_exp_FE_OTS);
-text(5e-5,5e4,order_str);
-annotation(f, 'arrow', [.58 .32], [.86 .77], ...
+order_str = sprintf('Forward Euler (OTS-NIDC)\nSlope = %1.2f', comp_time_exp_FE_OTS);
+text(2e-6,9e4,order_str);
+annotation(f, 'arrow', [.48 .32], [.86 .77], ...
            'linewidth', 4, 'headstyle', 'plain');
 
 loglog(err_plot, ...
