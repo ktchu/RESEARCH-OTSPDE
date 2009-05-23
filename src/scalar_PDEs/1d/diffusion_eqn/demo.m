@@ -35,8 +35,8 @@ dt_DF = dx^2/4/D;
 dt_CN = dx/8/D;
 
 % source term type
-source_term_type = 0;
 source_term_type = 1;
+source_term_type = 0;
 
 % solve diffusion equation using forward Euler with OTS
 debug_on = 0;
@@ -57,12 +57,21 @@ debug_on = 0;
                              t_init, t_final, ...
                              debug_on);
 
+% solve diffusion equation using DuFort-Frankel with OTS
+[u_DF_OTS, u_exact, x] = solveDiffusionEqn1dDuFortFrankelOTS( ...
+                             D, ...
+                             source_term_type, ...
+                             u_0, dudx_1, ...
+                             dx, ...
+                             t_init, t_final, ...
+                             debug_on);
+
 % solve diffusion equation using DuFort-Frankel
 [u_DF, u_exact, x] = solveDiffusionEqn1dDuFortFrankel( ...
                              D, ...
                              source_term_type, ...
                              u_0, dudx_1, ...
-                             dx, dt_FE, ...
+                             dx, dt_DF, ...
                              t_init, t_final, ...
                              debug_on);
 
@@ -80,6 +89,8 @@ err_FE_OTS = u_FE_OTS-u_exact;
 err_L_inf_FE_OTS = norm(err_FE_OTS,'inf')
 err_FE = u_FE-u_exact;
 err_L_inf_FE = norm(err_FE,'inf')
+err_DF_OTS = u_DF_OTS-u_exact;
+err_L_inf_DF_OTS = norm(err_DF_OTS,'inf')
 err_DF = u_DF-u_exact;
 err_L_inf_DF = norm(err_DF,'inf')
 err_CN = u_CN-u_exact;
@@ -110,9 +121,19 @@ figure(5); clf;
 plot(x,u_DF,'bo')
 hold on;
 plot(x,u_exact,'r')
-title('DuFort-Frankel Solution')
+title('DuFort-Frankel OTS Solution')
 
 figure(6); clf;
+plot(x,err_DF_OTS);
+title('Error in DuFort-Frankel OTS Solution')
+
+figure(7); clf;
+plot(x,u_DF_OTS,'bo')
+hold on;
+plot(x,u_exact,'r')
+title('DuFort-Frankel Solution')
+
+figure(8); clf;
 plot(x,err_DF);
 title('Error in DuFort-Frankel Solution')
 
