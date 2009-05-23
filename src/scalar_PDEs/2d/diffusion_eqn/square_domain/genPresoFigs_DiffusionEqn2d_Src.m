@@ -16,9 +16,9 @@
 clear 
 format long
 format compact
-set(0,'DefaultAxesFontSize',18,'DefaultAxesFontName','Helvetica')
+set(0,'DefaultAxesFontSize',16,'DefaultAxesFontName','Helvetica')
 set(0,'DefaultLineLineWidth',2)
-set(0,'DefaultTextFontSize',18,'DefaultTextFontName','Helvetica')
+set(0,'DefaultTextFontSize',16,'DefaultTextFontName','Helvetica')
 
 % set print format
 print_format = 'png';
@@ -220,8 +220,8 @@ hold on;
 plot(grid_sizes,err_FE_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS)\nOrder = %1.1f', order_FE_OTS);
-text(18,4e-8,order_str);
+order_str = sprintf('Forward Euler (OTS-NIDC)\nOrder = %1.1f', order_FE_OTS);
+text(13,1e-8,order_str);
 
 loglog(N_plot,exp(log(N_plot)*P_FE(1)+P_FE(2)),'k');
 hold on;
@@ -237,7 +237,7 @@ plot(grid_sizes,err_CN, 'md', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','m');
 order_str = sprintf('Crank-Nicholson\nOrder = %1.1f', order_CN);
-text(150,7e-6,order_str);
+text(150,4e-6,order_str);
 
 axis([10 1000 1e-10 1e0]);
 xlabel('N');
@@ -256,8 +256,8 @@ hold on;
 loglog(err_FE_OTS, comp_time_FE_OTS, 'bo', ...
        'MarkerSize',14, ...
        'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS)\nSlope = %1.1f', comp_time_exp_FE_OTS);
-text(5e-8,5e-2,order_str);
+order_str = sprintf('Forward Euler (OTS-NIDC)\nSlope = %1.1f', comp_time_exp_FE_OTS);
+text(3e-8,3e-3,order_str);
 
 loglog(err_plot, ...
        exp(log(err_plot)*P_comp_time_FE(1)+P_comp_time_FE(2)), ...
@@ -267,7 +267,7 @@ loglog(err_FE, comp_time_FE, 'rs', ...
        'MarkerSize',14, ...
        'MarkerFaceColor','r');
 order_str = sprintf('Forward Euler\nSlope = %1.1f', comp_time_exp_FE);
-text(4e-4,3e2,order_str);
+text(5e-4,5e2,order_str);
 
 loglog(err_plot, ...
        exp(log(err_plot)*P_comp_time_CN(1)+P_comp_time_CN(2)), ...
@@ -277,7 +277,7 @@ loglog(err_CN, comp_time_CN, 'md', ...
        'MarkerSize',14, ...
        'MarkerFaceColor','m');
 order_str = sprintf('Crank-Nicholson\nSlope = %1.1f', comp_time_exp_CN);
-text(3e-8,2e3,order_str);
+text(3e-8,1.5e3,order_str);
 
 axis([1e-8 1e0 1e-4 1e4]);
 xlabel('L^\infty Error');

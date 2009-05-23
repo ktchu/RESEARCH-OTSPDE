@@ -16,9 +16,9 @@
 clear 
 format long
 format compact
-set(0,'DefaultAxesFontSize',18,'DefaultAxesFontName','Helvetica')
+set(0,'DefaultAxesFontSize',16,'DefaultAxesFontName','Helvetica')
 set(0,'DefaultLineLineWidth',2)
-set(0,'DefaultTextFontSize',18,'DefaultTextFontName','Helvetica')
+set(0,'DefaultTextFontSize',16,'DefaultTextFontName','Helvetica')
 
 % set print format
 use_color_figures = 1;
@@ -216,8 +216,8 @@ hold on;
 plot(grid_sizes,err_FE_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS)\nOrder = %1.1f', order_FE_OTS);
-text(13,1.5e-9,order_str);
+order_str = sprintf('Forward Euler (OTS-NIDC)\nOrder = %1.1f', order_FE_OTS);
+text(13,2e-10,order_str);
 
 loglog(N_plot,exp(log(N_plot)*P_FE(1)+P_FE(2)),'k');
 hold on;
@@ -252,8 +252,8 @@ hold on;
 loglog(err_FE_OTS(2:end), comp_time_FE_OTS(2:end), 'bo', ...
        'MarkerSize',14, ...
        'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS)\nSlope = %1.1f', comp_time_exp_FE_OTS);
-text(5e-11,4e-3,order_str);
+order_str = sprintf('Forward Euler (OTS-NIDC)\nSlope = %1.1f', comp_time_exp_FE_OTS);
+text(5e-12,1e-3,order_str);
 
 loglog(err_plot, ...
        exp(log(err_plot)*P_comp_time_FE(1)+P_comp_time_FE(2)), ...
@@ -263,7 +263,7 @@ loglog(err_FE(2:end), comp_time_FE(2:end), 'rs', ...
        'MarkerSize',14, ...
        'MarkerFaceColor','r');
 order_str = sprintf('Forward Euler\nSlope = %1.1f', comp_time_exp_FE);
-text(2e-5,1e2,order_str);
+text(1.5e-5,5e2,order_str);
 
 loglog(err_plot, ...
        exp(log(err_plot)*P_comp_time_CN(1)+P_comp_time_CN(2)), ...
@@ -273,7 +273,7 @@ loglog(err_CN(2:end), comp_time_CN(2:end), 'md', ...
        'MarkerSize',14, ...
        'MarkerFaceColor','m');
 order_str = sprintf('Crank-Nicholson\nSlope = %1.1f', comp_time_exp_CN);
-text(1.7e-10,1e3,order_str);
+text(1.2e-10,1e3,order_str);
 
 axis([1e-12 1e-2 1e-4 1e4]);
 set(gca, 'xtick', [1e-12 1e-10 1e-8 1e-6 1e-4 1e-2]);
