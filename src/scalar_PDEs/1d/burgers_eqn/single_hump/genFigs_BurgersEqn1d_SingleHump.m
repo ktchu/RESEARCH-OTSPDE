@@ -16,9 +16,9 @@
 clear 
 format long
 format compact
-set(0,'DefaultAxesFontSize',18,'DefaultAxesFontName','Helvetica')
+set(0,'DefaultAxesFontSize',16,'DefaultAxesFontName','Helvetica')
 set(0,'DefaultLineLineWidth',2)
-set(0,'DefaultTextFontSize',18,'DefaultTextFontName','Helvetica')
+set(0,'DefaultTextFontSize',16,'DefaultTextFontName','Helvetica')
 
 % set print format
 use_color_figures = 1;
@@ -197,8 +197,8 @@ hold on;
 plot(grid_sizes,err_FE_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS)\nOrder = %1.1f', order_FE_OTS);
-text(45,1e-5,order_str);
+order_str = sprintf('Forward Euler (OTS-NIDC)\nOrder = %1.1f', order_FE_OTS);
+text(20,1e-5,order_str);
 
 loglog(N_plot,exp(log(N_plot)*P_FE(1)+P_FE(2)),'k');
 hold on;
