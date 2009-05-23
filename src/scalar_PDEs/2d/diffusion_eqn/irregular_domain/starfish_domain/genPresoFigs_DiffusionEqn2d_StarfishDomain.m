@@ -20,9 +20,9 @@ addpath('..');
 clear 
 format long
 format compact
-set(0,'DefaultAxesFontSize',18,'DefaultAxesFontName','Helvetica')
+set(0,'DefaultAxesFontSize',16,'DefaultAxesFontName','Helvetica')
 set(0,'DefaultLineLineWidth',2)
-set(0,'DefaultTextFontSize',18,'DefaultTextFontName','Helvetica')
+set(0,'DefaultTextFontSize',16,'DefaultTextFontName','Helvetica')
 
 % set print format
 print_format = 'png';
@@ -123,9 +123,9 @@ for i = 1:length(grid_sizes)
                        N, bc_order);
     disp(disp_str);
 
-    % solve diffusion equation using forward Euler with OTS
+    % solve diffusion equation using forward Euler with OTS-NIDC
     disp('---------------------------');
-    disp('  Forward Euler OTS');
+    disp('  Forward Euler OTS-NIDC');
     disp('---------------------------');
     [u_FE_OTS, u_exact, X, Y, timing_data_FE_OTS] = ...
        solveDiffusionEqnForwardEulerOTS2d(D, ...
@@ -220,8 +220,8 @@ hold on;
 plot(grid_sizes, err_FE_OTS, 'bo', ...
      'MarkerSize', 14, ...
      'MarkerFaceColor', 'b');
-order_str = sprintf('Forward Euler OTS\nOrder = %1.1f', order_FE_OTS);
-text(30,1e-5,order_str);
+order_str = sprintf('Forward Euler (OTS-NIDC)\nOrder = %1.1f', order_FE_OTS);
+text(20,3e-6,order_str);
 
 loglog(N_plot, exp(log(N_plot)*P_FE(1)+P_FE(2)), 'k');
 hold on;
@@ -250,9 +250,9 @@ hold on;
 loglog(err_FE_OTS, comp_time_FE_OTS, 'bo', ...
        'MarkerSize', 14, ...
        'MarkerFaceColor', 'b');
-order_str = sprintf('Forward Euler OTS\nOrder = %1.1f', ...
+order_str = sprintf('Forward Euler (OTS-NIDC)\nOrder = %1.1f', ...
                      comp_time_exp_FE_OTS);
-text(5e-8,5,order_str);
+text(3e-8,0.5,order_str);
 
 loglog(err_plot, exp(log(err_plot)*P_comp_time_FE(1)+P_comp_time_FE(2)), 'k');
 hold on;
