@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % This MATLAB script generates figures of the results for the 2d diffusion 
-% equation on an circular domain.
+% equation on an circular domain for presentations.
 %  
 % Kevin T. Chu
-% 2008 February
+% 2008 June
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -25,14 +25,7 @@ set(0,'DefaultLineLineWidth',2)
 set(0,'DefaultTextFontSize',16,'DefaultTextFontName','Helvetica')
 
 % set print format
-use_color_figures = 1;
-use_color_for_meshplot = 0;
-print_suffix = 'eps';
-if use_color_figures 
-  print_format = 'epsc';
-else
-  print_format = 'eps';
-end
+print_format = 'png';
 fig_dir = 'figures';
 if ~exist(fig_dir, 'dir')
   mkdir(fig_dir);
@@ -249,7 +242,7 @@ ylabel('L^\infty Error');
 set(gca, 'YTick', 10.^[-8:-1]);
 set(gca, 'YMinorTick', 'off');
 filename = sprintf('diffusion_eqn_2d_circle_domain_error_vs_N.%s', ...
-                   print_suffix);
+                   print_format);
 format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
@@ -279,24 +272,18 @@ ylabel('Compute Time (s)');
 set(gca, 'YTick', 10.^[-2:5]);
 set(gca, 'YMinorTick', 'off');
 filename = sprintf('diffusion_eqn_2d_circle_domain_comp_time.%s', ...
-                   print_suffix);
+                   print_format);
 format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 figure(3); clf;
-if (use_color_for_meshplot)
-  mesh(X_plot, Y_plot, u_FE_OTS_plot);
-  colormap('default');
-else
-  % black and white
-  mesh(X_plot, Y_plot, u_FE_OTS_plot, ones(size(X_plot)));
-  colormap([1 1 1; 0 0 0]);
-end
+surf(X_plot, Y_plot, u_FE_OTS_plot);
+colormap('default');
 
 xlabel('x'); ylabel('y'); 
 axis([-1 1 -1 1 -2 2]);
 view(127.5, 55);
-filename = sprintf('diffusion_eqn_2d_circle_domain_soln.%s', print_suffix);
+filename = sprintf('diffusion_eqn_2d_circle_domain_soln.%s', print_format);
 format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
@@ -310,7 +297,7 @@ idx = find(abs(err) > 0.25*norm(err,inf));
 plot(X(idx), Y(idx), 'ko', 'MarkerFaceColor', 'k');
 
 xlabel('x'); ylabel('y'); 
-filename = sprintf('diffusion_eqn_2d_circle_domain_error.%s', print_suffix);
+filename = sprintf('diffusion_eqn_2d_circle_domain_error.%s', print_format);
 format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
