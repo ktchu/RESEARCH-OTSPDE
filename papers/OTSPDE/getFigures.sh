@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # This script collects the figures from the src directory and places them
 # in the figures directory.
@@ -13,6 +13,7 @@ SRC_DIR="../../src"
 EXAMPLE_DIR_LIST="scalar_PDEs/1d/burgers_eqn/single_hump                       \
                   scalar_PDEs/1d/diffusion_eqn                                 \
                   scalar_PDEs/1d/fourth_order_parabolic                        \
+                  scalar_PDEs/1d/wave_eqn                                      \
                   scalar_PDEs/2d/advection_eqn                                 \
                   scalar_PDEs/2d/diffusion_eqn/square_domain                   \
                   scalar_PDEs/2d/diffusion_eqn/irregular_domain/starfish_domain\

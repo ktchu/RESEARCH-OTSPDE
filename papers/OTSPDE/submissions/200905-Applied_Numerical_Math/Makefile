@@ -7,20 +7,17 @@ PS2PDF = ps2pdf
 
 .SUFFIXES:	.ps .pdf
 
-all: 	OTSPDE.ps 
+all: 	cover_letter.ps 
 	$(RM) *.aux *.log
 
-pdf: OTSPDE.pdf 
+pdf: cover_letter.pdf 
 	$(RM) *.aux *.log
 
-OTSPDE.ps:	OTSPDE.tex 
-	$(TEX) OTSPDE.tex
-#	$(BIBTEX) OTSPDE.aux
-	$(TEX) OTSPDE.tex
-	$(TEX) OTSPDE.tex
-	$(DVIPS) OTSPDE.dvi -o OTSPDE.ps
+cover_letter.ps:	cover_letter.tex 
+	$(TEX) cover_letter.tex
+	$(DVIPS) cover_letter.dvi -o cover_letter.ps
 
-OTSPDE.pdf:  OTSPDE.ps
+cover_letter.pdf:  cover_letter.ps
 	$(PS2PDF) $<
 
 clean:
