@@ -2,8 +2,10 @@
 Plot Generation Times
 ---------------------
 
-* 1D Diffusion Equation, No Source Term: 38s
+* 1D Diffusion Equation (FE, No Source Term: 38s
 * 1D Diffusion Equation, Source Term: 188s
+* 1D Diffusion Equation (DuFort-Frankel), No Source Term: 30s
+* 1D Diffusion Equation (DuFort-Frankel), Source Term: 30s
 * 1D Advection-Diffusion Equation: 3.5s
 * 1D Burgers Equation: 3.6s
 * 1D Fourth-order Parabolic Equation: 42000s
