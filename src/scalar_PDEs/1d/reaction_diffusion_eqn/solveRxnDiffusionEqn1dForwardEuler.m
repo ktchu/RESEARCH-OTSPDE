@@ -154,7 +154,7 @@ if (timing_on)
     disp(' ');
     disp('==================================================================');
     disp('Computation Statistics');
-    comp_t_solve = sprintf('  Solution Time: %f', t_solve);
+    comp_time_str = sprintf('  Solution Time: %f', t_solve);
     disp(comp_time_str);
     disp('==================================================================');
   end
