@@ -225,8 +225,8 @@ hold on;
 plot(grid_sizes,err_DF_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
-order_str = sprintf('DuFort-Frankel (OTS-NIDC)\nOrder = %1.1f', order_DF_OTS);
-text(13,1e-9,order_str);
+order_str = sprintf('DuFort-Frankel (OTS-DC)\nOrder = %1.1f', order_DF_OTS);
+text(20,1e-9,order_str);
 
 loglog(N_plot,exp(log(N_plot)*P_DF(1)+P_DF(2)),'k');
 hold on;
@@ -254,8 +254,8 @@ hold on;
 loglog(err_DF_OTS, comp_time_DF_OTS, 'bo', ...
        'MarkerSize',14, ...
        'MarkerFaceColor','b');
-order_str = sprintf('DuFort-Frankel (OTS-NIDC)\nSlope = %1.1f', comp_time_exp_DF_OTS);
-text(2e-10,5e-3,order_str);
+order_str = sprintf('DuFort-Frankel (OTS-DC)\nSlope = %1.1f', comp_time_exp_DF_OTS);
+text(9e-10,5e-3,order_str);
 
 loglog(err_plot, ...
        exp(log(err_plot)*P_comp_time_DF(1)+P_comp_time_DF(2)), ...

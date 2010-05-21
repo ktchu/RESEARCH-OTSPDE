@@ -226,8 +226,8 @@ hold on;
 plot(grid_sizes,err_FE_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS-NIDC)\nOrder = %1.1f', order_FE_OTS);
-text(13,1e-8,order_str);
+order_str = sprintf('Forward Euler (OTS-DC)\nOrder = %1.1f', order_FE_OTS);
+text(15,1e-8,order_str);
 
 loglog(N_plot,exp(log(N_plot)*P_FE(1)+P_FE(2)),'k');
 hold on;
@@ -262,8 +262,8 @@ hold on;
 loglog(err_FE_OTS, comp_time_FE_OTS, 'bo', ...
        'MarkerSize',14, ...
        'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS-NIDC)\nSlope = %1.1f', comp_time_exp_FE_OTS);
-text(3e-8,3e-3,order_str);
+order_str = sprintf('Forward Euler (OTS-DC)\nSlope = %1.1f', comp_time_exp_FE_OTS);
+text(8e-8,3e-3,order_str);
 
 loglog(err_plot, ...
        exp(log(err_plot)*P_comp_time_FE(1)+P_comp_time_FE(2)), ...

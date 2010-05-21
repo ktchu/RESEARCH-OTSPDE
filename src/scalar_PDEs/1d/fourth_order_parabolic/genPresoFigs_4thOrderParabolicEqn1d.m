@@ -285,8 +285,8 @@ hold on;
 plot(grid_sizes,err_FE_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS-NIDC)\nOrder = %1.1f', order_FE_OTS);
-text(15,1e-9,order_str);
+order_str = sprintf('Forward Euler (OTS-DC)\nOrder = %1.1f', order_FE_OTS);
+text(20,1e-9,order_str);
 annotation(f, 'arrow', [.63 .7], [.2 .2], ...
            'linewidth', 4, 'headstyle', 'plain');
 
@@ -371,8 +371,8 @@ hold on;
 loglog(err_FE_OTS, comp_time_FE_OTS, 'bo', ...
        'MarkerSize',14, ...
        'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS-NIDC)\nSlope = %1.2f', comp_time_exp_FE_OTS);
-text(2e-6,9e4,order_str);
+order_str = sprintf('Forward Euler (OTS-DC)\nSlope = %1.2f', comp_time_exp_FE_OTS);
+text(3e-6,9e4,order_str);
 annotation(f, 'arrow', [.48 .32], [.86 .77], ...
            'linewidth', 4, 'headstyle', 'plain');
 
