@@ -4,3 +4,7 @@ references/*
 *.dvi
 *.pdf
 *.ps
+*.bbl
+*.blg
+data-wave_eqn_1d-src/*
+data-burgers_eqn_1d-single_hump/*
