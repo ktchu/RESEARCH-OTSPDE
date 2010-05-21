@@ -5,7 +5,7 @@
 % Resubmission draft: 2008/11/16, Vitamin D, Inc.
 % Resubmission draft: 2009/05/25, Serendipity Research
 % Resubmission draft: 2010/03/25, Serendipity Research
-% Resubmission draft: 2010/05/02, Serendipity Research
+% Resubmission draft: 2010/05/21, Serendipity Research
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %\documentclass[fleqn,12pt,twoside,draft]{article}
@@ -77,7 +77,10 @@ boost in accuracy and estimate the computational cost of the resulting
 numerical method.  We demonstrate the utility of optimal time step (OTS)
 selection on several different types of finite difference schemes
 for a wide array of classical linear and semilinear PDEs in one and more space
-dimensions on both regular and irregular domains.  
+dimensions on both regular and irregular domains.  OTS selection is 
+particularly valuable in light of recent advances in GPGPU computing because
+it significantly increases the usefulness of simple explicit time stepping
+schemes, which are especially well-suited to GPU hardware.
 \end{abstract}
 
 \noindent \rule{6.3in}{1pt}
@@ -2040,6 +2043,13 @@ parameters can significantly impact the accuracy of numerical methods.  To
 realize the full potential of existing and novel numerical schemes, 
 both optimal time step selection and optimal numerical parameter selection 
 deserve further investigation and attention.
+
+From a scientific computing perspective, recent advances in GPGPU computing
+make optimal time step selection especially relevant.  Because explicit time
+integration schemes are better suited to the GPU hardware architectures than
+implicit time integration schemes, the ability of optimal time step selection
+to dramatically boost the accuracy of simple explicit schemes makes it a
+powerful tool for achieving high-performance on GPUs.  
 
 
 % ACKNOWLEDGMENTS
