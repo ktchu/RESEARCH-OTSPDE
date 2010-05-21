@@ -6,5 +6,6 @@ references/*
 *.ps
 *.bbl
 *.blg
+*.log
 data-wave_eqn_1d-src/*
 data-burgers_eqn_1d-single_hump/*
