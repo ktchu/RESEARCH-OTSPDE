@@ -275,7 +275,7 @@ hold on;
 plot(grid_sizes,err_FE_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler OTS-DC\nOrder = %1.1f', ...
+order_str = sprintf('Forward Euler OTS-NIDC\nOrder = %1.1f', ...
   order_FE_OTS);
 text(20,4.5e-9,order_str);
 
@@ -319,7 +319,7 @@ hold on;
 loglog(err_FE_OTS(2:end), comp_time_FE_OTS(2:end), 'bo', ...
        'MarkerSize',14, ...
        'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler OTS-DC\nSlope = %1.1f', ...
+order_str = sprintf('Forward Euler OTS-NIDC\nSlope = %1.1f', ...
   comp_time_exp_FE_OTS);
 text(1e-9,3e-2,order_str);
 
@@ -368,7 +368,7 @@ plot(x_lo_res,u_FE_OTS_lo_res,'bo')
 hold on;
 plot(x,u_exact,'r')
 xlabel('x');
-%title('Forward Euler OTS-DC Solution')
+%title('Forward Euler OTS-NIDC Solution')
 filename = sprintf('diffusion_eqn_1d_src_FE_OTS_soln.%s', print_suffix);
 format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);

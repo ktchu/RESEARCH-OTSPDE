@@ -101,7 +101,7 @@ for i = 1:length(grid_sizes)
     dt_KPY = 0.5*dx/c;
 
     % solve wave equation using KPY with OTS
-    disp('KPY-OTS-DC');
+    disp('KPY-OTD-NIDC');
     [u_KPY_OTS, u_exact, x] = solveWaveEqn1dKPY_OTS(c, ...
                                                     use_source_term, ...
                                                     N, ...
@@ -162,7 +162,7 @@ else
   dt_KPY = 0.5*dx/c;
 
   % solve wave equation using KPY with OTS
-  disp('KPY-OTS-DC');
+  disp('KPY-OTD-NIDC');
   [u_KPY_OTS_lo_res, u_exact_lo_res, x_lo_res] = ...
     solveWaveEqn1dKPY_OTS(c, ...
                           use_source_term, ...
@@ -190,7 +190,7 @@ else
   dt_KPY = 0.5*dx/c;
 
   % solve wave equation using KPY with OTS
-  disp('KPY-OTS-DC');
+  disp('KPY-OTD-NIDC');
   [u_KPY_OTS_hi_res, u_exact_hi_res, x_hi_res] = ...
     solveWaveEqn1dKPY_OTS(c, ...
                           use_source_term, ...
@@ -226,7 +226,7 @@ hold on;
 plot(grid_sizes,err_KPY_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
-order_str = sprintf('KPY (OTS-DC)\nOrder = %1.1f', order_KPY_OTS);
+order_str = sprintf('KPY (OTD-NIDC)\nOrder = %1.1f', order_KPY_OTS);
 text(150,1e-13,order_str);
 
 N_plot = [100 10000];
@@ -251,7 +251,7 @@ hold on;
 plot(x_hi_res,u_exact_hi_res,'r')
 axis([x_lo x_hi -5 5]);
 xlabel('x');
-%title('KPY (OTS-DC) Solution')
+%title('KPY (OTD-NIDC) Solution')
 filename = sprintf('wave_eqn_1d_no_src_KPY_OTS_soln.%s', print_suffix);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
