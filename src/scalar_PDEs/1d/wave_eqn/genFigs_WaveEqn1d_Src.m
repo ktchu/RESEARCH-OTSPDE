@@ -227,7 +227,7 @@ plot(grid_sizes,err_KPY_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
 order_str = sprintf('KPY (OTD-NIDC)\nOrder = %1.1f', order_KPY_OTS);
-text(200,2e-13,order_str);
+text(300,4e-13,order_str);
 
 N_plot = [95 10000];
 loglog(N_plot,exp(log(N_plot)*P_KPY(1)+P_KPY(2)),'k');

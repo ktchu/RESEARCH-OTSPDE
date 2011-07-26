@@ -198,7 +198,7 @@ plot(grid_sizes,err_FE_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
 order_str = sprintf('Forward Euler (OTS-NIDC)\nOrder = %1.1f', order_FE_OTS);
-text(25,1e-5,order_str);
+text(35,1e-5,order_str);
 
 loglog(N_plot,exp(log(N_plot)*P_FE(1)+P_FE(2)),'k');
 hold on;

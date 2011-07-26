@@ -226,8 +226,8 @@ hold on;
 plot(grid_sizes,err_FE_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS-DC)\nOrder = %1.1f', order_FE_OTS);
-text(15,1e-8,order_str);
+order_str = sprintf('Forward Euler (OTS-NIDC)\nOrder = %1.1f', order_FE_OTS);
+text(20,1e-8,order_str);
 
 loglog(N_plot,exp(log(N_plot)*P_FE(1)+P_FE(2)),'k');
 hold on;
@@ -235,7 +235,7 @@ plot(grid_sizes,err_FE, 'rs', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','r');
 order_str = sprintf('Forward Euler\nOrder = %1.1f', order_FE);
-text(100,3e-2,order_str);
+text(40,1e-1,order_str);
 
 loglog(N_plot,exp(log(N_plot)*P_CN(1)+P_CN(2)),'k');
 hold on;
@@ -243,7 +243,7 @@ plot(grid_sizes,err_CN, 'md', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','m');
 order_str = sprintf('Crank-Nicholson\nOrder = %1.1f', order_CN);
-text(150,4e-6,order_str);
+text(150,1e-2,order_str);
 
 axis([10 1000 1e-10 1e0]);
 xlabel('N');
@@ -253,7 +253,7 @@ format_str = sprintf('-d%s', print_format);
 print([fig_dir, '/', filename], format_str);
 
 
-figure(2); clf;
+f = figure(2); clf;
 err_plot = [1e-10 1e0];
 loglog(err_plot, ...
        exp(log(err_plot)*P_comp_time_FE_OTS(1)+P_comp_time_FE_OTS(2)), ...
@@ -262,8 +262,8 @@ hold on;
 loglog(err_FE_OTS, comp_time_FE_OTS, 'bo', ...
        'MarkerSize',14, ...
        'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS-DC)\nSlope = %1.1f', comp_time_exp_FE_OTS);
-text(8e-8,3e-3,order_str);
+order_str = sprintf('Forward Euler (OTS-NIDC)\nSlope = %1.1f', comp_time_exp_FE_OTS);
+text(3e-7,3e-3,order_str);
 
 loglog(err_plot, ...
        exp(log(err_plot)*P_comp_time_FE(1)+P_comp_time_FE(2)), ...
@@ -283,7 +283,9 @@ loglog(err_CN, comp_time_CN, 'md', ...
        'MarkerSize',14, ...
        'MarkerFaceColor','m');
 order_str = sprintf('Crank-Nicholson\nSlope = %1.1f', comp_time_exp_CN);
-text(3e-8,1.5e3,order_str);
+text(4e-8,1.5e3,order_str);
+annotation(f, 'arrow', [0.36 0.45], [0.82 0.82], ...
+           'linewidth', 3, 'headstyle', 'plain');
 
 axis([1e-8 1e0 1e-4 1e4]);
 xlabel('L^\infty Error');

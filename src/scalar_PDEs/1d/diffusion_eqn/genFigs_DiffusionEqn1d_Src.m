@@ -277,7 +277,7 @@ plot(grid_sizes,err_FE_OTS, 'bo', ...
      'MarkerFaceColor','b');
 order_str = sprintf('Forward Euler OTS-NIDC\nOrder = %1.1f', ...
   order_FE_OTS);
-text(20,4.5e-9,order_str);
+text(20,1e-8,order_str);
 
 loglog(N_plot,exp(log(N_plot)*P_FE_OTS_no_corr(1)+P_FE_OTS_no_corr(2)),'k');
 hold on;
@@ -286,7 +286,7 @@ plot(grid_sizes,err_FE_OTS_no_corr, 'g^', ...
      'MarkerFaceColor','g');
 order_str = sprintf('Forward Euler OTS (no correction)\nOrder = %1.1f', ...
   order_FE_OTS_no_corr);
-text(30,3e-2,order_str);
+text(30,6e-2,order_str);
 
 %loglog(N_plot,exp(log(N_plot)*P_FE(1)+P_FE(2)),'k');
 %hold on;

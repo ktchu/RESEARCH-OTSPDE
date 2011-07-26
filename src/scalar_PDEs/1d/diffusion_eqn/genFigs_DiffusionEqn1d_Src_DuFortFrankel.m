@@ -226,7 +226,7 @@ plot(grid_sizes,err_DF_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
 order_str = sprintf('DuFort-Frankel (OTS-NIDC)\nOrder = %1.1f', order_DF_OTS);
-text(20,1e-9,order_str);
+text(20,3e-9,order_str);
 
 loglog(N_plot,exp(log(N_plot)*P_DF(1)+P_DF(2)),'k');
 hold on;
