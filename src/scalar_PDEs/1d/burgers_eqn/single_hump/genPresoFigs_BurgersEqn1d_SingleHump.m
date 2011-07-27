@@ -236,7 +236,7 @@ plot(err_FE_OTS, comp_time_FE_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
 order_str = sprintf('Forward Euler (OTS-NIDC)\nSlope = %1.2f', P_comp_time_FE_OTS(1));
-text(1e-9,2e-2,order_str);
+text(1e-9,1e-2,order_str);
 
 loglog(err_plot,exp(log(err_plot)*P_comp_time_FE(1)+P_comp_time_FE(2)),'k');
 hold on;
@@ -244,14 +244,14 @@ plot(err_FE, comp_time_FE, 'rs', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','r');
 order_str = sprintf('Forward Euler\nSlope = %1.1f', P_comp_time_FE(1));
-text(1e-4,1e2,order_str);
+text(4e-4,1e2,order_str);
 
 axis([err_plot(1) err_plot(2) 1e-4 1e4]);
 xlabel('L^\infty Error');
 ylabel('Compute Time (s)');
 set(gca, 'XTick', 10.^[-10:2:0]);
 set(gca, 'YTick', 10.^[-4:2:4]);
-filename = sprintf('burgers_eqn_1d_error_vs_N_comp_time.%s', print_format);
+filename = sprintf('burgers_eqn_1d_comp_time.%s', print_format);
 format_str = sprintf('-d%s',print_format);
 print([fig_dir, '/', filename], format_str);
 
