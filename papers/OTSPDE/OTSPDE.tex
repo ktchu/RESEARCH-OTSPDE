@@ -6,6 +6,7 @@
 % Resubmission draft: 2009/05/25, Serendipity Research
 % Resubmission draft: 2010/03/25, Serendipity Research
 % Resubmission draft: 2010/05/21, Serendipity Research
+% Resubmission draft: 2011/07/30, Serendipity Research
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %\documentclass[fleqn,12pt,twoside,draft]{article}
@@ -13,6 +14,7 @@
 \usepackage[headings]{espcrc1}
 \usepackage{amsmath}
 \usepackage{graphicx}
+\usepackage{subfig}
 \PassOptionsToPackage{ctagsplt,righttag}{amsmath}
 \usepackage{multirow}
 
@@ -52,13 +54,14 @@
 \begin{document}
 \bibliographystyle{unsrt}
 
-\title{Using Optimal Time Step Selection to Boost the Accuracy of
-       Finite Difference Schemes for Time Dependent PDEs} 
+\title{Boosting the Accuracy of Finite Difference Schemes via Optimal Time
+Step Selection and Non-Iterative Defect Correction}
 
 \author{Kevin T. Chu\address{Serendipity Research, Mountain View, CA 94041, United States}
 }
 
-\runtitle{OTS Selection for FD Approximations of Time Dependent PDEs}
+\runtitle{Optimal Time Step Selection and Non-Iterative Defect Correction for 
+FD Schemes}
 \runauthor{K.T. Chu}
 
 \maketitle
@@ -66,21 +69,20 @@
 \noindent \rule{6.3in}{1pt}
 
 \begin{abstract}
-In this article, we present a simple technique for boosting the order of 
-accuracy of finite difference schemes for time dependent 
-partial differential equations by optimally selecting the time step used
-to advance the numerical solution. The power of the technique is its ability
-to increase the accuracy of existing finite difference schemes with 
-minimal modification to the original numerical algorithm.  Through
-straightforward numerical analysis arguments, we explain the origin of the
-boost in accuracy and estimate the computational cost of the resulting
-numerical method.  We demonstrate the utility of optimal time step (OTS)
-selection on several different types of finite difference schemes
-for a wide array of classical linear and semilinear PDEs in one and more space
-dimensions on both regular and irregular domains.  OTS selection is 
-particularly valuable in light of recent advances in GPGPU computing because
-it significantly increases the usefulness of simple explicit time stepping
-schemes, which are especially well-suited to GPU hardware.
+In this article, we present a unified analysis of the simple technique for
+boosting the order of accuracy of finite difference schemes for time dependent
+partial differential equations by optimally selecting the time step used to
+advance the numerical solution and adding defect correction terms in a
+non-iterative manner.
+The power of the technique is its ability to increase the accuracy of formally
+low-order finite difference schemes without major modification to the basic 
+numerical algorithm.  Through straightforward numerical analysis arguments, we
+explain the origin of the boost in accuracy and estimate the computational cost
+of the resulting numerical method.  We demonstrate the utility of optimal time
+step (OTS) selection combined with non-iterative defect correction (NIDC) on
+several different types of finite difference schemes for a wide array of
+classical linear and semilinear PDEs in one and more space dimensions on both
+regular and irregular domains.
 
 % KEYWORDS
 \ \newline
@@ -96,93 +98,94 @@ High-order numerical methods for partial differential equations (PDEs) will
 always be valuable for increasing the computational efficiency of numerical 
 simulations.  Thus, it is not at all surprising that a great deal of effort in 
 numerical PDEs continues to be focused on the development of high-order 
-numerical 
-schemes~\cite{spotz_2001,bruger_2005,gibou_2005,ito_2005,shukla_2005,heidenreich_2007,shukla_2007}.  
+numerical schemes
+\cite{spotz_2001,bruger_2005,gibou_2005,ito_2005,shukla_2005,heidenreich_2007,shukla_2007}.  
 Typically, high-order accuracy is achieved by constructing
 schemes that are formally high-order accurate.  However, high-order 
 accuracy can also be obtained by using formally low-order schemes in clever 
 ways (\eg Richardson extrapolation and compact finite difference 
-schemes~\cite{spotz_2001}).  When possible, the latter approach can be a 
+schemes \cite{spotz_2001}).  When possible, the latter approach can be a 
 powerful way to boost the accuracy of a numerical method without
 introducing too much additional algorithmic (and programming) complexity.
 
-One important, but relatively uncommon, approach for increasing the accuracy
-of a numerical algorithm is optimization of its parameters
-(\eg $\dx$ and $\dt$).  Often, all combinations of numerical parameters are
-considered equally good.  For some problems, however, optimizing the numerical
-parameters can dramatically increase the accuracy of the numerical solution.
-For example, the well-known unit CFL condition, $\dt = \dx/a$, for the
-first-order upwind forward Euler discretization of the linear advection
-equation completely eliminates the numerical error introduced by the 
-scheme~\cite{leveque_book_2002}.  Another relatively well-known example is the
-boost in the order of accuracy that results from setting the time step to 
-$\dt = \dx^2/6D$ when the 1D diffusion equation is solved using forward Euler 
-time integration with the standard second-order central difference 
-approximation for the Laplacian.  As a final example, Zhao recently showed
-that an appropriate choice of the weight factor $\theta$ in the theta-method
-can significantly decrease the error in finite element solutions to the
-diffusion equation~\cite{zhao_2006}. 
+One increasingly important approach for improving the accuracy of a numerical
+algorithm is optimization of its numerical parameters (\eg $\dx$ and $\dt$).
+For some problems, this optimization can dramatically increase the accuracy of
+the numerical solution. Two well-known examples are: (1) the unit 
+Courant-Friedrichs-Lewy (CFL) condition,
+$\dt = \dx/a$, for the first-order upwind forward Euler discretization of the
+linear advection equation, which completely eliminates the numerical error
+introduced by the scheme \cite{leveque_book_2002} and (2) the boost from
+second- to fourth-order accuracy that results if the time step is set to
+$\dt = \dx^2/6D$ when solving the 1D diffusion equation using forward Euler
+time integration with the standard second-order central difference
+approximation for the Laplacian.
 
-In this article, we present a simple technique for boosting the \emph{order} of 
-accuracy of finite difference schemes for time dependent PDEs by optimally 
-choosing the time step.  This technique is a systematic generalization of
-the ideas underlying some of the examples mentioned above.  Optimal time step
-(OTS) selection is based on the observation that a carefully chosen time step
-can simultaneously eliminate low-order terms in both the spatial and temporal
-the discretization errors.  At its essence, OTS selection combines the 
-powerful but uncommon approach of optimally choosing numerical parameters 
-with the well-known approach of using knowledge of the structure of the
-PDE to reduce numerical error.  The end result is a strategy for boosting
-the order of accuracy of algorithmically simple and computationally low-cost
-numerical schemes.
+In this article, we present a unified analysis of the simple technique for
+boosting the \emph{order} of accuracy of finite difference schemes for time
+dependent PDEs by optimally choosing the time step and, when necessary, adding
+defect correction terms in a \emph{non-iterative} manner.  This technique is a
+systematic generalization of the ideas underlying the previously mentioned
+examples and specific examples that are scattered throughout the literature.
+Optimal time step (OTS) selection is based on the observation that a carefully
+chosen time step can \emph{simultaneously} eliminate low-order terms in both
+the spatial and temporal the discretization errors.  At its essence, OTS
+selection combines the powerful idea of optimally choosing numerical parameters
+with the approach of using knowledge of the structure of the PDE to reduce
+numerical error.  The end result is a strategy for boosting the order of
+accuracy of algorithmically simple and computationally low-cost numerical
+schemes.
 
 While OTS selection alone is sufficient to allow a formally low-order method to
 deliver high-order accuracy for some problems, defect correction terms are
 generally required to eliminate residual terms in the leading-order truncation
 error.  However, unlike traditional defect correction 
-methods~\cite{pereyra_1968,stetter_1978,gustafsson_2002,kress_2002,kress_2006}, 
+methods \cite{pereyra_1968,stetter_1978,gustafsson_2002,kress_2002,kress_2006}, 
 using OTS selection eliminates the need to incorporate correction terms that
 involve derivatives of higher-order than those that appear in the original PDE.
-Another significant feature of OTS selection with defect correction (OTS-DC)
+Another significant feature of OTS selection with defect correction
 is that the defect terms are incorporated in a \emph{non-iterative} fashion.
 In contrast, traditional defect/deferred correction approaches typically
 require several refinement iterations at each time step to boost the order of
-accuracy of the numerical solution.  OTS-DC also differs from the method of
-modified equations~\cite{griffiths_1986} for eliminating higher-order
+accuracy of the numerical solution.  OTS with non-iterative defect correction
+(OTS-NIDC) also differs from the method of modified
+equations \cite{griffiths_1986} for eliminating higher-order
 corrections to the truncation error because it uses an optimal time
 step, not explicit inclusion of correction terms, to regularize the
 singularly perturbed modified equations - the correction terms that remain
-when using OTS-DC are all regular perturbations to the original equation.
+when using OTS-NIDC are all \emph{regular} perturbations to the original
+equation.
 
-As a technique for enhancing numerical methods, OTS selection has several
-desirable features.  Like any technique that leads to high-order methods,
-OTS selection produces schemes that greatly reduce the computational cost
-required to obtain a numerical solution of a desired accuracy.  However, its
-real power comes from the fact that it achieves high-order accuracy while
-being based solely on very simple, formally low-order finite difference
-schemes \emph{without} requiring special algorithmic steps.  In other words,
-OTS selection allows us to extract as much accuracy as possible from an
-existing numerical scheme with minimal additional work.  For instance, we will
-see how OTS selection makes it possible to achieve 4th-order accuracy for the
-diffusion equation in any number of space dimensions using only a second-order
-stencil for the Laplacian and explicit time integration.  Moreover, high-order
-accuracy is not restricted to problems on simple, rectangular domains;
-irregular domains are straightforward to handle by appropriately setting the
-values in ghost cells~\cite{gibou_2005,ito_2005,fedkiw_1999,osher_fedkiw_book}.  
-OTS selection is even beneficial when using finite difference schemes to solve
+As a technique for enhancing numerical methods, OTS-NIDC has several desirable
+features.  Like any technique that leads to high-order methods, OTS-NIDC
+produces schemes that greatly reduce the computational cost required to obtain
+a numerical solution of a desired accuracy.  However, its real power comes
+from the fact that it achieves high-order accuracy while being based solely on
+very simple, formally low-order finite difference schemes \emph{without}
+requiring special algorithmic steps.  In other words, OTS-NIDC allows us to
+extract as much accuracy as possible from simple numerical schemes with
+minimal additional work.  For instance, we will see how OTS-NIDC makes it
+possible to achieve 4th-order accuracy for the diffusion equation in any
+number of space dimensions using only a second-order stencil for the Laplacian
+and explicit time integration.  Moreover, high-order accuracy is not
+restricted to problems on simple, rectangular domains; irregular domains are
+straightforward to handle by appropriately setting the values in ghost
+cells \cite{gibou_2005,ito_2005,fedkiw_1999,osher_fedkiw_book}.  
+OTS-NIDC is even beneficial when using finite difference schemes to solve
 some nonlinear PDEs.  
 
-This article is organized as follows.  In the remainder of this section,
-we compare OTS selection to a few related numerical techniques.
-In Section~\ref{sec:OTS}, we present the theoretical foundations of 
-OTS selection and show how it boosts the order of accuracy for formally
+This article is organized as follows.
+In Section~\ref{sec:theoretical_comparisons}, we compare OTS-NIDC to 
+related numerical techniques.
+In Section~\ref{sec:OTS-NIDC}, we present the theoretical foundations of 
+OTS-NIDC and show how it boosts the order of accuracy for formally
 low-order numerical schemes.  
 In Section~\ref{sec:applications_1d}, we demonstrate the utility of 
-OTS selection to problems in one space dimension by applying it to finite 
+OTS-NIDC to problems in one space dimension by applying it to finite 
 difference schemes for several classical linear and nonlinear PDEs.  
 In Section~\ref{sec:applications_multidim}, we show that 
-OTS selection is useful for problems in multiple space dimensions by applying
-it the 2D linear advection equation and the 2D diffusion equation.  To
+OTS-NIDC is useful for problems in multiple space dimensions by applying
+it to the 2D linear advection equation and the 2D diffusion equation.  To
 illustrate the ease with which high-order accuracy can be achieved for
 problems on arbitrary domains, the 2D diffusion equation is solved on both
 regular and irregular domains.  For each PDE in
@@ -191,31 +194,33 @@ provide the numerical analysis required to calculate the optimal time step
 size, the defect correction terms, and the order of accuracy.  Note that in
 order to emphasize the method, we have chosen to apply it to relatively simple
 problems rather than use it to tackle ``real-life'' applications.  The method,
-however, is not restricted to these simple examples.  Finally, in
-Section~\ref{sec:summary}, we summarize the paper with some concluding
-remarks.
+however, is not restricted to these simple examples.  Finally, 
+Section~\ref{sec:conclusions} offers some concluding remarks.
 
+
+\section{Theoretical Comparisons with Related Numerical Techniques
+         \label{sec:theoretical_comparisons}}
 
 \subsection{Comparison with Defect/Deferred Correction Methods}
 Defect/deferred correction is a well-known strategy for boosting the order of 
 accuracy of finite difference schemes for time dependent PDEs.  It usually 
 takes one of two forms: 
 (1) iterative refinement of the numerical
-solution~\cite{pereyra_1968,stetter_1978,gustafsson_2002,kress_2002,kress_2006}
+solution \cite{pereyra_1968,stetter_1978,gustafsson_2002,kress_2002,kress_2006}
 or 
 (2) derivation of high-order compact schemes for the spatial derivative 
 operator treating time derivatives as source 
-terms~\cite{spotz_2001,ito_2005,heidenreich_2007}. 
+terms \cite{spotz_2001,ito_2005,heidenreich_2007}. 
 
 For iterated defect/deferred correction, the numerical solution at each 
 time step is computed by iteratively adding correction terms that are 
 calculated from lower accuracy iterates.  When used to improve the 
 temporal order of accuracy, the iterative approach helps to ensure 
-stability of the time integration scheme~\cite{kress_2006}.  Although there 
+stability of the time integration scheme \cite{kress_2006}.  Although there 
 are instances where iterative defect correction has been used to eliminate 
-both spatial and temporal errors~\cite{gustafsson_2002}, it is usually used to 
-improve only one of these errors~\cite{pereyra_1968,kress_2002,kress_2006}.
-Unlike iterated defect correction, OTS-DC requires no iteration during each
+both spatial and temporal errors \cite{gustafsson_2002}, it is usually used to 
+improve only one of these errors \cite{pereyra_1968,kress_2002,kress_2006}.
+Unlike iterated defect correction, OTS-NIDC requires no iteration during each
 time step because it computes correction terms using only the solution at the
 previous time step(s) (as opposed to requiring an estimate of the solution at
 the current time).
@@ -224,7 +229,7 @@ High-order compact schemes focus on eliminating spatial discretization errors
 when deriving the semi-discrete equations.  When applied to time dependent 
 PDEs, a high-order compact scheme for the spatial derivative operator is 
 derived treating time derivatives as source 
-terms~\cite{spotz_2001,ito_2005,heidenreich_2007}.  
+terms \cite{spotz_2001,ito_2005,heidenreich_2007}.  
 After deriving the high-order spatial discretization, any time differencing 
 scheme may be applied to discretize the time derivatives.  While this 
 approach is very general, it really only provides a mechanism for reducing 
@@ -234,27 +239,28 @@ high-order compact schemes for the spatial derivative operators involve spatial
 derivatives of the source term, the resulting schemes are always effectively 
 implicit (even if all of the spatial derivative terms are treated explicitly).  
 
-OTS-DC has several advantages over both of these defect correction 
-techniques.  First, OTS-DC is generally more computationally efficient than 
+OTS-NIDC has several advantages over both of these defect correction 
+techniques.  First, OTS-NIDC is generally more computationally efficient than 
 both iterated defect correction and the high-order compact scheme approach
 because it requires less memory and, for many problems, admits simple 
-explicit time integration schemes.  Second, OTS-DC inherently controls both 
+explicit time integration schemes.  Second, OTS-NIDC inherently controls both 
 spatial and temporal numerical errors at the same time.  Finally, taking
 advantage of relationships between spatial derivatives, temporal derivatives
-and source terms, OTS-DC avoids the need to explicitly incorporate finite
+and source terms, OTS-NIDC avoids the need to explicitly incorporate finite
 differences of high-order derivatives of intermediate solutions in order to
 eliminate discretization errors. 
-Compared with iterated defect correction, OTS-DC makes it easier to avoid
+Compared with iterated defect correction, OTS-NIDC makes it easier to avoid
 instabilities that arise from the presence of finite difference discretizations
-of high-order temporal derivatives by eliminating the most problematic
-correction terms.  Comparing to the high-order compact scheme approach, the
-optimization of numerical parameters in OTS-DC means that mixed partial
-derivatives do not need to appear in the fully discrete equations.
+of high-order temporal derivatives by automatically eliminating the most
+problematic correction terms.  Comparing to the high-order compact scheme
+approach, the use of an optimal time step in OTS-NIDC means that mixed 
+spatio-temporal partial derivatives do not need to appear in the fully
+discrete equations.
 
 
 \subsection{Comparison with the Modified Equation Method}
 Both defect and deferred correction can be viewed as special cases of the
-method of modified equations~\cite{griffiths_1986}.  When using any modified
+method of modified equations \cite{griffiths_1986}.  When using any modified
 equation method, the basic approach is to derive a modified version of the 
 original PDE through the introduction of the leading-order terms of the
 discretization error into the PDE.  Unfortunately, the modified PDE is a
@@ -266,44 +272,46 @@ based on the modified equations method.
 
 Whereas deferred correction methods deal with the singular perturbation by
 using an iterative procedure to avoid numerical instabilities, the traditional
-method of modified equations~\cite{griffiths_1986} handles the
+method of modified equations \cite{griffiths_1986} handles the
 singularity by ``pushing'' the singularity to a higher-order term in the
 discretization error.  The basic procedure involves substituting derivatives
 that appear in the singular term with expressions obtained by taking
 derivatives of the original PDE.  This procedure yields a new modified
-equation where the new singular term is of sufficiently high-order in the
-discretization parameter that it can be neglected in the construction of the
-numerical scheme.
+equation where high-order derivatives of the solution are replaced by
+derivatives of source terms and the new singular term is of sufficiently
+high-order in the discretization parameter that it can be neglected in the
+construction of the numerical scheme.
 
-Like defect/deferred correction, OTS selection (even without defect correction)
-falls within the general framework of the method of modified equations.
-In OTS selection, regularization of the singular perturbation in the modified
-equations is achieved by choosing the time step so that the spatial and
-temporal singular perturbation terms exactly cancel each other.  More
-specifically, by constraining the relationship between the time step and
-grid spacing, the modified equation becomes a regular perturbation to the
-original PDE.  In the special case when OTS selection does not require
-defect correction, the modified equation is actually exactly the same as the
-original equation -- no regular perturbation terms remain after the singular
-perturbation terms have been eliminated.
+While OTS-NIDC, like defect/deferred correction, falls within the general
+framework of the method of modified equations, it is an important special
+case because regularization of the singular perturbation in the modified
+equations is \emph{automatic}.  Regularization results from selecting the time
+step so that the spatial and temporal singular perturbation terms exactly
+cancel each other rather than through an iterative refinement procedure.
+By constraining the relationship between the time step and grid spacing, the
+modified equation becomes a regular perturbation to the original PDE.  In the
+special case when OTS-NIDC does not require defect correction, the modified
+equation is actually exactly the same as the original equation -- no regular
+perturbation terms remain after the singular perturbation terms have been
+eliminated.
 
-There are several advantage of OTS selection over traditional modified
+There are several advantages of OTS-NIDC over traditional modified
 equation methods.  First, because no finite difference approximations of
-higher-order derivatives are required, numerical schemes based on OTS
-selection do not require additional boundary conditions.  Second, derivation
-of the optimal time step and correction terms for OTS-DC requires a comparable
-amount of analysis as the traditional modified equation method.  In all cases,
+higher-order derivatives are required, numerical schemes based on OTS-NIDC
+do not require additional boundary conditions.  Second, derivation
+of the optimal time step and correction terms for OTS-NIDC requires a comparable
+amount of analysis as the traditional modified equation method.  In both cases,
 we need explicit knowledge of the leading-order terms in the discretization
 error.  Finally, because the leading-order terms in the discretization error
-are eliminated implicitly rather than explicitly, the computational
-performance of OTS-DC is typically superior to the performance of traditional
-modified equation methods.
+are eliminated implicitly rather than explicitly as additional terms in the 
+numerical scheme, the computational performance of OTS-NIDC is often
+superior to the performance of traditional modified equation methods.
 
 
 \subsection{Comparison with Adaptive Time Stepping Methods}
-OTS selection is distinct and separate from traditional adaptive time stepping 
-techniques~\cite{iserles_book,shampine_2005} that are used in the 
-context of the method of lines~\cite{iserles_book,gko_book}.  
+OTS-NIDC is distinct and separate from traditional adaptive time stepping 
+techniques \cite{iserles_book,shampine_2005} that are used in the 
+context of the method of lines \cite{iserles_book,gko_book}.  
 While both methods reduce numerical error by controlling the time step, the 
 numerical errors they control are fundamentally different.  Adaptive time 
 stepping can only be used to reduce temporal discretization errors because it 
@@ -319,18 +327,18 @@ uses a \emph{fixed} time step which makes it significantly less
 computationally complex than adaptive time stepping methods.
 
 
-\section{\label{sec:OTS} Theoretical Foundations of OTS Selection}
-OTS selection is not by itself a method for constructing finite difference 
-schemes.  Rather, it is a way to enhance to the performance of existing 
-finite difference schemes by carefully choosing the time step to eliminate
-leading-order terms in the discretization error.  The two key ideas
-underlying OTS selection are 
+\section{\label{sec:OTS-NIDC} Theoretical Foundations of OTS-NIDC}
+Technically, OTS-NIDC is not by itself a method for constructing finite
+difference schemes.  Rather, it is a way to enhance to the performance of
+existing finite difference schemes by carefully choosing the time step to
+eliminate leading-order terms in the discretization error.  The two key ideas
+underlying OTS-NIDC are 
 (1) a judicious choice of time step can be used to eliminate the leading-order 
 (and possibly higher-order) terms in the error
 and
 (2) the PDE provides valuable insight into the relationships between terms
 in the discretization error. 
-In this section, we present and analyze the technique of OTS selection for
+In this section, we present and analyze the technique of OTS-NIDC for
 finite difference schemes constructed to solve scalar evolution equations of
 the form 
 \beq
@@ -361,34 +369,30 @@ finite difference scheme only complicates the analysis required to calculate
 the optimal time step.  
 
 To compute the optimal time step, we first analyze the discretization errors 
-(both spatial and temporal) for the finite difference approximation, 
-explicitly keeping track of the leading-order terms.  In contrast to 
-conventional error analysis, we do not sweep all of the errors under big-$O$
-notation.  Rather, we take advantage of the fact that derivation of the 
-leading-order terms in the error is straightforward for finite difference
-schemes through the use of Taylor series expansions.  Because each term in 
-the error is proportional to a partial derivative of the solution, we can 
-use the PDE to relate the leading-order terms to each other.  
-For many finite difference schemes, this careful analysis yields a direct 
-relationship between the leading-order spatial and temporal errors that allows 
-them to be combined as a single term of the form:
+for the finite difference approximation, explicitly keeping track of the
+leading-order terms.  Because each term in the error is proportional to a
+partial derivative of the solution, we can use the PDE to relate the
+leading-order terms to each other.  For many finite difference schemes, this
+careful analysis yields a direct relationship between the leading-order spatial
+and temporal errors that allows them to be combined as a single term of the
+form:
 \beq
   (L u) P(\dx, \dt) ,
   \label{eq:leading_order_error_model_PDE_general}
 \eeq
 where $L$ is a differential operator and $P$ is a simple function of the 
-numerical parameters $\dx$ and $\dt$.  By selecting the numerical parameters 
+numerical parameters $\dx$ and $\dt$.  By selecting the time step
 so that $P = 0$, we can completely eliminate the leading-order term in the 
-discretization error.  Because time dependent PDEs are often solved by 
-stepping in time, it is natural to choose the time step to be a function of 
-the grid spacing.  The time step selected in this way is the
+discretization error.  The time step selected in this way is the
 \emph{optimal time step} for the finite difference scheme.  Using the optimal
-time step for time stepping yields a numerical solution with an order 
-of accuracy that is \emph{higher} than the formal order of the original finite 
-difference scheme.
+time step for time stepping yields a numerical solution with an
+\emph{effective} order of accuracy that is higher than the formal order of the
+original finite difference scheme.
 
 An important class of finite difference schemes for time dependent PDEs are 
-those based on the method of lines.   When the method of lines approach is 
+those based on the method of lines.   When the method of 
+lines \cite{iserles_book,gko_book,cash_1996,psihoyios_2007}.  
+approach is 
 used for (\ref{eq:model_PDE}), $P$ often takes a particularly simple 
 form:
 \beq
@@ -404,9 +408,6 @@ root of $P$ is discarded because it is not numerically meaningful.}
   \dto = \left(\alpha/\beta \right)^{1/s} \dx^{r/s}.
   \label{eq:optimal_time_step}
 \eeq
-Notice that the optimal time step has a similar functional dependence on the 
-grid spacing as a time step constraint required for stability of an explicit
-time-stepping scheme.
 
 An important assumption in the above analysis is that $\alpha$ and $\beta$ 
 have the same sign.  If this condition is not satisfied, (\eg finite
@@ -415,10 +416,9 @@ difference stencil for the Laplacian and backward Euler time integration),
 then OTS selection is not applicable because none of the zeros of 
 (\ref{eq:leading_order_error_model_PDE_MOL}) is positive.  Fortunately, 
 in this situation, it is usually possible to find a closely related finite 
-difference scheme which \emph{does} have a positive optimal time step.
+difference scheme that has a positive optimal time step.
 
-\subsubsection*{\label{sec:error_analysis} 
-            Error Analysis}
+\subsubsection*{Error Analysis \label{sec:error_analysis}}
 The form of the local error in 
 (\ref{eq:leading_order_error_model_PDE_MOL}) follows from the fact 
 that the method of lines first approximates the PDE as a system of ODEs in 
@@ -455,7 +455,7 @@ leading-order terms in the error have been eliminated.
 From the local error, we can compute the global error of the numerical 
 solution over extended intervals of time by using the heuristic 
 argument that the global error is equal to the local error divided by 
-$\dt$~\cite{gko_book}:
+$\dt$ \cite{gko_book}:
 \beq
 e = O(\dx^p) + O(\dt^q).
 \label{eq:global_error_ots}
@@ -467,9 +467,8 @@ It is important to emphasize that $\dx$ and $\dt$ are \emph{not} independent
 in~(\ref{eq:global_error_ots}) because the time step must be set to $\dto$ 
 in order to derive the error estimate.  In other words, there is really only 
 one parameter, $\dx$, that controls the numerical accuracy of the finite 
-difference scheme (see Appendix~\ref{app:formal_vs_practical_accuracy} for 
-further discussion about this important point).  Since $\dto = O(\dx^{r/s})$, 
-the global error (\ref{eq:global_error_ots}) reduces to
+difference scheme.  Since $\dto = O(\dx^{r/s})$, the global error
+(\ref{eq:global_error_ots}) reduces to
 \beq
 e = O \left( \dx^{\min(p,rq/s)} \right).
 \label{eq:global_error_ots_simplified}
@@ -479,21 +478,20 @@ e = O \left( \dx^{\min(p,rq/s)} \right).
 \subsubsection*{Stability Considerations}
 We have not yet considered the issue of numerical stability of finite
 difference schemes when the time step is set to $\dto$.  For explicit time 
-integration schemes, OTS selection is ineffective when the optimal time step 
+integration schemes, OTS-NIDC is ineffective when the optimal time step 
 is greater than the smallest stable time step.  In this situation, it is 
 necessary to replace the finite difference approximation of the PDE.  
 For example, if the diffusion equation is solved using a 
 finite difference scheme based on forward Euler time integration and a 
 discretization of the Laplacian with an isotropic leading-order truncation 
 error (see Section~\ref{sec:diffusion_eqn_2d}), the optimal time step becomes 
-unstable when the dimension of space is greater than 3.  To make OTS selection 
+unstable when the dimension of space is greater than 3.  To make OTS-NIDC 
 useful for diffusion problems in 4 and more space dimensions, we can switch 
 to the DuFort-Frankel scheme, which is explicit and unconditionally 
-stable~\cite{gko_book}.
+stable \cite{gko_book}.
 
 
-\subsubsection*{\label{sec:computational_performance} 
-                Computational Performance}
+\subsubsection*{Computational Performance \label{sec:computational_performance}}
 For many problems, the optimal time step is on the order of the maximum 
 time step allowed by the stability constraint for an explicit method.  
 As a result, using the optimal time step to advance the finite
@@ -506,12 +504,13 @@ fourth-order scheme when $\dt$ is set equal to the optimal time step
 (discussed further in Sections~\ref{sec:diffusion_eqn_1d} and
 \ref{sec:diffusion_eqn_2d}).  
 As Table~\ref{tab:comp_perf_vs_err} shows, this boost in accuracy leads to a
-scheme that is computationally cheaper than traditional implicit schemes that
-use the same low-order finite difference stencils.  The performance gain for 
-problems in higher spatial dimensions is even more impressive.  As we can see 
-in Table~\ref{tab:comp_perf_vs_dim}, the gap between the performance of a
-simple forward Euler scheme with the optimal time step and the Crank-Nicholson
-method grows with the spatial dimension of the problem.  
+scheme that is asymptotically computationally cheaper than traditional implicit
+schemes that use the same low-order finite difference stencils.  The
+performance gain for problems in higher spatial dimensions is even more
+impressive.  As we can see in Table~\ref{tab:comp_perf_vs_dim}, the gap
+between the performance of a simple forward Euler scheme with the optimal time
+step and the Crank-Nicholson method grows with the spatial dimension of the
+problem.  
 
 \begin{table}[tb]
 \caption{
@@ -547,7 +546,7 @@ matrix inversion algorithm.
                    & $O\left( e^{1/2} \right)$ 
                    & $O\left( e^{-1/2} \right)$ 
                    & $O\left( e^{-1} \right)$ \\
-  Forward Euler with OTS-DC & $O\left( e^{1/4} \right)$ 
+  Forward Euler with OTS-NIDC & $O\left( e^{1/4} \right)$ 
                    & $O\left( e^{1/2} \right)$ 
                    & $O\left( e^{-1/4} \right)$ 
                    & $O\left( e^{-3/4} \right)$ \\ 
@@ -557,22 +556,22 @@ matrix inversion algorithm.
 
 \begin{table}[tb]
 \caption{
-Computational cost of the forward Euler scheme with OTS-DC and
+Computational cost of the forward Euler scheme with OTS-NIDC and
 the Crank-Nicholson method for solving the diffusion equation as a function 
 of the global numerical error $e$.
 Note that the computation time for the Crank-Nicholson method assumes an 
 $O(N) = O \left( 1/\dx^d \right)$ matrix inversion algorithm. 
 A comparison of computational costs in higher spatial dimensions continues 
-along the same trends but requires replacement of the forward Euler time 
-integration with an alternative for which the optimal time step is stable 
-(\eg the DuFort-Frankel scheme). 
+along the same trends but requires replacement of the conventional forward Euler
+time integration scheme with an alternative for which the optimal time step is
+stable (\eg the DuFort-Frankel scheme). 
 }
 \label{tab:comp_perf_vs_dim}
 \renewcommand{\arraystretch}{1.5}
 \centering
 \begin{tabular}{ccccc}
   \hline
-  & \multicolumn{2}{c}{\bf Forward Euler with OTS-DC} 
+  & \multicolumn{2}{c}{\bf Forward Euler with OTS-NIDC} 
   & \multicolumn{2}{c}{\bf Crank-Nicholson} \\
   \cline{2-3} \cline{4-5} 
     {\bf Dimensions} & {\bf Memory} & {\bf Compute Time} 
@@ -595,15 +594,15 @@ integration with an alternative for which the optimal time step is stable
 \end{table}
 
 
-\subsection{\label{sec:ots_dc_general_1d_pdes} 
-            OTS Selection for General PDEs in One Space Dimension} 
+\subsection{\label{sec:ots_nidc_general_1d_pdes} 
+            OTS-NIDC for General PDEs in One Space Dimension} 
 In the previous section, we analyzed optimal time step selection in the 
 context of a simple model PDE in one space dimension.  For more general PDEs, 
 OTS selection continues to be useful, but it needs to be augmented with 
 defect correction (incorporated in a non-iterative manner) to achieve 
 the same improvement in the order of accuracy.  In this section, we discuss 
-OTS selection with defect correction (OTS-DC) in the context of general
-constant coefficient, linear PDEs and semilinear PDEs. 
+OTS-NIDC in the context of general constant coefficient, linear PDEs and
+semilinear PDEs. 
 
 
 \subsubsection*{\label{sec:ots_linear_pde} 
@@ -658,7 +657,7 @@ of accuracy to fall below the estimate given by
 
 
 \subsubsection*{Semilinear PDEs}
-OTS-DC can also be applied to semilinear PDEs of the form
+OTS-NIDC can also be applied to semilinear PDEs of the form
 \beq
   \frac{\partial u}{\partial t} = A \frac{\partial^n u}{\partial x^n}
   + F \left( \frac{\partial^{n-1} u}{\partial x^{n-1}},
@@ -702,27 +701,27 @@ In general, high-order discretizations of boundary conditions are required
 to ensure that errors introduced at the domain boundary do not pollute 
 the numerical solution in the domain interior.  For Dirichlet boundaries, 
 it is sufficient to impose boundary conditions by using boundary values 
-that have the same order of accuracy as the solution.  More effort is 
+that have the same order of accuracy as the numerical scheme.  More effort is 
 required to ensure that Neumann boundary conditions do not reduce the order 
 of accuracy of the solution.  In general, Neumann boundary conditions require 
 that the accuracy of ghost cells slightly exceeds the desired order of 
 accuracy for the solution.  A detailed discussion of methods for imposing 
 boundary conditions is beyond the scope of this article.  We refer interested 
-readers to the thorough analysis presented in~\cite{gko_book}.  To avoid 
+readers to the thorough analysis presented in \cite{gko_book}.  To avoid 
 complicating the discussion in Sections~\ref{sec:applications_1d} 
 and~\ref{sec:applications_multidim}, Neumann boundary conditions for
 all examples are imposed by taking advantage of knowledge of the analytical 
 solution.
 
 
-\subsection{\label{sec:ots_dc_higher_spatial_dims}
-            OTS-DC Selection in Multiple Space Dimensions}
-OTS-DC is applicable to PDEs in any number of space dimensions.  While 
+\subsection{\label{sec:ots_nidc_higher_spatial_dims}
+            OTS-NIDC Selection in Multiple Space Dimensions}
+OTS-NIDC is applicable to PDEs in any number of space dimensions.  While 
 problems in higher dimensions generally require a more careful choice of the 
 finite difference stencil used to approximate spatial derivatives, there are 
-no fundamental barriers that prevent the use of OTS-DC.  Moreover, by using 
+no fundamental barriers that prevent the use of OTS-NIDC.  Moreover, by using 
 a `ghost cell' or `ghost value' method for imposing boundary 
-conditions~\cite{gibou_2005,ito_2005,fedkiw_1999,osher_fedkiw_book},
+conditions \cite{gibou_2005,ito_2005,fedkiw_1999,osher_fedkiw_book},
 optimal time step selection can even be directly applied to problems on 
 irregular domains.  
 
@@ -737,16 +736,16 @@ of accuracy.
 
 \section{\label{sec:applications_1d} 
          Application to PDEs in One Space Dimension}
-Because there are no geometry or anisotropy considerations, OTS-DC is very 
+Because there are no geometry or anisotropy considerations, OTS-NIDC is very 
 useful for boosting the accuracy of many finite difference schemes in one 
 spatial dimension.  In this section, we demonstrate its utility in designing 
 finite difference schemes that solve several classical linear and semilinear 
-PDEs.  To emphasize the importance of including numerical parameter 
+PDEs.  To emphasize the value of including numerical parameter 
 optimization as part of the design of any finite difference scheme, we 
-include applications of OTS-DC to several different types of finite 
+include applications of OTS-NIDC to several different types of finite 
 difference schemes.  The examples in this section were selected because they 
 have analytical solutions that are useful to compare numerical solutions 
-against.  However, the utility of OTS-DC is by no means limited to these
+against.  However, the utility of OTS-NIDC is by no means limited to these
 simple PDEs.
 
 
@@ -758,10 +757,10 @@ in one space dimension.
 \subsubsection{Linear Advection Equation}
 When the linear advection equation, $u_t + A u_x = 0$,
 is solved using a first-order upwind scheme with forward Euler time
-integration, it is well-known that choosing $\Delta t = \Delta x / |A|$ 
+integration, it is well-known that choosing $\dt = \dx / |A|$ 
 completely eliminates all numerical error in the solution (except for 
 errors in the initial conditions).  This result is known as the unit CFL 
-condition~\cite{leveque_book_2002} and is usually proved by examining how 
+condition \cite{leveque_book_2002} and is usually proved by examining how 
 characteristic lines of the advection equation pass through grid points.  
 Interestingly, the same optimal choice of time step arises by applying OTS 
 selection.  
@@ -773,35 +772,12 @@ first-order upwind, forward Euler scheme:
   - A \dt \left( \frac{u^{n}_j - u^{n}_{j-1}}{\dx} \right),
   \label{eq:advection_eqn_1d_FD_scheme}
 \eeq
-where we have taken $A$ to be positive for convenience.  In general, we only 
-need to keep track of the leading-order terms in the discretization error.  
-However, for the advection equation, it is valuable to retain all of them.  
-Using Taylor series expansions of the true solution of the PDE, we find that 
-\bea
-  \tu^{n+1}_j &=& \tu^{n}_j 
-  + \sum_{k=1}^\infty \frac{\dt^k}{k!} 
-       \frac{\partial^k \tu^n}{\pt^k} 
-  = \tu^{n}_j + \sum_{k=1}^\infty \frac{\left( -A \dt \right)^k}{k!} 
-       \frac{\partial^k \tu^n}{\px^k},
-  \label{eq:advection_eqn_1d_time_err} 
-  \\
-  \frac{\tu^{n}_j - \tu^{n}_{j-1}}{\dx} &=& 
-  \frac{\partial \tu^n}{\px} 
-  - \frac{1}{\dx} \sum_{k=2}^\infty \frac{\left( -\dx \right)^k}{k!} 
-       \frac{\partial^k \tu^n}{\px^k}.
-  \label{eq:advection_eqn_1d_space_err}
-\eea
-where $\tu$ denotes the true solution of the PDE, all derivatives are 
-evaluated at $x_j$, and we have used the PDE to replace all of the time 
-derivatives with spatial derivatives in (\ref{eq:advection_eqn_1d_time_err}).
-For convenience, we will continue to suppress the subscripts on spatial
-derivatives throughout the article; the location where they should be 
-evaluated will be apparent from the context.
-
-Combining~(\ref{eq:advection_eqn_1d_time_err}) 
-and~(\ref{eq:advection_eqn_1d_space_err}) with the finite difference 
-scheme~(\ref{eq:advection_eqn_1d_FD_scheme}) yields the evolution
-equation for the error $e \equiv u - \tu$:
+where we have taken $A$ to be positive for convenience.  When applying OTS 
+selection, we generally only need to keep track of the leading-order terms in
+the discretization error.  However, for the advection equation, it is valuable
+to retain all of them.  Using Taylor series expansions of the true solution of
+the PDE, it is straightforward to show that the evolution equation for the error
+$e \equiv u - \tu$ is
 \beq
   e^{n+1}_j = e^{n}_j 
     - A \dt \left( \frac{e^{n}_j - e^{n}_{j-1}}{\dx} \right) 
@@ -810,19 +786,24 @@ equation for the error $e \equiv u - \tu$:
         \left( \dx^{k-1} - \left( A \dt \right)^{k-1} \right).
   \label{eq:advection_eqn_1d_err_eqn}
 \eeq
-Therefore, choosing the time step to eliminate the leading-order term 
-of the discretization error leads to the unit CFL condition and 
-\emph{complete elimination} of the local truncation error at each time step.
-It is interesting to note that OTS selection applied to the Lax-Wendroff 
-scheme~\cite{leveque_book_2002,leveque_book_1992} yields the same optimal 
-time step and total elimination of the truncation error.
+where $\tu$ denotes the true solution of the PDE, all derivatives are 
+evaluated at $(t_n, x_j)$, and we have used the PDE to replace all of time 
+derivatives with spatial derivatives.
+
+From (\ref{eq:advection_eqn_1d_err_eqn}), we see that choosing the
+time step to eliminate the leading-order term of the discretization error
+leads to the unit CFL condition and \emph{complete elimination} of the local
+truncation error at each time step.  It is interesting to note that OTS
+selection applied to the Lax-Wendroff 
+scheme \cite{leveque_book_2002,leveque_book_1992} yields the same optimal 
+time step and the same total elimination of the truncation error.
 
 
 \subsection{Second-Order Wave Equation\label{sec:wave_eqn_1d}}
 Numerical methods for the wave equation $u_{tt} - c^2 u_{xx} = f$ are typically 
 derived by transforming the second-order equation into an equivalent
 first-order system of equations.  However, as Kreiss, Petersson, and Ystr\"om 
-showed in~\cite{kreiss2002}, direct discretization of the second-order wave 
+showed in \cite{kreiss2002}, direct discretization of the second-order wave 
 equation is a viable option and leads to the following finite difference 
 scheme that is second-order accurate in both space and time:
 \bea
@@ -831,23 +812,14 @@ scheme that is second-order accurate in both space and time:
   + f.
   \label{eq:wave_eqn_KPY}
 \eea
-The stability constraint for this scheme of the form $\dt = K \dx$.
+The stability constraint for this scheme of the form $\dt = K \dx$, where 
+$K$ is a constant.
 
 To compute the optimal time step and correction terms for this scheme, we
 begin by deriving the truncation error for the scheme.  Employing Taylor 
-series expansions, it is straightforward to show that the true solution 
-satisfies
-\bea
-  \frac{\tu^{n+1}_i - 2 \tu^n_i + \tu^{n-1}_i}{\dt^2}
-    - \frac{\dt^2}{12} \frac{\partial^4 \tu}{\pt^4}
-  &=& c^2 \left( \frac{\tu^{n}_{i+1} - 2 \tu^n_i + \tu^n_{i-1}}{\dx^2}
-  -\frac{\dx^2}{12} \frac{\partial^4 \tu}{\px^4} \right) + f
-  \nonumber \\
-  &+& O(\dt^4) + O(\dx^4) 
-\eea
-Combining this result with the observation that
-$\tu_{tttt} = c^4 \tu_{xxxx} + c^2 f_{xx} + f_{tt}$ and rearranging a bit, 
-we find that the error equation for (\ref{eq:wave_eqn_KPY}) is given by
+series expansions and the observation that the true solution satisfies
+$u_{tttt} = c^4 u_{xxxx} + c^2 f_{xx} + f_{tt}$, we find that the error
+equation for (\ref{eq:wave_eqn_KPY}) is given by
 \bea
   e^{n+1}_i &=& 2 e^n_i - e^{n-1}_i
   + \dt^2 c^2 \left( \frac{e^{n}_{i+1} - 2 e^n_i + e^n_{i-1}}{\dx^2} \right)
@@ -871,13 +843,13 @@ unit CFL condition.  However, unlike the schemes for the linear advection
 equation, the unit CFL condition for the KPY scheme eliminates only the 
 leading-order term in the truncation error.  Figure~\ref{fig:wave_eqn_1d_error} 
 demonstrates that the expected accuracy is indeed achieved by applying 
-OTS-DC to the KPY scheme.  
+OTS-NIDC to the KPY scheme.  
 \begin{figure}[tb]
 \begin{center}
-\scalebox{0.35}{\includegraphics{figures/wave_eqn_1d_src_error_vs_N}}
+\subfloat{\includegraphics[width=0.40\textwidth]{figures/wave_eqn_1d_src_error_vs_N}}
 \caption{$L^\infty$ error as a function of number of grid points for the
-  KPY discretization of the second-order wave equation on with OTS-DC 
-  (blue circles) and without OTS-DC (red squares).
+  KPY discretization of the second-order wave equation with OTS-NIDC 
+  (blue circles) and without OTS-NIDC (red squares).
 }
 \label{fig:wave_eqn_1d_error}
 \end{center}
@@ -886,11 +858,11 @@ OTS-DC to the KPY scheme.
 An important property of the KPY scheme is that the error introduced during 
 the first time step affects the global error at all times.  More specifically, 
 a $(p+1)$-order accurate first time introduces an $O(\dx^p)$ error into the 
-solution at all future times.
-Thus, we must ensure that the error introduced by the first time step is
-at least one order of accuracy higher than desired accuracy for the numerical 
-solution.  See Appendix~\ref{appendix:KPY_analysis} for a derivation of this
-condition. 
+solution at all future times.  Thus, we must ensure that the error introduced
+by the first time step is at least one order of accuracy higher than desired
+accuracy for the numerical solution\footnote{This requirement follows from a
+straightforward analysis of the second-order difference equation for the
+normal modes of the error.}.
 
 Constructing a fifth-order approximation for the first time step is 
 straightforward using a fifth-order Taylor series expansion in time:
@@ -940,28 +912,8 @@ where $f$ is the source term.  Note that even though this scheme is formally
 first-order in time and second-order in space, the stability constraint 
 $\dt \le \dx^2/2D$ implies that the scheme is $O(\dx^2)$ accurate 
 overall (\ie inclusion of the temporal order of accuracy is irrelevant).
-Using Taylor series expansions and the PDE $u_t = D u_{xx} + f$,
-we see that the true solution satisfies
-\bea
-  \tu^{n+1}_j = \tu^{n}_j 
-  &+& \dt \left( D \frac{\partial^2 \tu^n}{\px^2} + f^n_j \right)
-  \nonumber \\
-  &+& \frac{(D\dt)^2}{2} \frac{\partial^4 \tu^n}{\px^4} 
-  + \frac{\dt^2}{2} \left( D\frac{\partial^2 f}{\px^2}
-                         + \frac{\partial f}{\pt} \right)
-  + O \left( \dt^3 \right)
-  \label{eq:diffusion_eqn_1d_time_err} 
-\eea
-and that the central difference approximation for the Laplacian satisfies
-\beq
-  \frac{\tu^{n}_{j+1} -2 \tu^{n}_j + \tu^{n}_{j-1}}{\dx^2}  =
-  \frac{\partial^2 \tu^n}{\px^2} 
-  + \frac{\dx^2}{12} \frac{\partial^4 \tu^n}{\px^4} 
-  + O(\dx^4).
-  \label{eq:diffusion_eqn_1d_space_err}
-\eeq
-Therefore, the truncation error for (\ref{eq:diffusion_eqn_1d_FD_scheme})
-is given by
+Using Taylor series expansions and the PDE, $u_t = D u_{xx} + f$,
+we find that the truncation error is given by
 \beq
   \frac{\partial^4 \tu^n}{\px^4} 
     \left[ \frac{\dx^2}{12} - \frac{D \dt}{2} \right] (D \dt)
@@ -991,14 +943,18 @@ accurate.
 
 \begin{figure}[tb]
 \begin{center}
-\scalebox{0.35}{\includegraphics{figures/diffusion_eqn_1d_src_error_vs_N}} 
-\caption{$L^\infty$ error as a function of number of grid points for 
+\subfloat[]{\includegraphics[width=0.40\textwidth]{figures/diffusion_eqn_1d_src_error_vs_N} \label{fig:diffusion_eqn_1d_src_error}}
+\ \ \ \ \ \ \ 
+\subfloat[]{\includegraphics[width=0.40\textwidth]{figures/diffusion_eqn_1d_src_DF_error_vs_N} \label{fig:diffusion_eqn_1d_dufort_frankel_error}}
+\caption{(a) $L^\infty$ error as a function of number of grid points for 
 two finite difference schemes that solve the diffusion equation: 
 forward Euler with optimal time step and defect correction term (circles) and 
 forward Euler with optimal time step \emph{without} defect correction term 
 (triangles).  
+(b) $L^\infty$ error in the numerical solution of the 1D diffusion 
+equation as a function of number of grid points for the DuFort-Frankel scheme 
+with (circles) and without (squares) OTS-NIDC.
 }
-\label{fig:diffusion_eqn_1d_src_error}
 \end{center}
 \end{figure}
 
@@ -1006,10 +962,10 @@ forward Euler with optimal time step \emph{without} defect correction term
 \subsubsection{DuFort-Frankel Scheme \label{sec:dufort_frankel}}
 As mentioned earlier, the forward Euler scheme for the diffusion equation is
 unstable for problems in more than 3 space dimensions.  Fortunately, the 
-OTS-DC makes it possible to construct a fourth-order accurate 
+OTS-NIDC makes it possible to construct a fourth-order accurate 
 DuFort-Frankel scheme. 
 
-We begin by writing the DuFort-Frankel scheme in form that is easily 
+We begin by writing the DuFort-Frankel scheme in a form that is easily 
 generalizable to higher space dimensions:
 \beq
   u^{n+1}_j = u^{n-1}_j 
@@ -1024,15 +980,14 @@ Note that the DuFort-Frankel scheme is essentially a leap-frog time integration
 scheme that is stabilized by the addition of a term proportional to $u_{tt}$
 that vanishes in the limit $\dt \rightarrow 0$.  This scheme is 
 unconditionally stable and has a global error that is formally 
-$O(\dt^2/\dx^2) + O(\dt^2) + O(\dx^2) + O(\dt^4/\dx^2)$~\cite{gko_book}.  
+$O(\dt^2/\dx^2) + O(\dt^2) + O(\dx^2) + O(\dt^4/\dx^2)$ \cite{gko_book}.  
 This expression for the formal error is ``minimized'' when $\dt = O(\dx^2)$, 
 which yields an $O(\dx^2)$ global error.
 
-Using Taylor series expansions centered at $(x_j, t_n)$, 
-(\ref{eq:diffusion_eqn_1d_space_err}) and the PDE to derive the local 
-truncation error for the DuFort-Frankel scheme, we find that 
+Using Taylor series expansions centered at $(t_n, x_j)$ and the PDE, we derive
+the local truncation error for the DuFort-Frankel scheme:
 \bea
-  \tau &=& 2D \dt \frac{\partial^4 \tu}{\px^4}
+  & & 2D \dt \frac{\partial^4 \tu}{\px^4}
   \left(\frac{\dx^2}{12} - \frac{D^2 \dt^2}{\dx^2} \right)
   - 2 D \frac{\dt^3}{\dx^2} \left(D \frac{\partial^2 f}{\px^2}  
                                  + \frac{\partial f}{\pt} \right)
@@ -1041,27 +996,15 @@ truncation error for the DuFort-Frankel scheme, we find that
 \eea
 Therefore the optimal time step is $\dto = \dx^2/D\sqrt{12}$ and the defect
 correction term is $2 D \dt^3 \left(D f_{xx} + f_{t} \right)/\dx^2$.  As with 
-the forward Euler scheme for the diffusion equation, OTS-DC boosts the
+the forward Euler scheme for the diffusion equation, OTS-NIDC boosts the
 order of accuracy for the DuFort-Frankel scheme from two to four.  
-Figure~\ref{fig:diffusion_eqn_1d_dufort_frankel_error} shows that OTS-DC
+Figure~\ref{fig:diffusion_eqn_1d_dufort_frankel_error} shows that OTS-NIDC
 applied to the DuFort-Frankel scheme achieves the expected boost in accuracy. 
-
-\begin{figure}[tb]
-\begin{center}
-\scalebox{0.35}{\includegraphics{figures/diffusion_eqn_1d_src_DF_error_vs_N}} 
-\caption{$L^\infty$ error in the numerical solution of the 1D diffusion 
-equation as a function of number of grid points for the DuFort-Frankel scheme 
-with (circles) and without (squares) OTS-DC.
-}
-\label{fig:diffusion_eqn_1d_dufort_frankel_error} 
-\end{center}
-\end{figure}
-
 
 
 \subsection{Viscous Burgers Equation}
-We now demonstrate the use of OTS-DC in the context of a well-studied
-semilinear PDE -- the viscous Burgers equation~\cite{whitham_book}:
+We now demonstrate the use of OTS-NIDC in the context of a well-studied
+semilinear PDE -- the viscous Burgers equation \cite{whitham_book}:
 \beq
   \frac{\partial u}{\pt} + u \frac{\partial u}{\px} = 
      \nu \frac{\partial^2 u}{\px^2} 
@@ -1084,7 +1027,7 @@ nonlinear advection terms:
 This scheme is formally first-order in time and second-order in space.  
 Using the stability condition for the advection-diffusion as a heuristic 
 guide\footnote{The stability constraint for the advection-diffusion equation
-is $\dt < \min \{2D/A^2, \dx^2/2D \}$~\cite{chan_1984}.}, 
+is $\dt < \min \{2D/A^2, \dx^2/2D \}$ \cite{chan_1984}.}, 
 we expect a stability constraint of the form $\dt \le \dx^2/2 \nu$ in the 
 limit $\dx \rightarrow 0$ (assuming that the solution $u$ remains bounded).  
 Therefore, the scheme (\ref{eq:burgers_1d_FD_scheme}) is $O(\dx^2)$ accurate 
@@ -1092,44 +1035,23 @@ overall.
 
 \begin{figure}[tb]
 \begin{center}
-\scalebox{0.35}{\includegraphics{figures/burgers_eqn_1d_error_vs_N}} 
-\caption{$L^\infty$ error as a function of number of grid points for
+\subfloat[]{\includegraphics[width=0.40\textwidth]{figures/burgers_eqn_1d_error_vs_N} \label{fig:burgers_1d_error}}
+\ \ \ \ \ \ \ 
+\subfloat[]{\includegraphics[width=0.40\textwidth]{figures/burgers_eqn_1d_comp_time} \label{fig:burgers_1d_perf}}
+\caption{(a) $L^\infty$ error as a function of number of grid points for
 two finite difference schemes that solve the viscous Burgers equation:
-forward Euler with OTS-DC (circles)
+forward Euler with OTS-NIDC (circles)
 and forward Euler with suboptimal time step $\dt = \dx^2/4\nu$ and no 
 correction term (squares).
-The viscous Burgers equation is solved with initial conditions taken to be 
-$u(x,0) = 1 + \gamma \sqrt{\frac{\nu}{\pi}} \exp\left( -(x-1)^2/4 \nu \right) 
-            / \left[ 1 + \frac{\gamma}{2} \ 
-                         \mathtt{erfc}\left((x-1)/\sqrt{4\nu} \right) 
-    \right]$,
-where $\ln(1+\gamma)$ is the effective Reynolds number (set equal to 10) and 
-the wave speed is set equal to $1$.  The boundary conditions are imposed 
-exactly by using
-the analytical solution
-$u(x,t) = 1 + \gamma \sqrt{\frac{\nu}{\pi T}} 
-              \exp\left( -(x-T)^2/4 \nu T \right) 
-            / \left[ 1 + \frac{\gamma}{2} \ 
-                         \mathtt{erfc}\left((x-T)/\sqrt{4\nu T} \right) 
-    \right]$,
-where $T = t+1$.
+(b) Computation time as a function of $L^\infty$ error.  These results were
+obtained using MATLAB implementations of the finite difference schemes run on
+a dual-core 2.4 GHz MacBook Pro.
 }
-\label{fig:burgers_1d_error}
 \end{center}
 \end{figure}
 
-To analyze the discretization error for (\ref{eq:burgers_1d_FD_scheme}), 
-we combine~(\ref{eq:diffusion_eqn_1d_space_err}) from our analysis of 
-the diffusion equation with the leading-order discretization error for 
-the central difference approximation of $u_x$,
-\beq
-  \frac{\tu^{n}_{j+1} - \tu^{n}_{j-1}}{2 \dx}  =
-  \frac{\partial \tu^n}{\px} 
-  + \frac{\dx^2}{6} \frac{\partial^3 \tu^n}{\px^3} 
-  + O(\dx^4),
-  \label{eq:burgers_1d_ux_err}
-\eeq
-to obtain the local truncation error for~(\ref{eq:burgers_1d_FD_scheme}): 
+Using the usual OTS-NIDC analysis procedure, we obtain the local truncation
+error for~(\ref{eq:burgers_1d_FD_scheme}): 
 \bea
   & &
       \left( \nu \frac{\partial^4 \tu^n}{\px^4} 
@@ -1158,9 +1080,9 @@ correction term is
   \label{eq:burgers_1d_corr_term}
 \eeq 
 Note that the optimal time step eliminates errors introduced by 
-both the diffusion term \emph{and} the nonlinear advection term so that the
-defect correction terms only involve spatial derivatives of order two and
-lower.
+both the diffusion term \emph{and} the nonlinear advection term so that 
+the highest order spatial derivative in the defect correction terms only
+is no higher than the highest order spatial derivative in the original PDE.
 
 By using the optimal time step and the correction term, the overall error
 for the finite difference scheme~(\ref{eq:burgers_1d_FD_scheme}) is reduced
@@ -1168,16 +1090,26 @@ from $O(\dx^2)$ to $O(\dx^4)$.  As for the diffusion equation, we need
 to use a second-order accurate discretization for the spatial derivatives
 in the correction term.  
 Figure~\ref{fig:burgers_1d_error} demonstrates the boost in accuracy obtained 
-by applying OTS-DC to the finite difference 
+by applying OTS-NIDC to the finite difference 
 scheme~(\ref{eq:burgers_1d_FD_scheme}).
 
-The Burgers equation example illustrates an important aspect of OTS-DC:
-the ease with which OTS-DC can be used to boost the order of accuracy 
+The asymptotic computational performance of numerical schemes for the
+1D viscous Burgers equation is the same as for the 1D diffusion equation.
+Figure~\ref{fig:burgers_1d_perf} shows that the theoretical estimates
+from Table~\ref{tab:comp_perf_vs_err} for the conventional forward Euler and
+OTS-NIDC forward Euler algorithms are in good agreement with timing data
+collected from computational experiments.  Note that the data for the OTS-NIDC
+scheme bends upwards below an $L^\infty$ error of about $10^{-5}$, which
+indicates that the $O(1/\dx)$ work per time step does not dominate the
+computational work per time step until $\dx$ is sufficiently small.
+
+The Burgers equation example illustrates an important aspect of OTS-NIDC:
+the ease with which OTS-NIDC can be used to boost the order of accuracy 
 depends on the choice of the finite difference scheme.  Had we chosen an 
 upwind approximation for the gradient term in the Burgers equation, the 
 correction term would have been more complicated and included terms involving 
 higher-order spatial derivatives than those that appear in the original 
-equation.  While it should be possible to handle this situation with OTS-DC 
+equation.  While it should be possible to handle this situation with OTS-NIDC 
 selection, it is clearly less desirable.
 
 
@@ -1189,7 +1121,7 @@ spatial derivatives -- a fourth-order parabolic equation:
   \label{eq:4th_order_parabolic_eqn_1d}
 \eeq
 where $\kappa > 0$.  This example illustrates the importance of the choice of
-discretization for the spatial derivative in order for OTS-DC to be
+discretization for the spatial derivative in order for OTS-NIDC to be
 applicable. 
 
 From our previous examples, we know that optimal time step selection requires 
@@ -1226,59 +1158,47 @@ $O(\dx^4)$ accurate overall.
 
 \begin{figure}[tb]
 \begin{center}
-\scalebox{0.33}{
-  \includegraphics{figures/4th_order_parabolic_eqn_1d_error_vs_N}} 
+\subfloat[]{\includegraphics[width=0.31\textwidth]{figures/4th_order_parabolic_eqn_1d_error_vs_N} \label{fig:4th_order_parabolic_eqn_1d_error}}
+\ \  
+\subfloat[]{\includegraphics[width=0.31\textwidth]{figures/4th_order_parabolic_eqn_1d_comp_time} \label{fig:4th_order_parabolic_eqn_1d_perf}}
 \ \ 
-\scalebox{0.33}{
-  \includegraphics{figures/4th_order_parabolic_eqn_1d_error_vs_N_roundoff}} 
-\caption{$L^\infty$ error as a function of number of grid points for four
+\subfloat[]{\includegraphics[width=0.31\textwidth]{figures/4th_order_parabolic_eqn_1d_error_vs_N_roundoff} \label{fig:4th_order_parabolic_eqn_1d_error_roundoff}}
+\caption{(a) $L^\infty$ error as a function of number of grid points for four
 finite difference schemes that solve the fourth-order parabolic equation
 (\ref{eq:4th_order_parabolic_eqn_1d}):
-forward Euler with OTS-DC (circles),
+forward Euler with OTS-NIDC (circles),
 forward Euler with suboptimal time step and no correction term (squares),
 Crank-Nicholson with a fourth-order stencil for the bilaplacian and
 an $O(\dx^2)$ time step (diamonds), and Crank-Nicholson with a second-order 
 stencil for the bilaplacian (triangles).
 Both forward Euler schemes use a fourth-order, central finite difference 
-approximation for the bilaplacian.  The boundary and ghost cells values
-are set by taking values from the known analytical solution.
+approximation for the bilaplacian.
 Note that the errors for the forward Euler with suboptimal time step and 
 fourth-order Crank-Nicholson schemes lie almost directly on top of each 
 other at the resolution of the figures.  
-The figure on the left highlights the impact (when $N$ is large) of round-off 
-error associated with matrix inversion on the accuracy of the solution for the 
-two Crank-Nicholson schemes.
+(b) Computation time as a function of $L^\infty$ error.  These results were
+obtained using MATLAB implementations of the finite difference schemes run on
+a dual-core 2.4 GHz MacBook Pro.  Note the impact of round-off error
+associated with matrix inversion on the accuracy of the solution for the two
+Crank-Nicholson schemes.
+(c) Illustration of impact of round-off error associated with matrix inversion
+on the accuracy of the solution for the two Crank-Nicholson schemes when
+$N$ is large.
 }
-\label{fig:4th_order_parabolic_eqn_1d_error}
 \end{center}
 \end{figure}
 
-Proceeding in the usual way, we find that the true solution satisfies
-\beq
-  \tu^{n+1}_j = \tu^{n}_j 
-  + \dt \left( -\kappa \frac{\partial^4 \tu^n}{\px^4}  
-             + f^n_j
-        \right)
-  + \frac{\dt^2}{2} 
-    \left(
-      \kappa^2 \frac{\partial^8 \tu^n}{\px^8} 
-    - \kappa \frac{\partial^4 f}{\px^4} 
-    + \frac{\partial f}{\pt}
-    \right)
-  + O \left( \dt^3 \right)
-  \label{eq:4th_order_parabolic_eqn_1d_time_err}
-\eeq
-and that the central difference approximation to the bilaplacian satisfies
+Proceeding in the usual way and noting that the central difference
+approximation to the bilaplacian satisfies
 \beq
   B \tu^n = \frac{\partial^4 \tu}{\px^4} 
   - \frac{7 \dx^4}{240} 
     \frac{\partial^8 \tu}{\px^8} 
   + O(\dx^6)
-  \label{eq:4th_order_parabolic_eqn_1d_space_err}.
+  \label{eq:4th_order_parabolic_eqn_1d_space_err},
 \eeq
-Combining these results with the finite difference 
-scheme~(\ref{eq:4th_order_parabolic_eqn_1d_FD_scheme}), we find that the
-local truncation error is given by
+we find that the local truncation error
+for~(\ref{eq:4th_order_parabolic_eqn_1d_FD_scheme}) is given by
 \beq
      \frac{\partial^8 \tu^n}{\px^8} 
     \left[ \frac{7 \dx^4}{240} - \frac{\kappa \dt}{2}  \right] (\kappa \dt)
@@ -1314,7 +1234,7 @@ for spatial derivatives are almost always necessary to maximize the efficiency
 of explicit time integration schemes for high-order 
 PDEs\footnote{Because restrictive time step constraints are always a major 
 limitation of explicit schemes for time dependent PDEs with high-order spatial 
-derivatives~\cite{gko_book,greer_2006}, 
+derivatives \cite{gko_book,greer_2006}, 
 the overall error of finite difference schemes for high-order PDEs is usually 
 dominated by the error introduced by the spatial discretization.  As a result, 
 it is crucial that numerical schemes for high-order PDEs use high-order 
@@ -1359,7 +1279,7 @@ error.
     & \multirow{2}{*}{$O\left( e^{2/3} \right)$} 
     & \multirow{2}{*}{$O\left( e^{-1/6} \right)$} 
     & \multirow{2}{*}{$O\left( e^{-5/6} \right)$} \\ 
-  \ \ 4th-Order Bilaplacian and OTS-DC & & & & \\
+  \ \ 4th-Order Bilaplacian and OTS-NIDC & & & & \\
   Crank-Nicholson with 
     & \multirow{2}{*}{$O\left( e^{1/2} \right)$} 
     & \multirow{2}{*}{$O\left( e^{1/2} \right)$} 
@@ -1376,13 +1296,13 @@ error.
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:comp_perf_vs_err_4th_order_parabolic} shows the computational 
-performance of various finite difference methods for solving 
+Table~\ref{tab:comp_perf_vs_err_4th_order_parabolic} shows the asymptotic
+computational performance of various finite difference methods for solving 
 equation~(\ref{eq:4th_order_parabolic_eqn_1d_second_time_derivative}).
 Observe the dramatic decrease in computational cost as a function of the
 error by simply replacing a second-order discretization for the bilaplacian 
 operator with a fourth-order discretization.  For the forward Euler scheme,
-using an OTS-DC drives the computational cost down even more.
+using an OTS-NIDC drives the computational cost down even more.
 The performance plot in Figure~\ref{fig:4th_order_parabolic_eqn_1d_perf} 
 shows that the theoretical estimates are in good agreement with timings 
 from computational experiments.  Note that the empirical performance for the 
@@ -1390,35 +1310,17 @@ forward Euler schemes is better than theoretically expected because the
 computational work per time step is not dominated by the 
 $O(1/\dx)$ update calculations until $\dx$ gets very small.
 
-\begin{figure}[tb]
-\begin{center}
-\scalebox{0.33}{
-  \includegraphics{figures/4th_order_parabolic_eqn_1d_comp_time}} 
-\caption{Computation time as a function of $L^\infty$ error for four
-finite difference schemes that solve the fourth-order parabolic equation
-(\ref{eq:4th_order_parabolic_eqn_1d}).  
-These results were obtained using MATLAB implementations of the 
-finite difference schemes run on a 2.4 GHz MacBook Pro.
-Note the impact of round-off error associated with matrix inversion on 
-the accuracy of the solution for the two Crank-Nicholson schemes.
-See the caption of Figure~\ref{fig:4th_order_parabolic_eqn_1d_error} for 
-descriptions of the four finite difference schemes.
-}
-\label{fig:4th_order_parabolic_eqn_1d_perf}
-\end{center}
-\end{figure}
-
 In Figure~\ref{fig:4th_order_parabolic_eqn_1d_perf}, observe that the 
-2nd-order Crank-Nicholson scheme actually outperforms the OTS-DC scheme over 
+2nd-order Crank-Nicholson scheme actually outperforms the OTS-NIDC scheme over 
 the high (but still practically useful) range of errors even though 
-Table~\ref{tab:comp_perf_vs_err_4th_order_parabolic} predicts that the OTS-DC
-scheme should do better.  The origin of this discrepancy is the constant 
-hidden by the big-$O$ notation.  In particular, the factor of $7/120$ in 
-the optimal time step for the forward Euler scheme with a fourth-order 
-approximation of the bilaplacian leads to a relatively large hidden constant 
+Table~\ref{tab:comp_perf_vs_err_4th_order_parabolic} predicts that the OTS-NIDC
+scheme should do better asymptotically.  The origin of this discrepancy is the
+constant hidden by the big-$O$ notation.  In particular, the factor of $7/120$
+in the optimal time step for the forward Euler scheme with a fourth-order 
+approximation of the bilaplacian leads to a large hidden constant 
 for the compute time. 
-However, as Figures~\ref{fig:4th_order_parabolic_eqn_1d_error} and
-\ref{fig:4th_order_parabolic_eqn_1d_perf} show, there is an important 
+However, as Figures~\ref{fig:4th_order_parabolic_eqn_1d_perf} and
+\ref{fig:4th_order_parabolic_eqn_1d_error_roundoff} show, there is an important 
 limitation of the 2nd-order Crank-Nicholson scheme even if we ignore the 
 cross-over which will occur at sufficiently small values of the error -- 
 round-off error associated with matrix inversion limits the accuracy that is 
@@ -1426,7 +1328,7 @@ achievable by the scheme.  This limitation also exists for the 4th-order
 Crank-Nicholson scheme. 
 
 Comparing the computational cost of the best forward Euler and Crank-Nicholson 
-schemes, we see that the OTS-DC forward Euler scheme more efficiently 
+schemes, we see that the OTS-NIDC forward Euler scheme more efficiently 
 utilizes memory at the cost of requiring more computation time.  This trade off 
 between memory and computation only exists in one space dimension.  In 
 two-dimensions, both schemes require the same amount of compute time; in three 
@@ -1436,34 +1338,28 @@ than the Crank-Nicholson scheme.
 
 \section{\label{sec:applications_multidim}
          Application to PDEs in Multiple Space Dimensions}
-OTS-DC can be used to boost the order of accuracy for finite difference 
+OTS-NIDC can be used to boost the order of accuracy for finite difference 
 schemes in any number of space dimensions.  However, several important issues 
 arise for problems in more than one space dimension.  These issues are 
 primarily related to the presence of cross-terms in the discretization error, 
 multiple grid spacing parameters,  and the domain geometry.  In this section, 
-we show how OTS-DC selection easily overcomes these issues by using it to 
+we show how OTS-NIDC selection easily overcomes these issues by using it to 
 construct high-order finite difference schemes for the 2D advection equation 
 and the 2D diffusion equation.  
 It is straightforward to generalize the approach presented in this section to 
 more space dimensions and to construct methods for semilinear PDEs by 
 incorporating ideas discussed in 
-Sections~\ref{sec:OTS} and~\ref{sec:applications_1d}.  
+Sections~\ref{sec:OTS-NIDC} and~\ref{sec:applications_1d}.  
 
 
 \subsection{\label{sec:ots_multidim_crossterms}
             Discretization of Spatial Derivatives}
 A significant distinction between the error for finite difference schemes in 
 one space dimension and multiple space dimensions is the presence of 
-cross-terms in the discretization error.  When formally analyzing the accuracy
-of a finite difference scheme, it is usually safe to ignore the details of 
-these terms because they can be absorbed within big-$O$ notation.
-However, precise knowledge of the cross-terms is critical when attempting to 
-use OTS-DC.  Without this knowledge, it is impossible to 
-ensure cancellation of leading-order errors.  
-
-Recall that OTS-DC requires the leading-order temporal errors to be directly 
-related to the leading-order spatial errors via the PDE.  This requirement can 
-be satisfied in one of two ways:
+cross-terms in the discretization error.  Recall that OTS-NIDC requires the
+leading-order temporal errors to be directly related to the leading-order
+spatial errors via the PDE.  This requirement can be satisfied in one of two
+ways:
 \begin{itemize}
 \item by carefully designing the spatial discretization so that the
       leading-order spatial errors are directly related to the spatial 
@@ -1478,7 +1374,7 @@ and be viewed as part of an alternate spatial discretization scheme.
 
 
 \subsection{Linear Advection Equation}
-For our first application of OTS-DC in multiple space dimensions, we 
+For our first application of OTS-NIDC in multiple space dimensions, we 
 consider the two-dimensional advection equation
 \beq
   \frac{\partial u}{\partial t} + \vec{A} \cdot \nabla u = 0,
@@ -1487,8 +1383,7 @@ consider the two-dimensional advection equation
 where $\vec{A} = (A_x, A_y)$ is the advection velocity.  
 The most interesting and important aspect of this problem is that elimination 
 of the truncation error requires optimal selection of the grid spacing ratio 
-as well as the time step.  That is, the more general idea of numerical 
-parameter optimization is needed in order to boost the accuracy of the scheme.
+as well as the time step.  
 
 For convenience, let us assume that $A_x, A_y > 0$.  The simple forward Euler 
 scheme for (\ref{eq:advection_eqn_2d}) with first-order upwind discretizations 
@@ -1507,30 +1402,10 @@ the discretization error
 for~(\ref{eq:advection_eqn_2d_FD_scheme}).  As in our analysis of the finite
 difference scheme for the one-dimensional advection equation, we retain all of 
 the terms in the discretization error.  Using Taylor series expansions and
-the PDE (\ref{eq:advection_eqn_2d}), we find that the true solution $\tu$ 
+the PDE (\ref{eq:advection_eqn_2d}), we find that the truncation error 
 satisfies
 \bea
-  \tu^{n+1}_{i,j} &=& \tu^{n}_{i,j }
-    + \sum_{k=1}^\infty \frac{\left( -\dt \right)^k}{k!} 
-         \left( A_x \partial_x
-              + A_y \partial_y \right)^k \tu^{n}.
-  \label{eq:advection_eqn_2d_time_err}
-  \\
-  \frac{\tu^{n}_{i,j} - \tu^{n}_{i-1,j}}{\dx} &=& 
-  \frac{\partial \tu}{\px} 
-  - \frac{1}{\dx} \sum_{k=2}^\infty \frac{\left( -\dx \right)^k}{k!} 
-       \frac{\partial^k \tu^n}{\px^k} 
-  \label{eq:advection_eqn_2d_space_err_x}
-  \\
-  \frac{\tu^{n}_{i,j} - \tu^{n}_{i,j-1}}{\dy} &=&
-  \frac{\partial \tu}{\py} 
-  - \frac{1}{\dy} \sum_{k=2}^\infty \frac{\left( -\dy \right)^k}{k!} 
-       \frac{\partial^k \tu^n}{\py^k} 
-  \label{eq:advection_eqn_2d_space_err_y}.
-\eea
-Therefore, the local truncation error is given by:
-\bea
-  \tau^{n}_{i,j} &=&
+  & &
       \frac{A_x \dt}{2} \frac{\partial^2 \tu}{\px^2}
       \left( \dx - A_x \dt \right)
     + \frac{A_y \dt}{2} \frac{\partial^2 \tu}{\py^2}
@@ -1577,7 +1452,7 @@ discretization for $\tu_{xy}$
 \eeq
 the truncation error~(\ref{eq:advection_eqn_2d_trunc_err}) becomes
 \bea
-  \tau^{n}_{i,j} &=&
+  & &
       \frac{A_x \dt}{2} \frac{\partial^2 \tu}{\px^2}
       \left( \dx - A_x \dt \right)
     + \frac{A_y \dt}{2} \frac{\partial^2 \tu}{\py^2}
@@ -1608,8 +1483,8 @@ In other words, when the defect correction
 in conjunction with the optimal time step and grid spacing ratio, we obtain
 a finite difference scheme that introduces no truncation error at each time 
 step.  Figure~\ref{fig:advection_eqn_2d_soln} demonstrates the amazing accuracy 
-of this scheme over the first-order forward Euler 
-scheme~(\ref{eq:advection_eqn_2d_FD_scheme}) without any modifications.
+of the defect corrected scheme over the first-order forward Euler 
+scheme~(\ref{eq:advection_eqn_2d_FD_scheme}) without defect correction.
 Notice how the sharp corners of the initial conditions are perfectly 
 preserved when the optimal time step, optimal grid spacing ratio, and 
 correction term are used.  In contrast, the sharp corners are
@@ -1618,29 +1493,26 @@ first-order upwind scheme.
 
 \begin{figure}[tb]
 \begin{center}
-\scalebox{0.35}{\includegraphics{figures/adv_eqn_2d_FE_OTS_soln}} 
-\scalebox{0.35}{\includegraphics{figures/adv_eqn_2d_FE_soln}} 
+\subfloat{\includegraphics[width=0.40\textwidth]{figures/adv_eqn_2d_FE_OTS_soln}} 
+\ \ \ \ \ \ \ 
+\subfloat{\includegraphics[width=0.40\textwidth]{figures/adv_eqn_2d_FE_soln}} 
 \caption{Comparison of numerical solutions for the 2D advection
 equation~(\ref{eq:advection_eqn_2d}) using forward Euler time stepping 
-with OTS-DC (left) and forward Euler time 
+with OTS-NIDC (left) and forward Euler time 
 stepping with suboptimal time step (right).  The latter scheme uses a 
-time step $\Delta t = \Delta x / 2 (|A_x|+|A_y|)$.  
-Both figures show the numerical solution at $t = 3$ computed on the domain 
-$-10 < x,y < 10$ using 100 grid points in each direction.
-The advection velocity $(A_x, A_y)$ is set to $(-1, -2)$.  The initial 
-conditions are taken to be a 2D square function centered at the
+time step $\dt = \dx / 2 (|A_x|+|A_y|)$.  
+Both figures show the numerical solution at the same time when the 
+initial conditions are taken to be a 2D square function centered at the
 origin: $u(x,y,0) = 1$ if $|x| + |y| \le 2$ and 
 $u(x,y,0) = 0$ if $|x| + |y| > 2$. 
-For the time interval considered, $u$ is identically zero 
-on the boundary.
 }
 \label{fig:advection_eqn_2d_soln}
 \end{center}
 \end{figure}
 
 It is interesting to push the analysis of the optimal finite difference 
-scheme a little further and examine the complete finite difference scheme
-(including defect correction term):
+scheme a little further and examine the defect-corrected finite difference
+scheme:
 \bea
   u^{n+1}_{i,j} = u^{n}_{i,j}
   &-& A_x \dt \left( \frac{u^{n}_{i,j} - u^{n}_{i-1,j}}{\dx} \right)
@@ -1699,12 +1571,12 @@ $u^{n+1}_{i,j} = u^{n}_{i-1,j-1}$.
 
 \subsection{Diffusion Equation \label{sec:diffusion_eqn_2d}}
 As for PDEs in one space dimension, achieving infinite order accuracy 
-through OTS-DC is unique to the advection equation.
-To illustrate the typical accuracy boost gained by using OTS-DC,
+through OTS-NIDC is unique to the advection equation.
+To illustrate the typical accuracy boost gained by using OTS-NIDC,
 we apply it to the 2D diffusion equation.  This example underscores 
 the need to carefully choose the discretization for the spatial derivatives 
 for problems in more than one space dimension and demonstrates the ease with 
-which OTS-DC selection can be applied to problems on irregular domains.
+which OTS-NIDC selection can be applied to problems on irregular domains.
 
 In two space dimensions, the diffusion equation may be written as
 \beq
@@ -1722,19 +1594,15 @@ Laplacian:
 which assumes that the grid spacing in the $x$ and $y$ directions are
 equal.  The forward Euler scheme using the five-point stencil is given by
 \beq
-  u^{n+1}_j = u^{n}_j 
-  + \dt 
-    \left( D \left[\frac{u^{n}_{i,j+1} + u^{n}_{i,j-1}
-             +u^{n}_{i+1,j} + u^{n}_{i-1,j} - 4u^{n}_{i,j}}{\dx^2} \right]
-         + f_{i,j}^n
-    \right).
+  u^{n+1}_{i,j} = u^{n}_{i,j}
+  + \dt \left( D L^{5pt} u + f_{i,j}^n \right)
   \label{eq:diffusion_eqn_2d_5pt_scheme}
 \eeq
 This scheme is formally first-order in time and second-order in space.  
 The stability constraint $\dt \le \dx^2/4D$ implies that this scheme is
 $O(\dx^2)$ accurate overall.
 
-While it is certainly possible to directly apply OTS-DC
+While it is certainly possible to directly apply OTS-NIDC
 to (\ref{eq:diffusion_eqn_2d_5pt_scheme}), we would be forced to use additional
 defect correction terms to deal with the fact that the leading-order error for 
 (\ref{eq:laplacian_2d_5pt_stencil}), 
@@ -1742,7 +1610,7 @@ $\dx^2 \left(\tu_{xxxx} + \tu_{yyyy}\right)/12$, cannot be directly related
 to the spatial derivative operator in the diffusion equation.  
 The analysis is more straightforward if we construct our finite difference 
 scheme using the nine-point stencil for the 
-Laplacian~\cite{iserles_book,patra_2005}, which possesses a leading-order 
+Laplacian \cite{iserles_book,patra_2005}, which possesses a leading-order 
 error directly related to the spatial derivative operator in the PDE 
 (\ref{eq:diffusion_eqn_2d}):
 \beq
@@ -1759,36 +1627,18 @@ error directly related to the spatial derivative operator in the PDE
 \eeq
 Observe that the nine-point stencil is simply the standard five-point 
 stencil plus $\dx^2/6$ times a second-order, central difference 
-approximation to $u_{xxyy}$.  Therefore, we can obtain the leading-order 
-error in the nine-point stencil by combining the leading-order error for the 
-five-point stencil with the extra contribution of 
-$\dx^2 \tu_{xxyy}/6$
-\bea
-L^{9pt} \tu &=& \nabla^2 \tu 
-              + \frac{\dx^2}{12} 
-                \left(\tu_{xxxx} + 2 \tu_{xxyy} + \tu_{yyyy}\right)
-              + O(\dx^4)
-          \nonumber \\
-          &=& \nabla^2 \tu + \frac{\dx^2}{12} \nabla^4 \tu + O(\dx^4).
-  \label{eq:laplacian_2d_9pt_stencil_error}
-\eea
-Like (\ref{eq:diffusion_eqn_2d_5pt_scheme}), the forward Euler scheme that 
-uses the nine-point discretization of the Laplacian 
-\beq
-  u^{n+1}_{i,j} = u^{n}_{i,j}
-  + \dt \left( D L^{9pt} u + f_{i,j}^n \right)
-  \label{eq:diffusion_eqn_2d_9pt_scheme}
-\eeq
-is $O(\dx^2)$ accurate overall because it has a stability constraint 
-$\dt \le 3\dx^2/8D = O(\dx^2)$.
-It is interesting to note that use of a nine-point stencil for the Laplacian 
-naturally arises when directly applying OTS-DC to the five-point scheme if 
+approximation to $u_{xxyy}$.  Therefore, the error in the nine-point stencil
+is $\frac{\dx^2}{12} \nabla^4 u + O(\dx^4)$.  The forward Euler scheme that 
+uses the nine-point discretization of the Laplacian is also $O(\dx^2)$ accurate
+overall because it has a stability constraint $\dt \le 3\dx^2/8D = O(\dx^2)$.
+It is worth noting that use of a nine-point stencil for the Laplacian 
+naturally arises when directly applying OTS-NIDC to the five-point scheme if 
 the defect correction term is interpreted as a modification to the original 
 spatial discretization.
 
-To apply OTS-DC to (\ref{eq:diffusion_eqn_2d_9pt_scheme}), we proceed in the 
-usual way by first analyzing the leading-order terms of the local truncation
-error for the finite difference scheme:
+Analyzing the finite difference scheme based on the nine-point stencil for the
+Laplacian, we find that the leading-order terms of the local truncation error
+is
 \bea
   \nabla^4 \tu
       \left[ \frac{\dx^2}{12} - \frac{D \dt}{2}  \right] (D \dt)
@@ -1796,23 +1646,22 @@ error for the finite difference scheme:
   + O(\dt^3) + O(\dt \dx^4).
   \label{eq:diffusion_eqn_2d_trunc_err}
 \eea
-Therefore, the optimal time step is given by $\dto = \dx^2/6D$ and the 
-defect correction term is $\dt^2 \left( D\nabla^2 f + f_t \right)$.
-This choice of time step and correction term yields a scheme that is 
-fourth-order accurate.  It is interesting to note that the optimal time step
-for the forward Euler scheme for the diffusion equation is \emph{independent} 
-of the number of spatial dimensions.
+Therefore, the optimal time step and defect correction terms are 
+$\dto = \dx^2/6D$ and $\dt^2 \left( D\nabla^2 f + f_t \right)$, respectively.
+The resulting OTS-NIDC scheme that fourth-order accurate.  It is interesting
+to note that the optimal time step for the forward Euler scheme for the
+diffusion equation is \emph{independent} of the number of spatial dimensions.
 
 \begin{figure}[tb]
 \begin{center}
-\scalebox{0.33}{\includegraphics{figures/diffusion_eqn_2d_src_error_vs_N}} 
-\ \ 
-\scalebox{0.33}{\includegraphics{figures/diffusion_eqn_2d_src_comp_time}} 
-\caption{$L^\infty$ error as a function of number of grid points in
+\subfloat[]{\includegraphics[width=0.40\textwidth]{figures/diffusion_eqn_2d_src_error_vs_N} \label{fig:diffusion_eqn_2d_src_error}}
+\ \ \ \ \ \ \ 
+\subfloat[]{\includegraphics[width=0.40\textwidth]{figures/diffusion_eqn_2d_src_comp_time} \label{fig:diffusion_eqn_2d_src_perf}}
+\caption{(a) $L^\infty$ error as a function of number of grid points in
 each coordinate direction (left) and computation time as a function of 
 $L^\infty$ error (right) for three finite difference schemes that solve the 
 2D diffusion equation:
-forward Euler with OTS-DC (circles), forward 
+forward Euler with OTS-NIDC (circles), forward 
 Euler with suboptimal time step (squares), and Crank-Nicholson (diamonds).  
 The forward Euler schemes use a nine-point discretization of the Laplacian;
 the Crank-Nicholson scheme uses the standard five-point discretization of
@@ -1820,18 +1669,18 @@ the Laplacian.
 Note that the errors for the forward Euler with suboptimal time step and 
 Crank-Nicholson schemes lie almost directly on top of each other at the 
 resolution of the figures.  
-These results were obtained using MATLAB implementations of the 
-finite difference schemes run on a 2.4 GHz MacBook Pro.
+(b) Computation time as a function of $L^\infty$ error.  These results were
+obtained using MATLAB implementations of the finite difference schemes run on
+a dual-core 2.4 GHz MacBook Pro.
 }
-\label{fig:diffusion_eqn_2d_src_analysis}
 \end{center}
 \end{figure}
-The improvement in the accuracy of the forward Euler scheme with OTS-DC
-is shown in Figure~\ref{fig:diffusion_eqn_2d_src_analysis}.
-Figure~\ref{fig:diffusion_eqn_2d_src_analysis} also shows that the 
+The improvement in the accuracy of the forward Euler scheme with OTS-NIDC
+is shown in Figure~\ref{fig:diffusion_eqn_2d_src_error}.
+Figure~\ref{fig:diffusion_eqn_2d_src_perf} shows that the 
 scaling of the computational time with the error is in good agreement with the
 theoretical estimates given in Table~\ref{tab:comp_perf_vs_dim}.  As with the
-other examples, the forward Euler scheme with OTS-DC is much 
+other examples, the forward Euler scheme with OTS-NIDC is much 
 more computationally efficient than the two other schemes.  
 
 
@@ -1839,20 +1688,15 @@ more computationally efficient than the two other schemes.
 All of the examples we have considered so far share an important feature: they 
 are all defined on simple, rectangular domains.  Any of several methods 
 could have been used to obtain solutions with similar or even higher accuracy.
-For example, a fourth-order accurate solution to the diffusion equation
-(in any number of space dimensions) could be obtained by using a 
-pseudospectral spatial 
-discretization~\cite{trefethen_spectral_book,boyd_spectral_book} 
-of the Laplacian and a fourth-order time integration scheme 
-(\eg Runge-Kutta).  When the domain is irregularly shaped, high-order methods 
-are harder to design and implement.  
-In this section, we extend the OTS-DC finite difference scheme for the 2D 
+When the domain is irregularly shaped, high-order methods are harder to design
+and implement.  
+In this section, we extend the OTS-NIDC finite difference scheme for the 2D 
 diffusion equation on regular domains to irregular domains.  Other 
 researchers have developed fourth-order accurate methods for the diffusion 
-equation on irregular domains~\cite{gibou_2005,ito_2005}.  However, these 
-earlier methods require a wider ghost cell region~\cite{gibou_2005}, use
-implicit time integration~\cite{gibou_2005,ito_2005}, or involve a more 
-complex calculation for the boundary conditions~\cite{ito_2005}.  As we shall 
+equation on irregular domains \cite{gibou_2005,ito_2005}.  However, these 
+earlier methods require a wider ghost cell region \cite{gibou_2005}, use
+implicit time integration \cite{gibou_2005,ito_2005}, or involve a more 
+complex calculation for the boundary conditions \cite{ito_2005}.  As we shall 
 see, it is possible to achieve fourth-order accuracy for the diffusion 
 equation on irregular domains using only forward Euler integration and a 
 compact, second-order stencil for the Laplacian.
@@ -1878,7 +1722,7 @@ approximate the partial derivatives in the expansion.
 
 To avoid the need for special stencils at grid points near the irregular 
 boundary, we adopt the `ghost cell' approach for imposing boundary 
-conditions~\cite{gibou_2005,ito_2005,fedkiw_1999,osher_fedkiw_book}.
+conditions \cite{gibou_2005,ito_2005,fedkiw_1999,osher_fedkiw_book}.
 The main challenge in using the ghost cell method is ensuring ghost cells 
 are filled using a sufficiently high-order extrapolation scheme. 
 Figure~\ref{fig:ghost_cells} shows examples of ghost cells that lie in the 
@@ -1895,7 +1739,7 @@ interface.  A cubic Lagrange interpolant is constructed for each edge ghost
 cell using a point on the domain boundary and three interior grid points that 
 lie along the line parallel to the edge connecting the ghost cell to its 
 nearest interior neighbor (see Figure~\ref{fig:ghost_cells})\footnote{If
-a level set representation of the boundary~\cite{osher_fedkiw_book} is used, 
+a level set representation of the boundary \cite{osher_fedkiw_book} is used, 
 the location of the point $u_B$ can be calculated by inverting the linear 
 interpolant of $\phi$ that passes through the ghost cell and its nearest
 interior neighbor.  We found that using higher-order interpolants to 
@@ -1909,7 +1753,7 @@ introduced in the values of the ghost cells lead to instability of the
 numerical method.
 Gibou~\etal~suggest shifting the interpolation points by one grid point 
 when the distance between the boundary point and the nearest interior grid 
-point is less than $\dx^2$~\cite{gibou_2005}.  For the numerical scheme 
+point is less than $\dx^2$ \cite{gibou_2005}.  For the numerical scheme 
 presented in this article, this threshold was too low.  Better stability was 
 obtained if an $O(\dx)$ threshold was used.
 
@@ -1917,11 +1761,12 @@ obtained if an $O(\dx)$ threshold was used.
 % PLACED HERE TO SPREAD FIGURES OUT
 \begin{figure}[tb]
 \begin{center}
-\scalebox{0.35}{\includegraphics{figures/diffusion_eqn_2d_starfish_domain_soln}} 
+\scalebox{0.35}{\includegraphics{figures/diffusion_eqn_2d_starfish_domain_soln}}
+\ \ \ \ \ \ \ 
 \scalebox{0.35}{\includegraphics{figures/diffusion_eqn_2d_starfish_domain_error}} 
 \caption{Numerical solutions (left) and dominant error (right) for the 2D 
 diffusion equation on a starfish-shaped domain.  The solution is computed 
-using forward Euler time stepping with OTS-DC.  In the error plot, the dark 
+using forward Euler time stepping with OTS-NIDC.  In the error plot, the dark 
 regions represent points where the error in the solution is larger than 
 $25$\% of the $L^\infty$ error of the solution.  
 }
@@ -1947,39 +1792,43 @@ remapping of the indices in the above stencil.
 
 Using these methods for filling edge and corner ghost cells, it is 
 straightforward to compute high-order accurate solutions of the 2D diffusion 
-equation on irregular domains.  We simply use the OTS-DC forward Euler 
+equation on irregular domains.  We simply use the OTS-NIDC forward Euler 
 scheme designed for regular domains for grid points in the interior of the 
 domain after filling the ghost cells with high-order accurate values.  
 Figure~\ref{fig:diffusion_eqn_2d_starfish_domain} shows an example of 
 a solution computed on a starfish shaped domain.  It also shows that the 
 error in the solution is concentrated near the boundaries of the irregular
-domain.  The improved accuracy of the OTS-DC solution compared to a simple 
-forward Euler scheme with a suboptimal time step is illustrated in 
-Figure~\ref{fig:diffusion_eqn_2d_starfish_error}. 
+domain.  The improved accuracy and performance of the OTS-NIDC solution
+compared to a simple forward Euler scheme with a suboptimal time step are
+illustrated in Figure~\ref{fig:diffusion_eqn_2d_starfish_error} and
+Figure~\ref{fig:diffusion_eqn_2d_starfish_perf}. 
 
 % FIGURE SHOWING SOLUTION OF 2D DIFFUSION EQUATION ON STARFISH DOMAIN
 % PLACED HERE TO SPREAD FIGURES OUT
 \begin{figure}[tb]
 \begin{center}
-\scalebox{0.35}{
-  \includegraphics{figures/diffusion_eqn_2d_starfish_domain_error_vs_N}} 
-\caption{$L^\infty$ error as a function of number of grid points in each
+\subfloat[]{\includegraphics[width=0.40\textwidth]{figures/diffusion_eqn_2d_starfish_domain_error_vs_N} \label{fig:diffusion_eqn_2d_starfish_error}}
+\ \ \ \ \ \ \ 
+\subfloat[]{\includegraphics[width=0.40\textwidth]{figures/diffusion_eqn_2d_starfish_domain_comp_time} \label{fig:diffusion_eqn_2d_starfish_perf}}
+\caption{(a) $L^\infty$ error as a function of number of grid points in each
 coordinate direction for two finite difference schemes that solve the 2D 
-diffusion equation on an irregular domain: forward Euler with OTS-DC 
+diffusion equation on an irregular domain: forward Euler with OTS-NIDC 
 (circles) and forward Euler with suboptimal time step (squares).  
+(b) Computation time as a function of $L^\infty$ error.  These results were
+obtained using MATLAB implementations of the finite difference schemes run on
+a dual-core 2.4 GHz MacBook Pro.
 }
-\label{fig:diffusion_eqn_2d_starfish_error}
 \end{center}
 \end{figure}
 
 
 \subsubsection{Diffusion Equation in Higher Dimensions}
-Using OTS-DC to boost the accuracy of finite difference
+Using OTS-NIDC to boost the accuracy of finite difference
 schemes for the diffusion equation in higher space dimensions is 
 straightforward.  As for the 2D problem, the key step is identification of a 
 finite difference stencil for the Laplacian that has an \emph{isotropic} 
 discretization error.  For 3D problems, a catalog of several such stencils is 
-available in~\cite{patra_2005}.   For higher dimensional problems, one simple
+available in \cite{patra_2005}.   For higher dimensional problems, one simple
 approach for deriving an isotropic finite difference stencil for the Laplacian
 would be to start with the generalization of the standard five point stencil
 for the 2D Laplacian and add finite difference approximations for the missing 
@@ -1991,7 +1840,7 @@ terms are all of the form
 \eeq
 this approach is relatively easy to use.  To derive finite difference 
 approximations with more general or complex properties, symbolic algebra 
-software can be helpful~\cite{patra_2005,gupta_1998}.  
+software can be helpful \cite{patra_2005,gupta_1998}.  
 
 Once an acceptable finite difference approximation for the Laplacian has been 
 chosen, the usual OTS analysis yields an optimal time step of 
@@ -2012,131 +1861,54 @@ Here, too, symbolic algebra programs can be helpful when deriving methods for
 extrapolating interior and boundary values to ghost cells.
 
 
-\section{\label{sec:summary} Summary} 
-In this article, we have presented OTS selection, a simple approach for
+\section{\label{sec:conclusions} Conclusions} 
+In this article, we have presented OTS-NIDC, a simple approach for
 constructing high-order finite difference methods for time dependent PDEs
 \emph{without} requiring the use of high-order stencils or high-order time
 integration schemes.  The essential idea underlying OTS selection is that 
-leading order spatial and temporal discretization errors can be simultaneously
-eliminated by optimally selecting numerical discretization parameters.  Any
-terms in the truncation error that remain are handled in a straightforward
-manner using non-iterative defect correction.  The boost in the order of
-accuracy achieved by using OTS-DC is well worth the extra effort required to
-derive the optimal time step and defect correction terms.  In fact, the amount
-of analysis required to compute the OTS and correction terms is comparable to
-traditional defect/deferred correction and modified equation methods.
+leading order spatial and temporal discretization errors with the highest
+order derivatives can be simultaneously eliminated by optimally selecting
+numerical discretization parameters.  Any terms in the truncation error that
+remain are handled in a straightforward manner using non-iterative defect
+correction.  The boost in the order of accuracy achieved by using OTS-NIDC is
+well worth the extra effort required to derive the optimal time step and
+defect correction terms.  In fact, the amount of analysis required to compute
+the OTS and correction terms is comparable to traditional defect/deferred
+correction and modified equation methods.
 
-Through many examples, we have demonstrated the utility of OTS-DC to several
+Through many examples, we have demonstrated the utility of OTS-NIDC to several
 types of finite difference schemes for a wide range of problems.  We showed
-how OTS-DC can be used to very easily obtain high-order accurate solutions to
+how OTS-NIDC can be used to very easily obtain high-order accurate solutions to
 many linear and semilinear PDEs in any number of space dimensions on both
 regular and irregular domains.  The examples illustrate the high-order of
 accuracy that can be achieved using only low-order discretizations for spatial
 derivatives and simple forward Euler time integration.  They also demonstrate
-the applicability of OTS-DC to more exotic finite difference schemes, such as
+the applicability of OTS-NIDC to more exotic finite difference schemes, such as
 the Kreiss-Petersson-Ystr\"om discretization of the second-order wave equation
 and the DuFort-Frankel scheme for the diffusion equation.
 
-Optimal time step selection is an example of the more general technique
-of optimally selecting numerical parameters to boost the accuracy of 
-numerical methods.  Little research appears to have been done in this area,
-but as OTS-DC selection demonstrates, optimal selection of numerical 
-parameters can significantly impact the accuracy of numerical methods.  To 
-realize the full potential of existing and novel numerical schemes, 
-both optimal time step selection and optimal numerical parameter selection 
-deserve further investigation and attention.
-
-From a scientific computing perspective, recent advances in GPGPU computing
-make optimal time step selection especially relevant.  Because explicit time
-integration schemes are better suited to the GPU hardware architectures than
-implicit time integration schemes, the ability of optimal time step selection
-to dramatically boost the accuracy of simple explicit schemes makes it a
-powerful tool for achieving high-performance on GPUs.  
-
+The work presented in this article suggest several potential areas for future
+research.  First, because explicit time integration schemes tend to be easier
+to implement and appear to be more suited to modern graphics processing unit
+(GPU) hardware architectures,
+it would be interesting to explore application of OTS-NIDC to GPU
+implementations of numerical algorithms for time dependent PDEs.  Second,
+while it is straightforward to derive of the optimal time step and defect
+correction terms by using Taylor series expansions, the process can be tedious
+and error-prone.  It would be valuable to use modern symbolic algebra software
+to develop tools to help automate the process.  Finally, the accuracy results
+for the fourth-order parabolic equation suggest that it may be prudent to 
+empirically revisit the question of accuracy of numerical algorithms based
+on implicit time integration for problems involving high-order spatial
+derivatives. 
 
 % ACKNOWLEDGMENTS
 \section*{Acknowledgments}
 The author gratefully acknowledges the support of Vitamin D, Inc.
 and the Institute for High-Performance Computing (IHPC) in Singapore. 
 The would like to thank P. Fok and J. Lambers for many enlightening 
-discussions and P. Fok, M. Prodanovi\'c and A. Chiu for helpful suggestions 
-on the manuscript.  
-
-
-\appendix
-\section{Formal vs. Practical Accuracy
-         \label{app:formal_vs_practical_accuracy} }
-For time dependent PDEs, evaluating the order of accuracy for a numerical
-method is subtle because there are formally two separate orders of accuracy 
-to consider:  temporal and spatial.  While it is theoretically
-interesting and important to understand how the error depends on both the 
-grid spacing $\dx$ and the time step $\dt$, in practice, the accuracy 
-of a numerical scheme is always controlled by only one of the two numerical
-parameters.  
-
-Even though spatial and temporal orders of accuracy for a numerical method
-are formally separate, one will always dominate for a given choice of 
-$\dx$ and $\dt$.  For example, when solving the diffusion equation 
-using the backward Euler method for time integration with a second-order 
-central difference stencil for the Laplacian, formal analysis shows that 
-the global error is $O(\dx^2) + O(\dt)$.  Since there are no 
-stability constraints on the numerical parameters, the time
-step and grid spacing are free to vary independently.  In this situation, the 
-practical error for the method depends on the relative sizes of the time step 
-and grid spacing.  When $\dt \gg \dx^2$, the practical error is 
-$O(\dt)$ which means that the error in the numerical solution is 
-primarily controlled by the time step.  Similarly, when 
-$\dt \ll \dx^2$, the practical error is $O(\dx^2)$ so that 
-the error is controlled by the grid spacing.  Finally, when 
-$\dt  = O(\dx^2)$, the practical error is 
-$O(\dt) = O(\dx^2)$.  In all cases, the practical error is 
-primarily controlled by one of the two numerical parameters, and varying
-the subdominant parameter while holding the dominant parameter fixed does 
-not significantly affect the error.
- 
-When there are constraints on the numerical parameters, there is less freedom 
-in choosing the controlling parameter.  For instance, if we solve the 
-diffusion equation using a forward Euler time integration scheme with a 
-second-order central difference stencil for the Laplacian, stability
-considerations require that we choose $\dt = O(\dx^2)$.  
-Combining this stability constraint with the formal error for the scheme
-shows that the practical error is 
-$O(\dx^2) + O(\dt) = O(\dx^2)$.  Therefore, the accuracy of the 
-method is completely controlled by the grid spacing; the temporal error can 
-never dominate the spatial error.
-
-
-\section{Importance of High-Accuracy for First Time Step for the KPY Scheme
-         \label{appendix:KPY_analysis} }
-The need for higher-order accuracy when taking the first time step of the KPY 
-scheme for the second-order wave equation can be understood by solving the 
-difference equation 
-\bea
-  \he^{n+1} - 2 \he^{n} + \he^{n-1} = \dt^2 \lambda \he^{n}
-  \label{eq:error_eqn_normal_mode},
-\eea
-for the normal modes of the error, where $\he$ is the coefficient of an 
-arbitrary normal mode of the spatial operator for the error 
-$e \equiv u - \tu$.  Using standard methods for solving linear difference
-equations~\cite{carrier_pearson_book} yields the solution
-\bea
-  \he^n = \he^1 \frac{\kappa_+^n - \kappa_-^n}{\kappa_+ - \kappa_-}
-        + \he^0 \kappa_+ \kappa_-
-          \frac{\kappa_+^{n-1} - \kappa_-^{n-1}}{\kappa_+ - \kappa_-},
-  \label{eq:error_eqn_normal_mode_soln}
-\eea
-where $\kappa_\pm$ are the roots of the characteristic equation for
-(\ref{eq:error_eqn_normal_mode})~\cite{kreiss2002}
-\beq
-  \kappa_\pm = 1 + \frac{1}{2} \lambda \dt^2
-             \pm \dt \sqrt{\lambda + \frac{\lambda^2 \dt^2}{4}}.
-\eeq
-Notice that the denominator of both terms in
-(\ref{eq:error_eqn_normal_mode_soln}) is $O(\dt)$, which implies that the
-error in the initial conditions is degraded by one temporal order of accuracy
-by the KPY scheme.  Therefore, KPY without OTS-DC requires the first time 
-step must be at least third-order accurate; KPY with OTS-DC requires the 
-first time step must be at least fifth-order accurate.
+discussions and P. Fok, M. Prodanovi\'c, A. Chiu and the manuscript's
+anonymous reviewers for helpful suggestions on the manuscript.  
 
 
 %*********************************BIBLIOGRAPHY**********************************
@@ -2189,11 +1961,6 @@ R.~K. Shukla, M.~Tatineni, and X.~Zhong.
 R.~J. LeVeque.
 \newblock {\em Finite Volume Methods for Hyperbolic Problems}.
 \newblock Cambridge University Press, Cambridge, UK, 2002.
-
-\bibitem{zhao_2006}
-F.~Zhao.
-\newblock Weighting {F}actors for {S}ingle-{S}tep {T}rapezoidal {M}ethod.
-\newblock {\em J. Heat Transf.-Trans. ASME}, 128:409--412, 2006.
 
 \bibitem{pereyra_1968}
 V.~Pereyra.
@@ -2253,6 +2020,18 @@ B.~Gustafsson, H.-O. Kreiss, and J.~Oliger.
 \newblock {\em Time Dependent Problems and Difference Methods}.
 \newblock John Wiley \& Sons, Inc., New York, NY, 1995.
 
+\bibitem{cash_1996}
+J.~R. Cash and Y.~Psihoyios.
+\newblock {T}he {MOL} solution of time dependent partial differential
+  equations.
+\newblock {\em Comput. Math. Appl.}, 31:69--78, 1996.
+
+\bibitem{psihoyios_2007}
+G.~Psihoyios.
+\newblock Solving time dependent pdes via an improved modified extended bdf
+  scheme.
+\newblock {\em Appl. Math. Comput.}, 184:104--115, 2007.
+
 \bibitem{leveque_book_1992}
 R.~J. LeVeque.
 \newblock {\em Numerical Methods for Conservation Laws}.
@@ -2286,26 +2065,12 @@ M.~Patra and M.~Karttunen.
   {D}ifferential {O}perators.
 \newblock {\em Numer. Meth. for Part. Diff. Eq.}, 22:936--953, 2005.
 
-\bibitem{trefethen_spectral_book}
-L.~N. Trefethen.
-\newblock {\em Spectral Methods in MATLAB}.
-\newblock SIAM, Philadelphia, PA, 2000.
-
-\bibitem{boyd_spectral_book}
-J.~P. Boyd.
-\newblock {\em Chebyshev and Fourier Spectral Methods}.
-\newblock Dover Publications, Inc., Mineola, NY, 2nd edition, 2001.
-
 \bibitem{gupta_1998}
 M.~M. Gupta and J.~Kouatchou.
 \newblock {S}ymbolic {D}erivation of {F}inite {D}ifference {A}pproximations for
   the {T}hree-{D}imensional {P}oisson {E}quation.
 \newblock {\em Numer. Meth. for Part. Diff. Eq.}, 14:593--606, 1998.
 
-\bibitem{carrier_pearson_book}
-G.~F. Carrier and C.~E. Pearson.
-\newblock {\em Ordinary Differential Equations}.
-\newblock Society for Industrial and Applied Mathematics, Philadelphia, 1991.
-
 \end{thebibliography}
+
 \end{document}
