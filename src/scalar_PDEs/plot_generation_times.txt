@@ -2,7 +2,7 @@
 Plot Generation Times
 ---------------------
 
-* 1D Diffusion Equation (FE, No Source Term: 38s
+* 1D Diffusion Equation (FE, No Source Term): 38s
 * 1D Diffusion Equation, Source Term: 188s
 * 1D Diffusion Equation (DuFort-Frankel), No Source Term: 30s
 * 1D Diffusion Equation (DuFort-Frankel), Source Term: 30s
