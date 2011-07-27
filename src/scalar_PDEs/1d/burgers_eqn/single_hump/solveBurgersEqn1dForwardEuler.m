@@ -31,11 +31,12 @@
 % advection and the diffusion terms.  
 %
 % USAGE:
-%   function [u, u_exact, x] = solveBurgersEqnForwardEuler1d( ...
-%                                nu, U, R, ...
-%                                dx, dt, ...
-%                                t_final, ...
-%                                debug_on)
+%   function [u, u_exact, x, timing_data] = ...
+%     solveBurgersEqnForwardEuler1d(nu, U, R, ...
+%                                   dx, dt, ...
+%                                   t_final, ...
+%                                   debug_on, ...
+%                                   timing_on)
 %
 % Arguments:
 % - nu:                  viscosity
@@ -48,11 +49,18 @@
 %                        should be displayed.  To turn on debugging,
 %                        set debug_on to 1.
 %                        (default = 0)
+% - timing_on:           flag indicating whether timing information
+%                        should be collected.  To activate timing,
+%                        set timing_on to 1.
+%                        (default = 0)
 %
 % Return values:
 % - u:                   numerical solution
 % - u_exact:             analytical solution
 % - x:                   grid points
+% - timing_data:         array of the following form containing timing data
+%                        [total solution time.  If timing is not activated,
+%                        timing_data is set to be an array of -1's.
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -60,6 +68,7 @@
 % CHANGE LOG:
 % -----------
 % 2008/02:  Initial version of code. 
+% 2011/07:  Added support for collecting timing data.
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -68,11 +77,12 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [u, u_exact, x] = solveBurgersEqnForwardEuler1d( ...
-                             nu, U, R, ...
-                             dx, dt, ...
-                             t_final, ...
-                             debug_on)
+function [u, u_exact, x, timing_data] = ...
+  solveBurgersEqnForwardEuler1d(nu, U, R, ...
+                                dx, dt, ...
+                                t_final, ...
+                                debug_on, ...
+                                timing_on)
 
 
 % check arguments
@@ -81,6 +91,9 @@ if (nargin < 6)
 end
 if (nargin < 7)
   debug_on = 0;
+end
+if (nargin < 8)
+  timing_on = 0;
 end
 
 % construct grid
@@ -104,6 +117,11 @@ gamma = exp(R)-1;
 % set initial conditions
 u = U +  sqrt(nu)*gamma*exp(-(x-U).^2/(4*nu)) ...
        ./( sqrt(pi)*(1 + 0.5*gamma*erfc((x-U)/sqrt(4*nu))) );
+
+% prepare for collecting timing data
+if (timing_on == 1)
+  t_start = cputime;
+end
 
 % forward Euler time integration
 t = 0.0;
@@ -155,7 +173,19 @@ while (t < t_final)
 
 end
 
+% measure time to solve Burgers equation
+if (timing_on == 1)
+  t_solve = cputime - t_start; 
+end
+
 % compute exact solution 
 T = t+1;
 u_exact = U +  sqrt(nu/T)*gamma*exp(-(x-U*T).^2/(4*nu*T)) ...
              ./( sqrt(pi)*(1 + 0.5*gamma*erfc((x-U*T)/sqrt(4*nu*T))) );
+
+% set timing data
+if (timing_on == 1)
+  timing_data = [t_solve];
+else
+  timing_data = [-1];
+end
