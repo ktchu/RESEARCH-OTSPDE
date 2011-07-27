@@ -34,7 +34,7 @@ if ~exist(fig_dir, 'dir')
 end
 
 % set flag for loading data from saved files (instead of recomputing solution)
-use_saved_data = 1;
+use_saved_data = 0;
 data_dir = 'data-burgers_eqn_1d-single_hump';
 if ~exist(data_dir, 'dir')
   mkdir(data_dir);
