@@ -28,7 +28,7 @@ if ~exist(fig_dir, 'dir')
 end
 
 % set flag for loading data from saved files (instead of recomputing solution)
-use_saved_data = 0;
+use_saved_data = 1;
 data_dir = 'data-burgers_eqn_1d-single_hump';
 if ~exist(data_dir, 'dir')
   mkdir(data_dir);
@@ -195,10 +195,10 @@ order_FE_OTS = -P_FE_OTS(1);
 P_FE = polyfit(log(grid_sizes(2:end)),log(err_FE(2:end)),1);
 order_FE = -P_FE(1);
 
-P_comp_time_FE_OTS = polyfit(log(err_FE_OTS(2:end)), ...
-                             log(comp_time_FE_OTS(2:end)),1);
-P_comp_time_FE = polyfit(log(err_FE(3:end)), ...
-                         log(comp_time_FE(3:end)),1);
+P_comp_time_FE_OTS = polyfit(log(err_FE_OTS(5:end)), ...
+                             log(comp_time_FE_OTS(5:end)),1);
+P_comp_time_FE = polyfit(log(err_FE(5:end)), ...
+                         log(comp_time_FE(5:end)),1);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Plot Results
@@ -237,7 +237,7 @@ hold on;
 plot(err_FE_OTS, comp_time_FE_OTS, 'bo', ...
      'MarkerSize',14, ...
      'MarkerFaceColor','b');
-order_str = sprintf('Forward Euler (OTS-NIDC)\nSlope = %1.1f', P_comp_time_FE_OTS(1));
+order_str = sprintf('Forward Euler (OTS-NIDC)\nSlope = %1.2f', P_comp_time_FE_OTS(1));
 text(1e-9,2e-2,order_str);
 
 loglog(err_plot,exp(log(err_plot)*P_comp_time_FE(1)+P_comp_time_FE(2)),'k');
