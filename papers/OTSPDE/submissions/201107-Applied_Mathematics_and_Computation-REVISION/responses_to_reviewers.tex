@@ -1,0 +1,253 @@
+\documentclass[12pt]{article}
+
+% page settings
+\textwidth 6.5in
+\textheight 9in
+\oddsidemargin -0.05in
+\evensidemargin -0.05in
+\topmargin -0.85in
+
+\begin{document}
+
+\section*{Responses to Reviewers}
+
+\subsection*{List of Changes to Manuscript}
+
+\begin{enumerate}
+
+\item Throughout manuscript (including the title), clarified and emphasized the
+      general need for OTS and non-iterative defect correction in order to
+      achieve the boost in the order of accuracy.  Changed OTS-DC to OTS-NIDC
+      throughout manuscript.
+
+\item Streamlined discussion throughout the manuscript to "shorten the verbiage
+      without altering the message". Reorganized figures a little bit to reduce
+      length of manuscript.
+
+\item Moved comparisons with other methods out of the introduction section into
+      its own section titled "Theoretical Comparisons with Related Numerical
+      Techniques"
+
+\item Modified the discussion in Section 2.2 (previously Section 1.2) to
+      emphasize that OTS-NIDC is an important special case of the modified
+      equation method where regularization of the modified equation is
+      automatic via parameter choice rather than via iterative procedures.
+
+\item Removed claims that optimal selection of numerical parameters is not 
+      common.  When I originally wrote this manuscript (2007), I did not find
+      many examples of optimal numerical parameter selection.  Apparently the
+      situation has changed.
+
+\item Removed discussion about applicability to GPU computing except for a
+      brief comment that investigation of benefits of OTS-NIDC to GPU computing
+      is an area for future research.
+
+\item Throughout the manuscript, added clarification that theoretical costs are
+      asymptotic.
+
+\item Added performance data for 1D Burgers equation and a brief discussion of
+      its interpretation.
+
+\item Added performance data for 2D diffusion equation on an irregular domain.
+
+\item Added emphasis on the accuracy limitations of the Crank-Nicholson schemes
+      for the fourth-order parabolic equation.
+
+\item Renamed 'Summary' section to 'Conclusions' and revised second half of
+      section.
+
+\item Minor grammatical revisions throughout manuscript.
+
+\end{enumerate}
+
+\subsection*{Reviewer \#2}
+
+\subsubsection*{General rebuttal}
+
+On the point that OTS-NIDC is "technically a special case of the method of
+Modified Equation," I offer the perspective that it is an important special
+case because the singular perturbations in the modified equations are
+regularized \emph{automatically} by the choice of optimal time step.  The
+resulting modified equation is a \emph{regular} perturbation to the original
+PDE, so there is no need for iterative refinement to handle the singular
+perturbation.
+
+\subsubsection*{Rebuttals to specific points}
+
+\begin{enumerate}
+\item Throughout the manuscript, acronyms have been defined before use.
+
+\item Throughout the manuscript, the identified typos have been fixed.  The
+      appendices have been removed to reduce the length of the manuscript.
+
+\item The comparison with other numerical methods has been moved to its own 
+      section titled "Theoretical Comparisons with Related Numerical
+      Techniques".  All other sections and references have been renumbered.
+
+\item The suggested references have been added.
+
+\item The last section has been renamed "Conclusions" as suggested.
+      Discussion of future directions for research has been added to the 
+      conclusions section.
+   
+\item The entire manuscript has been rechecked again for missed mistakes and
+      reorganized to improve clarity and reduce length of manuscript.
+
+\end{enumerate}
+
+
+\subsection*{Reviewer \#3}
+
+\subsubsection*{General rebuttal}
+
+I agree that the OTS-NIDC concept contains elements that are very old ideas. 
+However, I have personally only seen the method used as a 'trick' in special
+cases.  I have not seen a unified presentation that discusses its utility as
+a general approach to boosting the order of accuracy of finite difference
+schemes without requiring derivation and use of formally high-order
+discretizations, etc.  This perspective could certainly be a result not having
+seen \emph{all} of the extensive literature on numerical methods.  That said,
+the approach I present does not appear to be employed as often as I believe it
+could be.  Perhaps the ideas, while old, could use a refresher in the
+collective consciousness of computational mathematicians and scientists.
+
+I also agree that there is additional analytical and coding work
+that needs to be done in order to use OTS-NIDC.  However, the extra work and
+coding complication is not as onerous as it may seem at first glance.  For
+example, in the process of implementing the original numerical scheme, it is
+likely that several of the required differential operators have already been 
+implemented (hopefully even coded as functions to make them easy to reuse).  
+Also, almost any time one wants to improve the accuracy or computational
+performance of a numerical scheme (e.g.  modified equation method, formally
+higher-order discretizations, implicit time integration), additional work is
+likely to be required.
+
+On the issue of cost overhead, there is certainly a cost overhead with adding 
+correction terms.  However, the boost in the order of accuracy results in an
+overall savings in computational effort for a given desired level of accuracy.
+Throughout the manuscript, I have attempted to emphasize this point by plotting
+computational performance as a function of numerical error (instead of as a
+function of the number of grid points).
+
+On the comment that the results shown in Figure 4c (previously Figure 6)
+indicate that the cost overhead of the defect correction terms make the method 
+quite demanding, I have to disagree.  The actual reason for the poor
+performance of OTS-NIDC scheme relative to the Crank-Nicholson schemes for the
+fourth-order parabolic equation is \emph{not} the cost of the correction term. 
+While the computational cost correction terms certainly widens the gap, 
+the correction terms themselves ($f_xxxx$ and $f_t$) are not that complicated or
+costly to compute.  Rather, it is the extreme smallness of the prefactor of
+the optimal time step which is 7/120 combined with the low cost of inverting
+the bilaplacian in 1D.  The small prefactor on the time step also afflicts the
+non-OTS-NIDC forward Euler scheme which is constrained to have a time step 
+smaller than $3 (\Delta x)^4 / 40 \kappa$.  This point is discussed in second
+to last paragraph of Section 4.5 (previously Section 3.5).
+
+When analyzing the performance of the various schemes for the fourth-order
+parabolic equation, it is worth noting that it is important to take the
+accuracy results into consideration.  As Figure 4b and 4c (previously Figures
+5 and 6) illustrate, the Crank-Nicholson schemes suffer from a limitation in
+the achievable accuracy as a result of round-off errors introduced by matrix
+inversion.  The forward Euler schemes (including OTS-NIDC) do not suffer from
+this problem.
+
+On the point of applicability to systems of nonlinear PDEs, I am currently 
+working on applying the method to systems of PDEs and the Navier-Stokes
+equations.  I have completed work on the former and can confidently report that
+with one additional simple idea, OTS-NIDC works for systems of PDEs.  My work
+on the latter looks promising, but I have not fully completed the analysis or
+the coding required to demonstrated the theoretical performance estimates.
+
+\subsubsection*{Rebuttals to specific points}
+
+\begin{enumerate}
+
+\item I have added measured performance results for the 1D viscous Burgers
+      equation and the 2D diffusion equation on an irregular domain.  The 
+      measured performance results now include: 1D viscous Burgers equation,
+      1D fourth-order parabolic equation, 2D diffusion equation on a regular 
+      domain, and 2D diffusion equation on an irregular domain.  I did not 
+      include performance results for the 1D second-order wave equation because
+      that simulation ran so fast that the timing results contained too much 
+      noise.
+
+      I agree there are many alternative methods besides OTS-NIDC for boosting
+      the order of accuracy of linear problems.  My manuscript does not claim
+      to be better than those other methods.  It just presents an alternative
+      method that has its own set of advantages and disadvantages (just like
+      all other numerical methods and techniques).
+
+      Regarding doubt about the performance results presented in Figure 6 
+      (previous Figure 8).  The results are accurate.  While it is true that
+      the computation time as a function of the number of grid points is 
+      higher for OTS-NIDC schemes, the computation time as a function of the
+      numerical erorr is lower for OTS-NIDC schemes.
+    
+      I have made the the MATLAB source code (and pre-generated data) for all of
+      the plots in the manuscripts available on the web at
+
+\begin{verbatim}
+http://ktchu.serendipityresearch.org/download/research/applied_math/OTS-NIDC/
+\end{verbatim}
+
+      I will leave the source code in this location (or provide a redirect if it
+      moved) until the review of the manuscript is complete.  I encourage the
+      reviewers to look through and point out any errors that I may have
+      accidentally overlooked.  I have made an effort to make the code readable
+      but apologize in advance if the implementation is not completely
+      transparent.
+    
+      For what it's worth, I am of the opinion of the opinion that source code
+      for numerical mathematics and computational science results be part of the
+      manuscript review process (and even publication).  Unfortunately, this is
+      not currently a standard part of the review process.
+
+\item I have added the requested result to the manuscript. The results show
+      that for a desired accuracy level, OTS-NIDC does indeed outperform a
+      conventional forward Euler schemea even with the additional cost of the
+      defect correction terms.
+
+\item Noted and reworded to acknowledge that there has been other work in the
+      area of optimal numerical parameter selection in recent years.  If there
+      are specific examples that Reviewer \#3 feels should be referenced, I
+      would be happy to include them.
+
+\item Fourth-order accuracy of the result in Figure 8 (previously Figure 11)
+      results from the use of fourth-order accurate ghost cell values when
+      imposing boundary conditions.  The details of how the ghost cell values
+      are calculated is discussed in Section 5.3.1 (previously Section 4.3.1).
+
+\end{enumerate}
+
+\subsection*{Reviewer \#4}
+
+\subsubsection*{Rebuttals to specific points}
+
+\begin{enumerate}
+
+\item I have reworked the entire manuscript to emphasize that both optimal time
+      step selection \emph{and} non-iterative defect correction are required to 
+      boost the order of accuracy.  
+
+      I have added comments in the abstract and the third paragraph of the
+      introduction to clarify the class of PDEs that OTS-NIDC is applicable to.
+    
+      One point that I would like to emphasize is that, unlike traditional
+      defect correction and modified equation methods, the defect correction
+      method is non-iterative and easy to incorporate into the software
+      implementation.  As far as I can tell, the non-iterative approach is
+      somewhat novel or less common.
+
+\item I have changed the comments applicability to GPU computing to be a 
+      potential area of future research rather than presenting it as a
+      conclusion drawn from existing work.
+    
+\item I have streamlined the entire manuscript to remove unnecessary detail,
+      remove overly pedantic discussion and consolidate figures to reduce the
+      length of the manuscript.  The new manuscript is about 4 pages shorter
+      than the original manuscript but should still contain the same message
+      as before.
+
+\end{enumerate}
+
+\end{document}
