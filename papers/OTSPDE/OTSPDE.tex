@@ -71,10 +71,12 @@ FD Schemes}
 \begin{abstract}
 In this article, we present a unified analysis of the simple technique for
 boosting the order of accuracy of finite difference schemes for time dependent
-partial differential equations by optimally selecting the time step used to
-advance the numerical solution and adding defect correction terms in a
+partial differential equations (PDEs) by optimally selecting the time step
+used to advance the numerical solution and adding defect correction terms in a
 non-iterative manner.
-The power of the technique is its ability to increase the accuracy of formally
+The power of the technique, which is applicable to time dependent, semilinear,
+scalar PDEs where the leading-order spatial derivative has a constant
+coefficient, is its ability to increase the accuracy of formally
 low-order finite difference schemes without major modification to the basic 
 numerical algorithm.  Through straightforward numerical analysis arguments, we
 explain the origin of the boost in accuracy and estimate the computational cost
@@ -124,12 +126,14 @@ approximation for the Laplacian.
 In this article, we present a unified analysis of the simple technique for
 boosting the \emph{order} of accuracy of finite difference schemes for time
 dependent PDEs by optimally choosing the time step and, when necessary, adding
-defect correction terms in a \emph{non-iterative} manner.  This technique is a
-systematic generalization of the ideas underlying the previously mentioned
-examples and specific examples that are scattered throughout the literature.
+defect correction terms in a \emph{non-iterative} manner.  This technique,
+which is applicable when the leading-order spatial derivative in a semilinear,
+scalar PDE has a constant coefficient, is a systematic generalization of the
+ideas underlying the previously mentioned examples and specific examples that
+are scattered throughout the literature.
 Optimal time step (OTS) selection is based on the observation that a carefully
 chosen time step can \emph{simultaneously} eliminate low-order terms in both
-the spatial and temporal the discretization errors.  At its essence, OTS
+the spatial and temporal discretization errors.  At its essence, OTS
 selection combines the powerful idea of optimally choosing numerical parameters
 with the approach of using knowledge of the structure of the PDE to reduce
 numerical error.  The end result is a strategy for boosting the order of
@@ -486,7 +490,7 @@ finite difference scheme based on forward Euler time integration and a
 discretization of the Laplacian with an isotropic leading-order truncation 
 error (see Section~\ref{sec:diffusion_eqn_2d}), the optimal time step becomes 
 unstable when the dimension of space is greater than 3.  To make OTS-NIDC 
-useful for diffusion problems in 4 and more space dimensions, we can switch 
+useful for diffusion problems in four and more space dimensions, we can switch 
 to the DuFort-Frankel scheme, which is explicit and unconditionally 
 stable \cite{gko_book}.
 
@@ -1315,17 +1319,20 @@ In Figure~\ref{fig:4th_order_parabolic_eqn_1d_perf}, observe that the
 the high (but still practically useful) range of errors even though 
 Table~\ref{tab:comp_perf_vs_err_4th_order_parabolic} predicts that the OTS-NIDC
 scheme should do better asymptotically.  The origin of this discrepancy is the
-constant hidden by the big-$O$ notation.  In particular, the factor of $7/120$
+constants hidden by the big-$O$ notation.  In particular, the factor of $7/120$
 in the optimal time step for the forward Euler scheme with a fourth-order 
 approximation of the bilaplacian leads to a large hidden constant 
-for the compute time. 
-However, as Figures~\ref{fig:4th_order_parabolic_eqn_1d_perf} and
-\ref{fig:4th_order_parabolic_eqn_1d_error_roundoff} show, there is an important 
-limitation of the 2nd-order Crank-Nicholson scheme even if we ignore the 
-cross-over which will occur at sufficiently small values of the error -- 
-round-off error associated with matrix inversion limits the accuracy that is 
-achievable by the scheme.  This limitation also exists for the 4th-order 
-Crank-Nicholson scheme. 
+for the compute time for the OTS-NIDC scheme, and the low cost of inverting
+the banded-diagonal biaplacian matrix in 1D leads to a relatively small hidden
+constant in the Crank-Nicholson schemes.
+
+As Figures~\ref{fig:4th_order_parabolic_eqn_1d_perf} and
+\ref{fig:4th_order_parabolic_eqn_1d_error_roundoff} show, there is an
+important advantage to explicit time integration schemes for the fourth-order
+parabolic equation -- round-off error associated with matrix inversion does 
+\emph{not} limit the achievable accuracy of the numerical solution.  In 
+constrast, errors introduced in matrix inversion affects both the 2nd- and
+4th-order Crank-Nicholson schemes. 
 
 Comparing the computational cost of the best forward Euler and Crank-Nicholson 
 schemes, we see that the OTS-NIDC forward Euler scheme more efficiently 
