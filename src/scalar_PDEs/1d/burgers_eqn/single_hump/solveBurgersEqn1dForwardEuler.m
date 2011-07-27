@@ -59,8 +59,8 @@
 % - u_exact:             analytical solution
 % - x:                   grid points
 % - timing_data:         array of the following form containing timing data
-%                        [total solution time.  If timing is not activated,
-%                        timing_data is set to be an array of -1's.
+%                        [total solution time].  If timing is not activated,
+%                        timing_data is set to [-1].
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

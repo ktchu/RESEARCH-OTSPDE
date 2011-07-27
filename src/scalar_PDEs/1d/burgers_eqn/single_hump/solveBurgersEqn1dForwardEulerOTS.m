@@ -59,9 +59,8 @@
 % - u_exact:             analytical solution
 % - x:                   grid points
 % - timing_data:         array of the following form containing timing data
-%                        [total solution time, time to compute correction term].
-%                        If timing is not activated, timing_data is
-%                        set to [-1, -1].
+%                        [total solution time].  If timing is not activated,
+%                        timing_data is [-1].
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -163,17 +162,9 @@ while (t < t_final)
     dt = t_final - t; 
   end
 
-  % compute correction term
-  if (timing_on == 1)
-    t_start_correction_term = cputime;
-  end
-  corr_term = - 0.5*dt^2*( 4*nu*(G*u).*(L*u) - 2*u.*(G*u).^2 - (u.^2).*(L*u) ); 
-  if (timing_on == 1)
-    t_corr_term = t_corr_term + cputime - t_start_correction_term; 
-  end
-
   % update solution
-  u = u + dt*(nu*(L*u) - u.*(G*u)) + corr_term;
+  u = u + dt*(nu*(L*u) - u.*(G*u)) ...
+    - 0.5*dt^2*( 4*nu*(G*u).*(L*u) - 2*u.*(G*u).^2 - (u.^2).*(L*u) ); 
 
   % update time
   t = t + dt;
@@ -199,7 +190,7 @@ u_exact = U +  sqrt(nu/T)*gamma*exp(-(x-U*T).^2/(4*nu*T)) ...
 
 % set timing data
 if (timing_on == 1)
-  timing_data = [t_solve, t_corr_term];
+  timing_data = [t_solve];
 else
-  timing_data = [-1, -1];
+  timing_data = [-1];
 end
