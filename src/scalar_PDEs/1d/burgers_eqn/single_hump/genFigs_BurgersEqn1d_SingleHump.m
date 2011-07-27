@@ -61,9 +61,9 @@ err_FE_OTS = zeros(size(grid_sizes));
 err_FE     = zeros(size(grid_sizes));
 
 % allocate memory for computation times
-comp_time_FE_OTS           = zeros(size(grid_sizes));
-comp_time_FE_OTS_corr_term = zeros(size(grid_sizes));
-comp_time_FE               = zeros(size(grid_sizes));
+comp_time_FE_OTS      = zeros(size(grid_sizes));
+corr_term_time_FE_OTS = zeros(size(grid_sizes));
+comp_time_FE          = zeros(size(grid_sizes));
 
 % start clock for timing plot generation time
 tic;
@@ -137,7 +137,7 @@ for i = 1:length(grid_sizes)
 
 % collect timing data
   comp_time_FE_OTS(i) = timing_data_FE_OTS(1);
-  comp_time_FE_OTS_corr_term(i) = timing_data_FE_OTS(2);
+  corr_term_time_FE_OTS(i) = timing_data_FE_OTS(2);
   comp_time_FE(i) = timing_data_FE(1);
 
 end % end loop over grid sizes
