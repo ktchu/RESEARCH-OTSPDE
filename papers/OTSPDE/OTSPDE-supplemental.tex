@@ -1,0 +1,151 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% First completed draft: 2011/09/01, Serendipity Research
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[fleqn,12pt,twoside]{article}
+\usepackage[headings]{espcrc1}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\PassOptionsToPackage{ctagsplt,righttag}{amsmath}
+\usepackage{multirow}
+
+
+%******* MACROS *******
+
+% MATH MACROS
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\bea}{\begin{eqnarray}}
+\newcommand{\eea}{\end{eqnarray}}
+
+\def\pt{\partial t}
+\def\px{\partial x}
+\def\py{\partial y}
+
+% NUMERICS MACROS
+\def\tu{\tilde{u}}
+\def\he{\hat{e}}
+\def\dt{\Delta t}
+\def\dx{\Delta x}
+\def\dy{\Delta y}
+\def\dto{\dt_{opt}}
+
+% MISC MACROS
+\def\eg{\emph{e.g. }}
+\def\ie{\emph{i.e. }}
+\def\etal{\emph{et al.}}
+
+
+%******************************SIZE DECLARATIONS********************************
+\topmargin -0.7in
+
+
+%*******************************DOCUMENT BEGIN**********************************
+
+\begin{document}
+\bibliographystyle{unsrt}
+
+\title{Boosting the Accuracy of Finite Difference Schemes via Optimal Time
+Step Selection and Non-Iterative Defect Correction \\
+(Supplemental Material)}
+
+\author{Kevin T. Chu\address{Serendipity Research, Mountain View, CA 94041, United States}
+}
+
+\maketitle
+
+\noindent \rule{6.3in}{1pt}
+
+\appendix
+\section{Formal vs. Practical Accuracy
+         \label{app:formal_vs_practical_accuracy} }
+For time dependent PDEs, evaluating the order of accuracy for a numerical
+method is subtle because there are formally two separate orders of accuracy 
+to consider:  temporal and spatial.  While it is theoretically
+interesting and important to understand how the error depends on both the 
+grid spacing $\dx$ and the time step $\dt$, in practice, the accuracy 
+of a numerical scheme is always controlled by only one of the two numerical
+parameters.  
+
+Even though spatial and temporal orders of accuracy for a numerical method
+are formally separate, one will always dominate for a given choice of 
+$\dx$ and $\dt$.  For example, when solving the diffusion equation 
+using the backward Euler method for time integration with a second-order 
+central difference stencil for the Laplacian, formal analysis shows that 
+the global error is $O(\dx^2) + O(\dt)$.  Since there are no 
+stability constraints on the numerical parameters, the time
+step and grid spacing are free to vary independently.  In this situation, the 
+practical error for the method depends on the relative sizes of the time step 
+and grid spacing.  When $\dt \gg \dx^2$, the practical error is 
+$O(\dt)$ which means that the error in the numerical solution is 
+primarily controlled by the time step.  Similarly, when 
+$\dt \ll \dx^2$, the practical error is $O(\dx^2)$ so that 
+the error is controlled by the grid spacing.  Finally, when 
+$\dt  = O(\dx^2)$, the practical error is 
+$O(\dt) = O(\dx^2)$.  In all cases, the practical error is 
+primarily controlled by one of the two numerical parameters, and varying
+the subdominant parameter while holding the dominant parameter fixed does 
+not significantly affect the error.
+ 
+When there are constraints on the numerical parameters, there is less freedom 
+in choosing the controlling parameter.  For instance, if we solve the 
+diffusion equation using a forward Euler time integration scheme with a 
+second-order central difference stencil for the Laplacian, stability
+considerations require that we choose $\dt = O(\dx^2)$.  
+Combining this stability constraint with the formal error for the scheme
+shows that the practical error is 
+$O(\dx^2) + O(\dt) = O(\dx^2)$.  Therefore, the accuracy of the 
+method is completely controlled by the grid spacing; the temporal error can 
+never dominate the spatial error.
+
+
+\section{Importance of High-Accuracy for First Time Step for the KPY Scheme
+         \label{appendix:KPY_analysis} }
+The need for higher-order accuracy when taking the first time step of the KPY 
+scheme for the second-order wave equation can be understood by solving the 
+difference equation 
+\bea
+  \he^{n+1} - 2 \he^{n} + \he^{n-1} = \dt^2 \lambda \he^{n}
+  \label{eq:error_eqn_normal_mode},
+\eea
+for the normal modes of the error, where $\he$ is the coefficient of an 
+arbitrary normal mode of the spatial operator for the error 
+$e \equiv u - \tu$.  Using standard methods for solving linear difference
+equations~\cite{carrier_pearson_book} yields the solution
+\bea
+  \he^n = \he^1 \frac{\kappa_+^n - \kappa_-^n}{\kappa_+ - \kappa_-}
+        + \he^0 \kappa_+ \kappa_-
+          \frac{\kappa_+^{n-1} - \kappa_-^{n-1}}{\kappa_+ - \kappa_-},
+  \label{eq:error_eqn_normal_mode_soln}
+\eea
+where $\kappa_\pm$ are the roots of the characteristic equation for
+(\ref{eq:error_eqn_normal_mode})~\cite{kreiss2002}
+\beq
+  \kappa_\pm = 1 + \frac{1}{2} \lambda \dt^2
+             \pm \dt \sqrt{\lambda + \frac{\lambda^2 \dt^2}{4}}.
+\eeq
+Notice that the denominator of both terms in
+(\ref{eq:error_eqn_normal_mode_soln}) is $O(\dt)$, which implies that the
+error in the initial conditions is degraded by one temporal order of accuracy
+by the KPY scheme.  Therefore, KPY without OTS-DC requires the first time 
+step must be at least third-order accurate; KPY with OTS-DC requires the 
+first time step must be at least fifth-order accurate.
+
+
+%*********************************BIBLIOGRAPHY**********************************
+
+\begin{thebibliography}{10}
+
+\bibitem{carrier_pearson_book}
+G.~F. Carrier and C.~E. Pearson.
+\newblock {\em Ordinary Differential Equations}.
+\newblock Society for Industrial and Applied Mathematics, Philadelphia, 1991.
+
+\bibitem{kreiss2002}
+H.-O. Kreiss, N.~A. Petersson, and J.~Ystr\"om.
+\newblock {D}ifference {A}pproximations for the {S}econd {O}rder {W}ave
+  {E}quation.
+\newblock {\em SIAM. J. Numer. Anal}, 40:1940--1967, 2002.
+
+\end{thebibliography}
+\end{document}

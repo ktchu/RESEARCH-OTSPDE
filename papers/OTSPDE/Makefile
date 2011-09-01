@@ -4,14 +4,19 @@ TEX = latex
 PDFLATEX = pdflatex
 BIBTEX = bibtex
 
-all: 	OTSPDE.pdf
+all: 	OTSPDE.pdf OTSPDE-supplemental.pdf
 	$(RM) *.aux *.log
 
 OTSPDE.pdf: OTSPDE.tex
-	$(PDFLATEX) OTSPDE.tex
+	$(PDFLATEX) $^
 	#$(BIBTEX) OTSPDE.aux
-	$(PDFLATEX) OTSPDE.tex
-	$(PDFLATEX) OTSPDE.tex
+	$(PDFLATEX) $^
+	$(PDFLATEX) $^
+
+OTSPDE-supplemental.pdf: OTSPDE-supplemental.tex
+	$(PDFLATEX) $^
+	$(PDFLATEX) $^
+	$(PDFLATEX) $^
 
 clean:
 	$(RM) *.dvi *.aux *.log *.ps *.pdf *.bbl *.blg
