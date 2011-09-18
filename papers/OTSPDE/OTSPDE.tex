@@ -1,4 +1,4 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Manuscript started: 2007/09/01
 % First completed draft: 2008/05/12, Vitamin D, Inc.
 % Submission draft: 2008/06/08, Vitamin D, Inc.
@@ -7,7 +7,8 @@
 % Resubmission draft: 2010/03/25, Serendipity Research
 % Resubmission draft: 2010/05/21, Serendipity Research
 % Resubmission draft: 2011/07/30, Serendipity Research
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Minor revisions to accepted manuscript: 2011/09/17, Serendipity Research
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %\documentclass[fleqn,12pt,twoside,draft]{article}
 \documentclass[fleqn,12pt,twoside]{article}
@@ -169,7 +170,7 @@ very simple, formally low-order finite difference schemes \emph{without}
 requiring special algorithmic steps.  In other words, OTS-NIDC allows us to
 extract as much accuracy as possible from simple numerical schemes with
 minimal additional work.  For instance, we will see how OTS-NIDC makes it
-possible to achieve 4th-order accuracy for the diffusion equation in any
+possible to achieve fourth-order accuracy for the diffusion equation in any
 number of space dimensions using only a second-order stencil for the Laplacian
 and explicit time integration.  Moreover, high-order accuracy is not
 restricted to problems on simple, rectangular domains; irregular domains are
@@ -1271,31 +1272,31 @@ error.
     & \multirow{2}{*}{$O\left( e^{2} \right)$}
     & \multirow{2}{*}{$O\left( e^{-1/2} \right)$} 
     & \multirow{2}{*}{$O\left( e^{-5/2} \right)$} \\
-  \ \ 2nd-Order Bilaplacian & & & & \\
+  \ \ second-order Bilaplacian & & & & \\
   Forward Euler with 
     & \multirow{2}{*}{$O\left( e^{1/4} \right)$}
     & \multirow{2}{*}{$O\left( e \right)$}
     & \multirow{2}{*}{$O\left( e^{-1/4} \right)$} 
     & \multirow{2}{*}{$O\left( e^{-{5/4}} \right)$} \\
-  \ \ 4th-Order Bilaplacian & & & & \\
+  \ \ fourth-order Bilaplacian & & & & \\
   Forward Euler with 
     & \multirow{2}{*}{$O\left( e^{1/6} \right)$} 
     & \multirow{2}{*}{$O\left( e^{2/3} \right)$} 
     & \multirow{2}{*}{$O\left( e^{-1/6} \right)$} 
     & \multirow{2}{*}{$O\left( e^{-5/6} \right)$} \\ 
-  \ \ 4th-Order Bilaplacian and OTS-NIDC & & & & \\
+  \ \ fourth-order Bilaplacian and OTS-NIDC & & & & \\
   Crank-Nicholson with 
     & \multirow{2}{*}{$O\left( e^{1/2} \right)$} 
     & \multirow{2}{*}{$O\left( e^{1/2} \right)$} 
     & \multirow{2}{*}{$O\left( e^{-1/2} \right)$} 
     & \multirow{2}{*}{$O\left( e^{-1} \right)$} \\
-  \ \ 2nd-Order Bilaplacian & & & & \\
+  \ \ second-order Bilaplacian & & & & \\
   Crank-Nicholson with 
     & \multirow{2}{*}{$O\left( e^{1/4} \right)$} 
     & \multirow{2}{*}{$O\left( e^{1/2} \right)$} 
     & \multirow{2}{*}{$O\left( e^{-1/4} \right)$} 
     & \multirow{2}{*}{$O\left( e^{-3/4} \right)$} \\
-  \ \ 4th-Order Bilaplacian & & & & \\
+  \ \ fourth-order Bilaplacian & & & & \\
   \hline
 \end{tabular}
 \end{table}
@@ -1315,8 +1316,8 @@ computational work per time step is not dominated by the
 $O(1/\dx)$ update calculations until $\dx$ gets very small.
 
 In Figure~\ref{fig:4th_order_parabolic_eqn_1d_perf}, observe that the 
-2nd-order Crank-Nicholson scheme actually outperforms the OTS-NIDC scheme over 
-the high (but still practically useful) range of errors even though 
+second-order Crank-Nicholson scheme actually outperforms the OTS-NIDC scheme
+over the high (but still practically useful) range of errors even though 
 Table~\ref{tab:comp_perf_vs_err_4th_order_parabolic} predicts that the OTS-NIDC
 scheme should do better asymptotically.  The origin of this discrepancy is the
 constants hidden by the big-$O$ notation.  In particular, the factor of $7/120$
@@ -1331,8 +1332,8 @@ As Figures~\ref{fig:4th_order_parabolic_eqn_1d_perf} and
 important advantage to explicit time integration schemes for the fourth-order
 parabolic equation -- round-off error associated with matrix inversion does 
 \emph{not} limit the achievable accuracy of the numerical solution.  In 
-contrast, errors introduced in matrix inversion affects both the 2nd- and
-4th-order Crank-Nicholson schemes. 
+contrast, errors introduced in matrix inversion affects both the second- and
+fourth-order Crank-Nicholson schemes. 
 
 Comparing the computational cost of the best forward Euler and Crank-Nicholson 
 schemes, we see that the OTS-NIDC forward Euler scheme more efficiently 
@@ -1913,7 +1914,7 @@ derivatives.
 \section*{Acknowledgments}
 The author gratefully acknowledges the support of Vitamin D, Inc.
 and the Institute for High-Performance Computing (IHPC) in Singapore. 
-The would like to thank P. Fok and J. Lambers for many enlightening 
+He would like to thank P. Fok and J. Lambers for many enlightening 
 discussions and P. Fok, M. Prodanovi\'c, A. Chiu and the manuscript's
 anonymous reviewers for helpful suggestions on the manuscript.  
 
