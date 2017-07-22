@@ -1,0 +1,21 @@
+# Auto-generated LaTEX files
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.dvi
+*.log
+*.pdf
+*.xml
+*-blx.bib
+
+# Large image formats
+*.eps
+
+# Figure directories in src directory
+src/**/figures
+notes/figures
+
+# Non-managed project sub-directories
+references
+tmp
